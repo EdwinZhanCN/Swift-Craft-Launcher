@@ -179,6 +179,8 @@ struct ResourceToolbarItems: View {
                             detailState.gameResourcesType == ResourceType.minecraftJavaServer.rawValue,
                         )
                         .id(controlActiveState)
+                    ResourceFilterMenus.favoritesFilterButton(filterState: filterState)
+                        .id(controlActiveState)
                 }
             }
         }

@@ -24,6 +24,8 @@ struct GameToolbarItems: View {
         if detailState.gameType {
             ResourceFilterMenus.dataSourceMenu(filterState: filterState)
                 .id(controlActiveState)
+            ResourceFilterMenus.favoritesFilterButton(filterState: filterState)
+                .id(controlActiveState)
         } else {
             ResourceFilterMenus.localResourceFilterMenu(filterState: filterState)
                 .id(controlActiveState)
