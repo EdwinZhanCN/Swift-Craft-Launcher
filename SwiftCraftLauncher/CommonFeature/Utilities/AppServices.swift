@@ -8,75 +8,9 @@
 import Foundation
 import MinecraftFriendsKit
 
-/// A global dependency container that manages shared service instances.
+/// A global namespace that owns and exposes all shared service instances.
 enum AppServices {
-    struct Dependencies {
-        var errorHandler: GlobalErrorHandler?
-
-        var appCacheManager: AppCacheManager?
-        var cacheCalculator: CacheCalculator?
-        var cacheInfoManager: CacheInfoManager?
-
-        var modScanner: ModScanner?
-        var modCacheManager: ModCacheManager?
-        var modDirectoryWatcherRegistry: ModDirectoryWatcherRegistry?
-        var modInstallationCache: ModScanner.ModInstallationCache?
-        var directoryHashCache: ModScanner.DirectoryHashCache?
-
-        var windowManager: WindowManager?
-        var windowDataStore: WindowDataStore?
-        var iconRefreshNotifier: IconRefreshNotifier?
-        var gameDialogsPresenter: GameDialogsPresenter?
-        var authlibInjectorMissingPresenter: AuthlibInjectorMissingPresenter?
-        var openURLModPackImportPresenter: OpenURLModPackImportPresenter?
-
-        var gameProcessManager: GameProcessManager?
-        var gameStatusManager: GameStatusManager?
-        var gameLogCollector: GameLogCollector?
-        var gameActionManager: GameActionManager?
-
-        var announcementStateManager: AnnouncementStateManager?
-        var generalSettingsManager: GeneralSettingsManager?
-        var gameSettingsManager: GameSettingsManager?
-        var playerSettingsManager: PlayerSettingsManager?
-        var playerDataManager: PlayerDataManager?
-        var selectedGameManager: SelectedGameManager?
-        var themeManager: ThemeManager?
-        var languageManager: LanguageManager?
-
-        var minecraftFriendsPresencePollingCoordinator: MinecraftFriendsPresencePollingCoordinator?
-
-        var gitHubService: GitHubService?
-        var minecraftAuthService: MinecraftAuthService?
-        var yggdrasilAuthService: YggdrasilAuthService?
-        var ipLocationService: IPLocationService?
-
-        var javaManager: JavaManager?
-        var javaRuntimeService: JavaRuntimeService?
-        var javaDownloadManager: JavaDownloadManager?
-
-        var aiSettingsManager: AISettingsManager?
-        var aiChatManager: AIChatManager?
-        var sparkleUpdateService: SparkleUpdateService?
-
-        var serverAddressService: ServerAddressService?
-        var litematicaService: LitematicaService?
-        var premiumAccountFlagManager: PremiumAccountFlagManager?
-        var minecraftFriendsService: MinecraftFriendsService?
-    }
-
-    private static let lock = NSRecursiveLock()
-    private static var dependencies = Dependencies()
-    private static var frozen = false
-
-    private static let defaultMinecraftFriendsService = MinecraftFriendsService()
-
-    static var isFrozen: Bool {
-        lock.withLock { frozen }
-    }
-
-    /// Returns a MainActor-isolated shared instance, avoiding lock-related thread switches.
-    private static func sharedOnMainActor<T>(_ factory: @MainActor () -> T) -> T {
+    private static func mainActorSingleton<T>(_ factory: @MainActor () -> T) -> T {
         if Thread.isMainThread {
             return MainActor.assumeIsolated(factory)
         }
@@ -85,183 +19,60 @@ enum AppServices {
         }
     }
 
-    /// Configures dependencies during app startup or testing.
-    static func configure(_ updates: (inout Dependencies) -> Void) {
-        lock.withLock {
-            precondition(!frozen, "AppServices has been frozen and can no longer be reconfigured.")
-            updates(&dependencies)
-        }
+    nonisolated(unsafe) static let errorHandler = GlobalErrorHandler()
+
+    nonisolated(unsafe) static let appCacheManager = AppCacheManager()
+    nonisolated(unsafe) static let cacheCalculator = CacheCalculator()
+    nonisolated(unsafe) static let cacheInfoManager = CacheInfoManager()
+
+    nonisolated(unsafe) static let modScanner = ModScanner()
+    nonisolated(unsafe) static let modCacheManager = ModCacheManager()
+    nonisolated(unsafe) static let modDirectoryWatcherRegistry = ModDirectoryWatcherRegistry()
+    nonisolated(unsafe) static let modInstallationCache = ModScanner.ModInstallationCache()
+    nonisolated(unsafe) static let directoryHashCache = ModScanner.DirectoryHashCache()
+
+    nonisolated(unsafe) static let windowManager = mainActorSingleton { WindowManager() }
+    nonisolated(unsafe) static let windowDataStore = mainActorSingleton { WindowDataStore() }
+    nonisolated(unsafe) static let iconRefreshNotifier = IconRefreshNotifier()
+    nonisolated(unsafe) static let gameDialogsPresenter = mainActorSingleton { GameDialogsPresenter() }
+    nonisolated(unsafe) static let authlibInjectorMissingPresenter = mainActorSingleton { AuthlibInjectorMissingPresenter() }
+    nonisolated(unsafe) static let openURLModPackImportPresenter = mainActorSingleton { OpenURLModPackImportPresenter() }
+
+    nonisolated(unsafe) static let gameProcessManager = GameProcessManager()
+    nonisolated(unsafe) static let gameStatusManager = GameStatusManager()
+    nonisolated(unsafe) static let gameLogCollector = mainActorSingleton { GameLogCollector() }
+    nonisolated(unsafe) static let gameActionManager = mainActorSingleton { GameActionManager() }
+
+    nonisolated(unsafe) static let announcementStateManager = mainActorSingleton { AnnouncementStateManager() }
+    nonisolated(unsafe) static let generalSettingsManager = GeneralSettingsManager()
+    nonisolated(unsafe) static let gameSettingsManager = GameSettingsManager()
+    nonisolated(unsafe) static let playerSettingsManager = PlayerSettingsManager()
+    nonisolated(unsafe) static let playerDataManager = PlayerDataManager()
+    nonisolated(unsafe) static let selectedGameManager = SelectedGameManager()
+    nonisolated(unsafe) static let themeManager = mainActorSingleton { ThemeManager() }
+    nonisolated(unsafe) static let languageManager = LanguageManager()
+
+    nonisolated(unsafe) static let minecraftFriendsPresencePollingCoordinator = mainActorSingleton {
+        MinecraftFriendsPresencePollingCoordinator()
     }
 
-    /// Freezes dependencies to prevent concurrent hot-swapping after launch.
-    static func freeze() {
-        lock.withLock {
-            frozen = true
-        }
-    }
+    nonisolated(unsafe) static let gitHubService = mainActorSingleton { GitHubService() }
+    nonisolated(unsafe) static let minecraftAuthService = MinecraftAuthService()
+    nonisolated(unsafe) static let yggdrasilAuthService = YggdrasilAuthService()
+    nonisolated(unsafe) static let ipLocationService = mainActorSingleton { IPLocationService() }
 
-    static var errorHandler: GlobalErrorHandler { lock.withLock { dependencies.errorHandler ?? .shared } }
+    nonisolated(unsafe) static let javaManager = JavaManager()
+    nonisolated(unsafe) static let javaRuntimeService = JavaRuntimeService()
+    nonisolated(unsafe) static let javaRuntimeDownloader = JavaRuntimeDownloader()
+    nonisolated(unsafe) static let javaDownloadManager = mainActorSingleton { JavaDownloadManager() }
 
-    static var appCacheManager: AppCacheManager { lock.withLock { dependencies.appCacheManager ?? .shared } }
-    static var cacheCalculator: CacheCalculator { lock.withLock { dependencies.cacheCalculator ?? .shared } }
-    static var cacheInfoManager: CacheInfoManager {
-        if let injected = lock.withLock({ dependencies.cacheInfoManager }) {
-            return injected
-        }
-        return sharedOnMainActor { CacheInfoManager.shared }
-    }
+    nonisolated(unsafe) static let aiSettingsManager = AISettingsManager()
+    nonisolated(unsafe) static let aiChatManager = mainActorSingleton { AIChatManager() }
+    nonisolated(unsafe) static let sparkleUpdateService = SparkleUpdateService()
 
-    static var modScanner: ModScanner { lock.withLock { dependencies.modScanner ?? .shared } }
-    static var modCacheManager: ModCacheManager { lock.withLock { dependencies.modCacheManager ?? .shared } }
-    static var modDirectoryWatcherRegistry: ModDirectoryWatcherRegistry { lock.withLock { dependencies.modDirectoryWatcherRegistry ?? .shared } }
-    static var modInstallationCache: ModScanner.ModInstallationCache { lock.withLock { dependencies.modInstallationCache ?? .shared } }
-    static var directoryHashCache: ModScanner.DirectoryHashCache { lock.withLock { dependencies.directoryHashCache ?? .shared } }
+    nonisolated(unsafe) static let serverAddressService = mainActorSingleton { ServerAddressService() }
+    nonisolated(unsafe) static let litematicaService = mainActorSingleton { LitematicaService() }
+    nonisolated(unsafe) static let premiumAccountFlagManager = mainActorSingleton { PremiumAccountFlagManager() }
 
-    static var windowManager: WindowManager {
-        if let injected = lock.withLock({ dependencies.windowManager }) {
-            return injected
-        }
-        return sharedOnMainActor { WindowManager.shared }
-    }
-
-    static var windowDataStore: WindowDataStore {
-        if let injected = lock.withLock({ dependencies.windowDataStore }) {
-            return injected
-        }
-        return sharedOnMainActor { WindowDataStore.shared }
-    }
-
-    static var iconRefreshNotifier: IconRefreshNotifier { lock.withLock { dependencies.iconRefreshNotifier ?? .shared } }
-    static var gameDialogsPresenter: GameDialogsPresenter {
-        if let injected = lock.withLock({ dependencies.gameDialogsPresenter }) {
-            return injected
-        }
-        return sharedOnMainActor { GameDialogsPresenter.shared }
-    }
-
-    static var authlibInjectorMissingPresenter: AuthlibInjectorMissingPresenter {
-        if let injected = lock.withLock({ dependencies.authlibInjectorMissingPresenter }) {
-            return injected
-        }
-        return sharedOnMainActor { AuthlibInjectorMissingPresenter.shared }
-    }
-
-    static var openURLModPackImportPresenter: OpenURLModPackImportPresenter {
-        if let injected = lock.withLock({ dependencies.openURLModPackImportPresenter }) {
-            return injected
-        }
-        return sharedOnMainActor { OpenURLModPackImportPresenter.shared }
-    }
-
-    static var gameProcessManager: GameProcessManager { lock.withLock { dependencies.gameProcessManager ?? .shared } }
-    static var gameStatusManager: GameStatusManager { lock.withLock { dependencies.gameStatusManager ?? .shared } }
-    static var gameLogCollector: GameLogCollector {
-        if let injected = lock.withLock({ dependencies.gameLogCollector }) {
-            return injected
-        }
-        return sharedOnMainActor { GameLogCollector.shared }
-    }
-
-    static var gameActionManager: GameActionManager {
-        if let injected = lock.withLock({ dependencies.gameActionManager }) {
-            return injected
-        }
-        return sharedOnMainActor { GameActionManager.shared }
-    }
-
-    static var announcementStateManager: AnnouncementStateManager {
-        if let injected = lock.withLock({ dependencies.announcementStateManager }) {
-            return injected
-        }
-        return sharedOnMainActor { AnnouncementStateManager.shared }
-    }
-
-    static var generalSettingsManager: GeneralSettingsManager { lock.withLock { dependencies.generalSettingsManager ?? .shared } }
-    static var gameSettingsManager: GameSettingsManager { lock.withLock { dependencies.gameSettingsManager ?? .shared } }
-    static var playerSettingsManager: PlayerSettingsManager { lock.withLock { dependencies.playerSettingsManager ?? .shared } }
-    static var playerDataManager: PlayerDataManager { lock.withLock { dependencies.playerDataManager ?? .shared } }
-    static var selectedGameManager: SelectedGameManager { lock.withLock { dependencies.selectedGameManager ?? .shared } }
-    static var themeManager: ThemeManager {
-        if let injected = lock.withLock({ dependencies.themeManager }) {
-            return injected
-        }
-        return sharedOnMainActor { ThemeManager.shared }
-    }
-
-    static var languageManager: LanguageManager { lock.withLock { dependencies.languageManager ?? .shared } }
-
-    static var minecraftFriendsPresencePollingCoordinator: MinecraftFriendsPresencePollingCoordinator {
-        if let injected = lock.withLock({ dependencies.minecraftFriendsPresencePollingCoordinator }) {
-            return injected
-        }
-        return sharedOnMainActor { MinecraftFriendsPresencePollingCoordinator.shared }
-    }
-
-    static var gitHubService: GitHubService {
-        if let injected = lock.withLock({ dependencies.gitHubService }) {
-            return injected
-        }
-        return sharedOnMainActor { GitHubService.shared }
-    }
-
-    static var minecraftAuthService: MinecraftAuthService { lock.withLock { dependencies.minecraftAuthService ?? .shared } }
-    static var yggdrasilAuthService: YggdrasilAuthService { lock.withLock { dependencies.yggdrasilAuthService ?? .shared } }
-    static var ipLocationService: IPLocationService {
-        if let injected = lock.withLock({ dependencies.ipLocationService }) {
-            return injected
-        }
-        return sharedOnMainActor { IPLocationService.shared }
-    }
-
-    static var javaManager: JavaManager { lock.withLock { dependencies.javaManager ?? .shared } }
-    static var javaRuntimeService: JavaRuntimeService { lock.withLock { dependencies.javaRuntimeService ?? .shared } }
-    static var javaDownloadManager: JavaDownloadManager {
-        if let injected = lock.withLock({ dependencies.javaDownloadManager }) {
-            return injected
-        }
-        return sharedOnMainActor { JavaDownloadManager.shared }
-    }
-
-    static var aiSettingsManager: AISettingsManager { lock.withLock { dependencies.aiSettingsManager ?? .shared } }
-    static var aiChatManager: AIChatManager {
-        if let injected = lock.withLock({ dependencies.aiChatManager }) {
-            return injected
-        }
-        return sharedOnMainActor { AIChatManager.shared }
-    }
-
-    static var sparkleUpdateService: SparkleUpdateService { lock.withLock { dependencies.sparkleUpdateService ?? .shared } }
-
-    static var serverAddressService: ServerAddressService {
-        if let injected = lock.withLock({ dependencies.serverAddressService }) {
-            return injected
-        }
-        return sharedOnMainActor { ServerAddressService.shared }
-    }
-
-    static var litematicaService: LitematicaService {
-        if let injected = lock.withLock({ dependencies.litematicaService }) {
-            return injected
-        }
-        return sharedOnMainActor { LitematicaService.shared }
-    }
-
-    static var premiumAccountFlagManager: PremiumAccountFlagManager {
-        if let injected = lock.withLock({ dependencies.premiumAccountFlagManager }) {
-            return injected
-        }
-        return sharedOnMainActor { PremiumAccountFlagManager.shared }
-    }
-
-    static var minecraftFriendsService: MinecraftFriendsService {
-        lock.withLock { dependencies.minecraftFriendsService } ?? defaultMinecraftFriendsService
-    }
-}
-
-private extension NSLocking {
-    func withLock<T>(_ body: () -> T) -> T {
-        lock()
-        defer { unlock() }
-        return body()
-    }
+    nonisolated(unsafe) static let minecraftFriendsService = MinecraftFriendsService()
 }

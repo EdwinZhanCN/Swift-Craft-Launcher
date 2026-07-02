@@ -10,7 +10,6 @@ import Foundation
 
 /// Scans mod and resource files, resolving details from Modrinth and CurseForge.
 class ModScanner {
-    static let shared = ModScanner()
     let errorHandler: GlobalErrorHandler
 
     init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {

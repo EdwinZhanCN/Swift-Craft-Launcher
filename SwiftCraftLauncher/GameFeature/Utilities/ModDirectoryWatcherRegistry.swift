@@ -9,12 +9,11 @@ import Foundation
 
 /// Manages a registry of directory watchers for mod directories.
 actor ModDirectoryWatcherRegistry {
-    static let shared = ModDirectoryWatcherRegistry()
 
     private var watchers: [String: ModsDirectoryTreeWatcher] = [:]
     private let modScanner: ModScanner
 
-    private init(modScanner: ModScanner = AppServices.modScanner) {
+    init(modScanner: ModScanner = AppServices.modScanner) {
         self.modScanner = modScanner
     }
 

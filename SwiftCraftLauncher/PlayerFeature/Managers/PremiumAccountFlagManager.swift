@@ -12,9 +12,8 @@ import Foundation
 /// This flag determines whether offline account creation is permitted.
 @MainActor
 class PremiumAccountFlagManager {
-    static let shared = PremiumAccountFlagManager()
 
-    private init() { }
+    init() { }
 
     /// A Boolean value indicating whether a premium account has been added previously.
     func hasAddedPremiumAccount() -> Bool {

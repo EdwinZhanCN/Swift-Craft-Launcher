@@ -9,12 +9,11 @@ import Foundation
 
 /// Manages local Java runtime installation, validation, and discovery.
 class JavaManager {
-    static let shared = JavaManager()
 
     private let fileManager = FileManager.default
     private let javaDownloadManager: JavaDownloadManager
 
-    private init(javaDownloadManager: JavaDownloadManager = AppServices.javaDownloadManager) {
+    init(javaDownloadManager: JavaDownloadManager = AppServices.javaDownloadManager) {
         self.javaDownloadManager = javaDownloadManager
     }
 

@@ -11,14 +11,13 @@ import SwiftUI
 
 @MainActor
 class AIChatManager: ObservableObject {
-    static let shared = AIChatManager()
 
     private let settings: AISettingsManager
     private let errorHandler: GlobalErrorHandler
     private let windowManager: WindowManager
     private let windowDataStore: WindowDataStore
 
-    private init(
+    init(
         settings: AISettingsManager = AppServices.aiSettingsManager,
         errorHandler: GlobalErrorHandler = AppServices.errorHandler,
         windowManager: WindowManager = AppServices.windowManager,

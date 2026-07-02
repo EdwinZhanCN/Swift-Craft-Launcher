@@ -10,9 +10,8 @@ import Foundation
 /// Provides access to GitHub API endpoints for contributors, acknowledgements, and announcements.
 @MainActor
 public class GitHubService: ObservableObject {
-    public static let shared = GitHubService()
 
-    private init() { }
+    init() { }
 
     /// Fetches the list of repository contributors.
     public func fetchContributors(perPage: Int = 50) async throws -> [GitHubContributor] {

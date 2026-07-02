@@ -11,11 +11,10 @@ import Foundation
 extension ModScanner {
     /// Caches the set of file hashes for each directory, keyed by the absolute directory path.
     actor DirectoryHashCache {
-        static let shared = DirectoryHashCache()
 
         private var cache: [String: Set<String>] = [:]
 
-        private init() { }
+        init() { }
 
         func get(for directory: URL) -> Set<String>? {
             cache[directory.standardizedFileURL.path]
@@ -31,11 +30,10 @@ extension ModScanner {
     }
 
     actor ModInstallationCache {
-        static let shared = ModInstallationCache()
 
         private var cache: [String: Set<String>] = [:]
 
-        private init() { }
+        init() { }
 
         func addHash(_ hash: String, to gameName: String) {
             if var cached = cache[gameName] {

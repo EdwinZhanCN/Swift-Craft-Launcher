@@ -21,13 +21,12 @@ enum AuthlibInjectorMissingChoice {
 /// flow suspends until the user makes a choice or the prompt is dismissed.
 @MainActor
 final class AuthlibInjectorMissingPresenter: ObservableObject {
-    static let shared = AuthlibInjectorMissingPresenter()
 
     @Published private(set) var isPresented = false
 
     private var continuation: CheckedContinuation<AuthlibInjectorMissingChoice, Never>?
 
-    private init() { }
+    init() { }
 
     func requestUserChoice() async -> AuthlibInjectorMissingChoice {
         if let continuation {

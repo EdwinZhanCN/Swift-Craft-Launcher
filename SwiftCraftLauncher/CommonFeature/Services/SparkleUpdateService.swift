@@ -10,7 +10,6 @@ import Sparkle
 
 /// Manages application updates using the Sparkle framework.
 class SparkleUpdateService: NSObject, ObservableObject, SPUUpdaterDelegate {
-    static let shared = SparkleUpdateService()
 
     private var updater: SPUUpdater?
     private var hasStartedUpdater = false
@@ -25,7 +24,7 @@ class SparkleUpdateService: NSObject, ObservableObject, SPUUpdaterDelegate {
 
     private let startupCheckDelay: TimeInterval = 2.0
 
-    override private init() {
+    override init() {
         super.init()
         currentVersion = Bundle.main.appVersion
     }

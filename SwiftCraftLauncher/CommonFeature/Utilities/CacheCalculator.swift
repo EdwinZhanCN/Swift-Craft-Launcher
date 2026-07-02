@@ -29,9 +29,8 @@ struct CacheInfo: Equatable {
 
 /// Calculates cache sizes for various application directories.
 class CacheCalculator {
-    static let shared = CacheCalculator()
 
-    private init() { }
+    init() { }
 
     /// Calculates cache information for game resource metadata.
     /// - Throws: A ``GlobalError`` if the operation fails.

@@ -10,9 +10,8 @@ import Foundation
 /// Detects the user's geographic location by IP address.
 @MainActor
 class IPLocationService: ObservableObject {
-    static let shared = IPLocationService()
 
-    private init() { }
+    init() { }
 
     /// Checks whether the user's IP is outside the current region.
     /// - Returns: `true` if the IP is foreign, `false` if detection fails or the IP is domestic.

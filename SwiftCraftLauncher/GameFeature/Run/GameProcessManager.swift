@@ -9,7 +9,6 @@ import Foundation
 
 /// Manages running game processes and tracks their lifecycle.
 final class GameProcessManager: ObservableObject, @unchecked Sendable {
-    static let shared = GameProcessManager()
 
     static func processKey(gameId: String, userId: String) -> String {
         "\(gameId)_\(userId)"
@@ -22,7 +21,7 @@ final class GameProcessManager: ObservableObject, @unchecked Sendable {
     private let gameDatabase = GameVersionDatabase(dbPath: AppPaths.gameVersionDatabase.path)
     private let gameSettingsManager: GameSettingsManager
 
-    private init(gameSettingsManager: GameSettingsManager = AppServices.gameSettingsManager) {
+    init(gameSettingsManager: GameSettingsManager = AppServices.gameSettingsManager) {
         self.gameSettingsManager = gameSettingsManager
     }
 
