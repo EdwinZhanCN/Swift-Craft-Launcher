@@ -34,11 +34,6 @@ struct SwiftCraftLauncherAppCommands: Commands {
         }
 
         CommandGroup(after: .help) {
-            Button("menu.open.log".localized()) {
-//                Logger.shared.openLogFile()
-            }
-            .keyboardShortcut("l", modifiers: [.command, .shift])
-
             Divider()
 
             Link("GitHub", destination: URLConfig.API.GitHub.repositoryURL())
