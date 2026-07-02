@@ -30,9 +30,9 @@ public struct SidebarView: View {
             Section(header: Text("sidebar.resources.title".localized())) {
                 ForEach(ResourceType.allCases, id: \.self) { type in
                     NavigationLink(value: SidebarItem.resource(type)) {
-                        HStack(spacing: 6) {
-                            Label(type.localizedName, systemImage: type.systemImage)
-                        }
+                        Label(type.localizedName, systemImage: type.systemImage)
+                            .lineLimit(1)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
             }
@@ -48,6 +48,7 @@ public struct SidebarView: View {
                             )
                             Text(game.gameName)
                                 .lineLimit(1)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                         .tag(game.id)
                     }
@@ -68,19 +69,19 @@ public struct SidebarView: View {
             if !filteredCorruptedGames.isEmpty {
                 Section(header: Text("sidebar.corrupted_games.title".localized())) {
                     ForEach(filteredCorruptedGames, id: \.self) { name in
-                        HStack(spacing: 6) {
-                            Label(name, systemImage: "exclamationmark.triangle")
-                        }
-                        .contextMenu {
-                            Button(role: .destructive) {
-                                gameActionManager.deleteCorruptedGame(
-                                    name: name,
-                                    gameRepository: gameRepository
-                                )
-                            } label: {
-                                Label("sidebar.context_menu.delete_game".localized(), systemImage: "trash")
+                        Label(name, systemImage: "exclamationmark.triangle")
+                            .lineLimit(1)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    gameActionManager.deleteCorruptedGame(
+                                        name: name,
+                                        gameRepository: gameRepository
+                                    )
+                                } label: {
+                                    Label("sidebar.context_menu.delete_game".localized(), systemImage: "trash")
+                                }
                             }
-                        }
                     }
                 }
             }
