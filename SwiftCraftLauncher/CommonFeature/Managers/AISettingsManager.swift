@@ -73,7 +73,6 @@ enum APIFormat {
 
 /// Manages persistent AI service settings including provider, API key, and model configuration.
 class AISettingsManager: ObservableObject {
-
     @AppStorage(AppConstants.UserDefaultsKeys.aiProvider)
     private var _selectedProviderRawValue: String = "openai"
 

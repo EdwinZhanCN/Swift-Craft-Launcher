@@ -10,7 +10,6 @@ import Foundation
 /// Tracks whether the current version's announcement has been acknowledged.
 @MainActor
 class AnnouncementStateManager {
-
     init() { }
 
     private let defaults = UserDefaults.standard

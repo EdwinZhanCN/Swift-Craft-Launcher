@@ -11,7 +11,6 @@ import Foundation
 extension ModScanner {
     /// Caches the set of file hashes for each directory, keyed by the absolute directory path.
     actor DirectoryHashCache {
-
         private var cache: [String: Set<String>] = [:]
 
         init() { }
@@ -30,7 +29,6 @@ extension ModScanner {
     }
 
     actor ModInstallationCache {
-
         private var cache: [String: Set<String>] = [:]
 
         init() { }

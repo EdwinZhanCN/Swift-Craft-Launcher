@@ -12,7 +12,6 @@ import Foundation
 /// This flag determines whether offline account creation is permitted.
 @MainActor
 class PremiumAccountFlagManager {
-
     init() { }
 
     /// A Boolean value indicating whether a premium account has been added previously.

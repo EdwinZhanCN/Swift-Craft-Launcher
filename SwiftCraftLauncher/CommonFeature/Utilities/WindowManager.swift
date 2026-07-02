@@ -12,7 +12,6 @@ import SwiftUI
 
 @MainActor
 class WindowManager {
-
     private var openAuxiliaryWindowAction: ((AuxiliaryWindowID) -> Void)?
 
     init() { }

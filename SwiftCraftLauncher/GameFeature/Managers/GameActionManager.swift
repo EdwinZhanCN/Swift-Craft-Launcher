@@ -11,7 +11,6 @@ import SwiftUI
 /// Provides game-related actions such as revealing in Finder and deletion.
 @MainActor
 class GameActionManager: ObservableObject {
-
     init() { }
 
     /// Reveals the game directory in Finder.

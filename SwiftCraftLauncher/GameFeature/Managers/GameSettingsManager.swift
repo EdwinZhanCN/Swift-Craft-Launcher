@@ -29,7 +29,6 @@ enum DataSource: String, CaseIterable, Codable {
 
 /// Manages global application settings for the launcher.
 class GameSettingsManager: ObservableObject {
-
     init() { }
 
     @AppStorage(AppConstants.UserDefaultsKeys.globalXms)

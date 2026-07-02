@@ -10,7 +10,6 @@ import Foundation
 /// Reads and parses Litematica schematic files from game directories.
 @MainActor
 class LitematicaService {
-
     init() { }
 
     func loadLitematicaFiles(for gameName: String) async throws -> [LitematicaInfo] {

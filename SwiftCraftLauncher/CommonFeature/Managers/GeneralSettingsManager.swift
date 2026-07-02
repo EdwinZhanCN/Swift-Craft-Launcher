@@ -21,7 +21,6 @@ public enum InterfaceLayoutStyle: String, CaseIterable {
 
 /// Manages general application settings including proxy, downloads, and layout preferences.
 class GeneralSettingsManager: ObservableObject, WorkingPathProviding {
-
     /// Whether GitHub proxy is enabled.
     @AppStorage(AppConstants.UserDefaultsKeys.enableGitHubProxy)
     var enableGitHubProxy: Bool = true {

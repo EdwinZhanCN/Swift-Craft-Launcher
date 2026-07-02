@@ -21,7 +21,6 @@ enum AuthlibInjectorMissingChoice {
 /// flow suspends until the user makes a choice or the prompt is dismissed.
 @MainActor
 final class AuthlibInjectorMissingPresenter: ObservableObject {
-
     @Published private(set) var isPresented = false
 
     private var continuation: CheckedContinuation<AuthlibInjectorMissingChoice, Never>?

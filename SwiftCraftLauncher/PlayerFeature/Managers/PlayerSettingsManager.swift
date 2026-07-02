@@ -10,7 +10,6 @@ import SwiftUI
 
 /// Manages player-related settings persisted in `UserDefaults` via `@AppStorage`.
 class PlayerSettingsManager: ObservableObject {
-
     /// The identifier of the currently selected player.
     @AppStorage(AppConstants.UserDefaultsKeys.currentPlayerId)
     var currentPlayerId: String = "" {

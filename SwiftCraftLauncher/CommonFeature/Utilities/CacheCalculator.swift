@@ -29,7 +29,6 @@ struct CacheInfo: Equatable {
 
 /// Calculates cache sizes for various application directories.
 class CacheCalculator {
-
     init() { }
 
     /// Calculates cache information for game resource metadata.

@@ -9,7 +9,6 @@ import Foundation
 
 /// Manages a registry of directory watchers for mod directories.
 actor ModDirectoryWatcherRegistry {
-
     private var watchers: [String: ModsDirectoryTreeWatcher] = [:]
     private let modScanner: ModScanner
 

@@ -11,7 +11,6 @@ import SwiftUI
 
 @MainActor
 class AIChatManager: ObservableObject {
-
     private let settings: AISettingsManager
     private let errorHandler: GlobalErrorHandler
     private let windowManager: WindowManager

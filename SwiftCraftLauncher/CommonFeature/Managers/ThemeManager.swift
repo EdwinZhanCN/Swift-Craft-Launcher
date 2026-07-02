@@ -45,7 +45,6 @@ public enum ThemeMode: String, CaseIterable {
 /// Manages the app's visual theme and applies the selected appearance.
 @MainActor
 final class ThemeManager: ObservableObject {
-
     @AppStorage(AppConstants.UserDefaultsKeys.themeMode)
     var themeMode: ThemeMode = .system {
         didSet {

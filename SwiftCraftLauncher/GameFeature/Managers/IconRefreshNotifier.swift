@@ -10,7 +10,6 @@ import Foundation
 
 /// Publishes notifications when game icons need to refresh.
 final class IconRefreshNotifier: ObservableObject {
-
     /// The subject that emits game names to refresh, where `nil` refreshes all icons.
     private let refreshSubject = PassthroughSubject<String?, Never>()
 

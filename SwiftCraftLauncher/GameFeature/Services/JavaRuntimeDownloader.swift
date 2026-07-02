@@ -10,7 +10,6 @@ import ZIPFoundation
 
 /// Downloads and installs Java runtime distributions.
 class JavaRuntimeDownloader {
-
     private let progressActor = ProgressActor()
     private let cancelActor = CancelActor()
     private let generalSettingsManager: GeneralSettingsManager

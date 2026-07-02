@@ -10,7 +10,6 @@ import ZIPFoundation
 
 /// Provides Java runtime version information and manifest URLs for the current platform.
 class JavaRuntimeService {
-
     private let generalSettingsManager: GeneralSettingsManager
 
     init(generalSettingsManager: GeneralSettingsManager = AppServices.generalSettingsManager) {

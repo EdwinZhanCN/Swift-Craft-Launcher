@@ -10,7 +10,6 @@ import Foundation
 /// Detects the user's geographic location by IP address.
 @MainActor
 class IPLocationService: ObservableObject {
-
     init() { }
 
     /// Checks whether the user's IP is outside the current region.

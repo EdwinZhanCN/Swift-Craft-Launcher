@@ -10,7 +10,6 @@ import Foundation
 /// Provides access to GitHub API endpoints for contributors, acknowledgements, and announcements.
 @MainActor
 public class GitHubService: ObservableObject {
-
     init() { }
 
     /// Fetches the list of repository contributors.
