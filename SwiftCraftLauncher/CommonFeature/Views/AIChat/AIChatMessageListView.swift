@@ -27,64 +27,62 @@ struct AIChatMessageListView: View {
     }
 
     var body: some View {
-        GeometryReader { geometry in
-            ScrollViewReader { proxy in
-                ScrollView {
-                    if chatState.messages.isEmpty {
-                        VStack {
-                            Spacer()
-                            welcomeView
-                            Spacer()
-                        }
-                        .frame(width: geometry.size.width, height: geometry.size.height)
-                    } else {
-                        LazyVStack(alignment: .leading, spacing: 12) {
-                            messageListView
-
-                            if chatState.isSending,
-                               let lastMessage = chatState.messages.last,
-                               lastMessage.role == .assistant,
-                               lastMessage.content.isEmpty {
-                                loadingIndicatorView
-                            }
-                        }
-                        .padding()
+        ScrollViewReader { proxy in
+            ScrollView {
+                if chatState.messages.isEmpty {
+                    VStack {
+                        Spacer()
+                        welcomeView
+                        Spacer()
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    LazyVStack(alignment: .leading, spacing: 12) {
+                        messageListView
+
+                        if chatState.isSending,
+                           let lastMessage = chatState.messages.last,
+                           lastMessage.role == .assistant,
+                           lastMessage.content.isEmpty {
+                            loadingIndicatorView
+                        }
+                    }
+                    .padding()
                 }
-                .onChange(of: chatState.messages.count) { _, _ in
-                    scrollCoordinator.onMessagesCountChanged(
-                        hasLastMessage: chatState.messages.last != nil,
+            }
+            .onChange(of: chatState.messages.count) { _, _ in
+                scrollCoordinator.onMessagesCountChanged(
+                    hasLastMessage: chatState.messages.last != nil,
+                ) {
+                    scrollToBottom(proxy: proxy)
+                }
+            }
+            .onChange(of: chatState.messages.last?.id) { _, _ in
+                if let lastMessage = chatState.messages.last {
+                    scrollCoordinator.onLastMessageChanged(
+                        contentLength: lastMessage.content.count,
                     ) {
                         scrollToBottom(proxy: proxy)
                     }
                 }
-                .onChange(of: chatState.messages.last?.id) { _, _ in
-                    if let lastMessage = chatState.messages.last {
-                        scrollCoordinator.onLastMessageChanged(
-                            contentLength: lastMessage.content.count,
-                        ) {
-                            scrollToBottom(proxy: proxy)
-                        }
-                    }
-                }
-                .onChange(of: chatState.isSending) { oldValue, newValue in
-                    scrollCoordinator.onSendingChanged(
-                        wasSending: oldValue,
-                        isSending: newValue,
-                        scrollToBottom: { scrollToBottom(proxy: proxy) },
-                        getLastMessageContentLength: { chatState.messages.last?.content.count },
-                    )
-                }
-                .onAppear {
-                    scrollCoordinator.onAppearIfSending(
-                        isSending: chatState.isSending,
-                        scrollToBottom: { scrollToBottom(proxy: proxy) },
-                        getLastMessageContentLength: { chatState.messages.last?.content.count },
-                    )
-                }
-                .onDisappear {
-                    scrollCoordinator.onDisappear()
-                }
+            }
+            .onChange(of: chatState.isSending) { oldValue, newValue in
+                scrollCoordinator.onSendingChanged(
+                    wasSending: oldValue,
+                    isSending: newValue,
+                    scrollToBottom: { scrollToBottom(proxy: proxy) },
+                    getLastMessageContentLength: { chatState.messages.last?.content.count },
+                )
+            }
+            .onAppear {
+                scrollCoordinator.onAppearIfSending(
+                    isSending: chatState.isSending,
+                    scrollToBottom: { scrollToBottom(proxy: proxy) },
+                    getLastMessageContentLength: { chatState.messages.last?.content.count },
+                )
+            }
+            .onDisappear {
+                scrollCoordinator.onDisappear()
             }
         }
     }

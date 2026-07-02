@@ -87,7 +87,7 @@ struct MessageBubble: View {
 
             timestampView
         }
-        .frame(maxWidth: Constants.messageMaxWidth, alignment: alignment == .leading ? .leading : .trailing)
+        .frame(maxWidth: Constants.messageMaxWidth)
     }
 
     private func attachmentsView(alignment: HorizontalAlignment) -> some View {
