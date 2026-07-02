@@ -103,7 +103,7 @@ struct ModrinthProjectDetailView: View {
     private func projectStats(_ project: ModrinthProjectDetail) -> some View {
         HStack(spacing: Constants.spacing) {
             Label("\(project.downloads)", systemImage: "arrow.down.circle")
-            Label("\(project.followers)", systemImage: "heart")
+            Label("\(project.followers)", systemImage: "star")
 
             FlowLayout(spacing: Constants.categorySpacing) {
                 ForEach(project.categories, id: \.self) { category in

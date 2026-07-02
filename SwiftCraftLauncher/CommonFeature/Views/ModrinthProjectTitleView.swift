@@ -207,7 +207,7 @@ extension ModrinthProjectTitleView {
         } else {
             infoItems = [
                 InfoItem(text: "\(projectDetail.downloads)", systemImage: "arrow.down.circle"),
-                InfoItem(text: "\(projectDetail.followers)", systemImage: "heart"),
+                InfoItem(text: "\(projectDetail.followers)", systemImage: "star"),
             ]
         }
 

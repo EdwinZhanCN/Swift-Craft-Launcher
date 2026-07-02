@@ -50,7 +50,7 @@ struct ModrinthDetailCardSkeletonView: View {
     private var trailingPlaceholder: some View {
         VStack(alignment: .trailing, spacing: ModrinthConstants.UIConstants.spacing) {
             ModrinthDetailCardInfoRowView(icon: "arrow.down.circle", text: skeletonDownloads)
-            ModrinthDetailCardInfoRowView(icon: "heart", text: skeletonFollows)
+            ModrinthDetailCardInfoRowView(icon: "star", text: skeletonFollows)
             Button(action: { }, label: {
                 Text("resource.add".localized())
             })
