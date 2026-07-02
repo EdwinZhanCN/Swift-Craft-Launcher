@@ -66,8 +66,8 @@ enum ResourceFilterMenus {
                 }
             }
         } label: {
-            Label(filterState.dataSource.localizedName, systemImage: "")
-                .labelStyle(.titleOnly)
+            Image(systemName: filterState.dataSource == .modrinth ? "m.square" : "c.square")
+                .help(filterState.dataSource.displayName)
         }
     }
 
