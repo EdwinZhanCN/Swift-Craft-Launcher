@@ -84,7 +84,7 @@ public struct SidebarView: View {
                                 Button(role: .destructive) {
                                     gameActionManager.deleteCorruptedGame(
                                         name: name,
-                                        gameRepository: gameRepository
+                                        gameRepository: gameRepository,
                                     )
                                 } label: {
                                     Label("sidebar.context_menu.delete_game".localized(), systemImage: "trash")
