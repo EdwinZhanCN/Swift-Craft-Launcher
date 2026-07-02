@@ -10,69 +10,104 @@ import MinecraftFriendsKit
 
 /// A global namespace that owns and exposes all shared service instances.
 enum AppServices {
-    private static func mainActorSingleton<T>(_ factory: @MainActor () -> T) -> T {
+    @inline(__always)
+    private static func mainActorSingleton<T>(
+        _ factory: @MainActor () -> T,
+    ) -> T {
         if Thread.isMainThread {
             return MainActor.assumeIsolated(factory)
         }
+
         return DispatchQueue.main.sync {
             MainActor.assumeIsolated(factory)
         }
     }
 
-    nonisolated(unsafe) static let errorHandler = GlobalErrorHandler()
+    // Error handling
 
-    nonisolated(unsafe) static let appCacheManager = AppCacheManager()
-    nonisolated(unsafe) static let cacheCalculator = CacheCalculator()
-    nonisolated(unsafe) static let cacheInfoManager = CacheInfoManager()
+    static let errorHandler = GlobalErrorHandler()
 
-    nonisolated(unsafe) static let modScanner = ModScanner()
-    nonisolated(unsafe) static let modCacheManager = ModCacheManager()
-    nonisolated(unsafe) static let modDirectoryWatcherRegistry = ModDirectoryWatcherRegistry()
-    nonisolated(unsafe) static let modInstallationCache = ModScanner.ModInstallationCache()
-    nonisolated(unsafe) static let directoryHashCache = ModScanner.DirectoryHashCache()
+    // Cache
 
-    nonisolated(unsafe) static let windowManager = mainActorSingleton { WindowManager() }
-    nonisolated(unsafe) static let windowDataStore = mainActorSingleton { WindowDataStore() }
-    nonisolated(unsafe) static let iconRefreshNotifier = IconRefreshNotifier()
-    nonisolated(unsafe) static let gameDialogsPresenter = mainActorSingleton { GameDialogsPresenter() }
-    nonisolated(unsafe) static let authlibInjectorMissingPresenter = mainActorSingleton { AuthlibInjectorMissingPresenter() }
-    nonisolated(unsafe) static let openURLModPackImportPresenter = mainActorSingleton { OpenURLModPackImportPresenter() }
+    static let appCacheManager = AppCacheManager()
+    static let cacheCalculator = CacheCalculator()
+    static let cacheInfoManager = CacheInfoManager()
 
-    nonisolated(unsafe) static let gameProcessManager = GameProcessManager()
-    nonisolated(unsafe) static let gameStatusManager = GameStatusManager()
-    nonisolated(unsafe) static let gameLogCollector = mainActorSingleton { GameLogCollector() }
-    nonisolated(unsafe) static let gameActionManager = mainActorSingleton { GameActionManager() }
+    // Mods
 
-    nonisolated(unsafe) static let announcementStateManager = mainActorSingleton { AnnouncementStateManager() }
-    nonisolated(unsafe) static let generalSettingsManager = GeneralSettingsManager()
-    nonisolated(unsafe) static let gameSettingsManager = GameSettingsManager()
-    nonisolated(unsafe) static let playerSettingsManager = PlayerSettingsManager()
-    nonisolated(unsafe) static let playerDataManager = PlayerDataManager()
-    nonisolated(unsafe) static let selectedGameManager = SelectedGameManager()
-    nonisolated(unsafe) static let themeManager = mainActorSingleton { ThemeManager() }
-    nonisolated(unsafe) static let languageManager = LanguageManager()
+    static let modScanner = ModScanner()
+    static let modCacheManager = ModCacheManager()
+    static let modDirectoryWatcherRegistry = ModDirectoryWatcherRegistry()
+    static let modInstallationCache = ModScanner.ModInstallationCache()
+    static let directoryHashCache = ModScanner.DirectoryHashCache()
 
-    nonisolated(unsafe) static let minecraftFriendsPresencePollingCoordinator = mainActorSingleton {
+    // Window & UI
+
+    static let windowManager = mainActorSingleton { WindowManager() }
+    static let windowDataStore = mainActorSingleton { WindowDataStore() }
+    static let iconRefreshNotifier = IconRefreshNotifier()
+
+    static let gameDialogsPresenter = mainActorSingleton { GameDialogsPresenter() }
+    static let authlibInjectorMissingPresenter = mainActorSingleton {
+        AuthlibInjectorMissingPresenter()
+    }
+
+    static let openURLModPackImportPresenter = mainActorSingleton {
+        OpenURLModPackImportPresenter()
+    }
+
+    // Game
+
+    static let gameProcessManager = GameProcessManager()
+    static let gameStatusManager = GameStatusManager()
+    static let gameLogCollector = mainActorSingleton { GameLogCollector() }
+    static let gameActionManager = mainActorSingleton { GameActionManager() }
+
+    // Settings
+
+    static let announcementStateManager = mainActorSingleton {
+        AnnouncementStateManager()
+    }
+
+    static let generalSettingsManager = GeneralSettingsManager()
+    static let gameSettingsManager = GameSettingsManager()
+    static let playerSettingsManager = PlayerSettingsManager()
+    static let playerDataManager = PlayerDataManager()
+    static let selectedGameManager = SelectedGameManager()
+    static let themeManager = mainActorSingleton { ThemeManager() }
+    static let languageManager = LanguageManager()
+
+    // Minecraft Friends
+
+    static let minecraftFriendsPresencePollingCoordinator = mainActorSingleton {
         MinecraftFriendsPresencePollingCoordinator()
     }
 
-    nonisolated(unsafe) static let gitHubService = mainActorSingleton { GitHubService() }
-    nonisolated(unsafe) static let minecraftAuthService = MinecraftAuthService()
-    nonisolated(unsafe) static let yggdrasilAuthService = YggdrasilAuthService()
-    nonisolated(unsafe) static let ipLocationService = mainActorSingleton { IPLocationService() }
+    static let minecraftFriendsService = MinecraftFriendsService()
 
-    nonisolated(unsafe) static let javaManager = JavaManager()
-    nonisolated(unsafe) static let javaRuntimeService = JavaRuntimeService()
-    nonisolated(unsafe) static let javaRuntimeDownloader = JavaRuntimeDownloader()
-    nonisolated(unsafe) static let javaDownloadManager = mainActorSingleton { JavaDownloadManager() }
+    // Authentication & Network
 
-    nonisolated(unsafe) static let aiSettingsManager = AISettingsManager()
-    nonisolated(unsafe) static let aiChatManager = mainActorSingleton { AIChatManager() }
-    nonisolated(unsafe) static let sparkleUpdateService = SparkleUpdateService()
+    static let gitHubService = mainActorSingleton { GitHubService() }
+    static let minecraftAuthService = MinecraftAuthService()
+    static let yggdrasilAuthService = YggdrasilAuthService()
+    static let ipLocationService = mainActorSingleton { IPLocationService() }
 
-    nonisolated(unsafe) static let serverAddressService = mainActorSingleton { ServerAddressService() }
-    nonisolated(unsafe) static let litematicaService = mainActorSingleton { LitematicaService() }
-    nonisolated(unsafe) static let premiumAccountFlagManager = mainActorSingleton { PremiumAccountFlagManager() }
+    // Java
 
-    nonisolated(unsafe) static let minecraftFriendsService = MinecraftFriendsService()
+    static let javaManager = JavaManager()
+    static let javaRuntimeService = JavaRuntimeService()
+    static let javaRuntimeDownloader = JavaRuntimeDownloader()
+    static let javaDownloadManager = mainActorSingleton { JavaDownloadManager() }
+
+    // AI
+
+    static let aiSettingsManager = AISettingsManager()
+    static let aiChatManager = mainActorSingleton { AIChatManager() }
+
+    // Utilities
+
+    static let sparkleUpdateService = SparkleUpdateService()
+    static let serverAddressService = mainActorSingleton { ServerAddressService() }
+    static let litematicaService = mainActorSingleton { LitematicaService() }
+    static let premiumAccountFlagManager = mainActorSingleton { PremiumAccountFlagManager() }
 }
