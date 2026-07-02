@@ -21,7 +21,7 @@ class GameVersionDatabase {
     ///
     /// - Parameter dbPath: The file path for the SQLite database.
     init(dbPath: String) {
-        db = SQLiteDatabase(path: dbPath)
+        db = SQLiteDatabase.database(at: dbPath)
     }
 
     /// Opens the database and creates the table schema if needed.
@@ -394,9 +394,5 @@ class GameVersionDatabase {
                 )
             }
         }
-    }
-
-    func close() {
-        db.close()
     }
 }

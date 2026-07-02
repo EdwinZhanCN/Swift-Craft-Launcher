@@ -20,7 +20,7 @@ class ModCacheDatabase {
     ///
     /// - Parameter dbPath: The file path for the SQLite database.
     init(dbPath: String) {
-        db = SQLiteDatabase(path: dbPath)
+        db = SQLiteDatabase.database(at: dbPath)
     }
 
     /// Opens the database connection and creates the table if needed.
@@ -47,11 +47,6 @@ class ModCacheDatabase {
         try? db.execute(createIndexSQL)
 
         AppLog.game.debug("Mod cache table created or already exists")
-    }
-
-    /// Closes the database connection.
-    func close() {
-        db.close()
     }
 
     /// Saves a mod cache entry.

@@ -27,7 +27,7 @@ final class SkinLibraryStore {
 
     init(fileManager: FileManager = .default) {
         self.fileManager = fileManager
-        database = SQLiteDatabase(path: AppPaths.gameVersionDatabase.path)
+        database = SQLiteDatabase.database(at: AppPaths.gameVersionDatabase.path)
         createTableSQL = """
         CREATE TABLE IF NOT EXISTS \(AppConstants.DatabaseTables.skinLibrary) (
             original_file_name TEXT NOT NULL,
