@@ -17,11 +17,53 @@ class GameVersionDatabase {
     private let tableName = AppConstants.DatabaseTables.gameVersions
     private var isInitialized = false
 
+    private let upsertSQL: String
+    private let selectByPathSQL: String
+    private let selectAllSQL: String
+    private let countByPathSQL: String
+    private let selectByIdSQL: String
+    private let deleteByIdSQL: String
+    private let deleteByPathSQL: String
+    private let deleteByPathAndNameSQL: String
+    private let updateLastPlayedSQL: String
+
     /// Creates a game version database.
     ///
     /// - Parameter dbPath: The file path for the SQLite database.
     init(dbPath: String) {
         db = SQLiteDatabase.database(at: dbPath)
+        upsertSQL = """
+        INSERT OR REPLACE INTO \(tableName)
+        (id, working_path, game_name, data_json, last_played, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?,
+            COALESCE((SELECT created_at FROM \(tableName) WHERE id = ?), ?),
+            ?)
+        """
+        selectByPathSQL = """
+        SELECT data_json FROM \(tableName)
+        WHERE working_path = ?
+        ORDER BY last_played DESC
+        """
+        selectAllSQL = """
+        SELECT working_path, data_json FROM \(tableName)
+        ORDER BY working_path, last_played DESC
+        """
+        countByPathSQL = """
+        SELECT working_path, COUNT(*) FROM \(tableName)
+        GROUP BY working_path
+        ORDER BY working_path
+        """
+        selectByIdSQL = "SELECT data_json FROM \(tableName) WHERE id = ? LIMIT 1"
+        deleteByIdSQL = "DELETE FROM \(tableName) WHERE id = ?"
+        deleteByPathSQL = "DELETE FROM \(tableName) WHERE working_path = ?"
+        deleteByPathAndNameSQL = "DELETE FROM \(tableName) WHERE working_path = ? AND game_name = ?"
+        updateLastPlayedSQL = """
+        UPDATE \(tableName)
+        SET data_json = json_set(data_json, '$.lastPlayed', ?),
+            last_played = ?,
+            updated_at = ?
+        WHERE id = ?
+        """
     }
 
     /// Opens the database and creates the table schema if needed.
@@ -46,7 +88,6 @@ class GameVersionDatabase {
             updated_at REAL NOT NULL
         );
         """
-
         try db.execute(createTableSQL)
 
         let indexes = [
@@ -54,14 +95,11 @@ class GameVersionDatabase {
             ("idx_last_played", "last_played"),
             ("idx_game_name", "game_name"),
         ]
-
         for (indexName, column) in indexes {
-            let createIndexSQL = """
-            CREATE INDEX IF NOT EXISTS \(indexName) ON \(tableName)(\(column));
-            """
-            try? db.execute(createIndexSQL)
+            try? db.execute(
+                "CREATE INDEX IF NOT EXISTS \(indexName) ON \(tableName)(\(column));",
+            )
         }
-
         AppLog.game.debug("Game version table created or already exists")
     }
 
@@ -72,46 +110,11 @@ class GameVersionDatabase {
     ///   - workingPath: The working path associated with the game.
     func saveGame(_ game: GameVersionInfo, workingPath: String) throws {
         try db.transaction {
-            let encoder = JSONEncoder()
-            encoder.dateEncodingStrategy = .secondsSince1970
-            let jsonData = try encoder.encode(game)
-            guard let jsonString = String(data: jsonData, encoding: .utf8) else {
-                throw GlobalError.validation(
-                    i18nKey: "error.validation.json_encode_failed",
-                    level: .notification,
-                    message: "Failed to encode game=\(game.gameName) id=\(game.id) to UTF-8 JSON string",
-                )
-            }
-
+            let jsonString = try encodeGame(game)
             let now = Date()
-            let sql = """
-            INSERT OR REPLACE INTO \(tableName)
-            (id, working_path, game_name, data_json, last_played, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?,
-                COALESCE((SELECT created_at FROM \(tableName) WHERE id = ?), ?),
-                ?)
-            """
-
-            let statement = try db.prepare(sql)
-            defer { sqlite3_finalize(statement) }
-
-            SQLiteDatabase.bind(statement, index: 1, value: game.id)
-            SQLiteDatabase.bind(statement, index: 2, value: workingPath)
-            SQLiteDatabase.bind(statement, index: 3, value: game.gameName)
-            SQLiteDatabase.bind(statement, index: 4, value: jsonString)
-            SQLiteDatabase.bind(statement, index: 5, value: game.lastPlayed)
-            SQLiteDatabase.bind(statement, index: 6, value: game.id)
-            SQLiteDatabase.bind(statement, index: 7, value: now)
-            SQLiteDatabase.bind(statement, index: 8, value: now)
-
-            let result = sqlite3_step(statement)
-            guard result == SQLITE_DONE else {
-                let errorMessage = String(cString: sqlite3_errmsg(db.database))
-                throw GlobalError.validation(
-                    i18nKey: "error.validation.game_save_failed",
-                    level: .notification,
-                    message: "Failed to save game=\(game.gameName) id=\(game.id) to table=\(tableName), sqlite error=\(errorMessage)",
-                )
+            try withPreparedStatement(upsertSQL) { statement in
+                bindGameStatement(statement, game: game, workingPath: workingPath, jsonString: jsonString, now: now)
+                try stepStatement(statement)
             }
         }
     }
@@ -123,46 +126,32 @@ class GameVersionDatabase {
     ///   - workingPath: The working path associated with the games.
     func saveGames(_ games: [GameVersionInfo], workingPath: String) throws {
         try db.transaction {
-            let encoder = JSONEncoder()
-            encoder.dateEncodingStrategy = .secondsSince1970
             let now = Date()
-
-            let sql = """
-            INSERT OR REPLACE INTO \(tableName)
-            (id, working_path, game_name, data_json, last_played, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?,
-                COALESCE((SELECT created_at FROM \(tableName) WHERE id = ?), ?),
-                ?)
-            """
-
-            let statement = try db.prepare(sql)
-            defer { sqlite3_finalize(statement) }
-
-            for game in games {
-                let jsonData = try encoder.encode(game)
-                guard let jsonString = String(data: jsonData, encoding: .utf8) else {
-                    continue
+            try withPreparedStatement(upsertSQL) { statement in
+                for game in games {
+                    guard let jsonString = try? encodeGame(game) else { continue }
+                    sqlite3_reset(statement)
+                    bindGameStatement(statement, game: game, workingPath: workingPath, jsonString: jsonString, now: now)
+                    try stepStatement(statement)
                 }
+            }
+        }
+    }
 
-                sqlite3_reset(statement)
-                SQLiteDatabase.bind(statement, index: 1, value: game.id)
-                SQLiteDatabase.bind(statement, index: 2, value: workingPath)
-                SQLiteDatabase.bind(statement, index: 3, value: game.gameName)
-                SQLiteDatabase.bind(statement, index: 4, value: jsonString)
-                SQLiteDatabase.bind(statement, index: 5, value: game.lastPlayed)
-                SQLiteDatabase.bind(statement, index: 6, value: game.id)
-                SQLiteDatabase.bind(statement, index: 7, value: now)
-                SQLiteDatabase.bind(statement, index: 8, value: now)
-
-                let result = sqlite3_step(statement)
-                guard result == SQLITE_DONE else {
-                    let errorMessage = String(cString: sqlite3_errmsg(db.database))
-                    throw GlobalError.validation(
-                        i18nKey: "error.validation.games_batch_save_failed",
-                        level: .notification,
-                        message: "Batch save failed for game=\(game.gameName) id=\(game.id) in table=\(tableName), sqlite error=\(errorMessage)",
-                    )
-                }
+    /// Updates the last played date for a game.
+    ///
+    /// - Parameters:
+    ///   - id: The unique identifier of the game.
+    ///   - lastPlayed: The new last played date.
+    func updateLastPlayed(id: String, lastPlayed: Date) throws {
+        try db.transaction {
+            try withPreparedStatement(updateLastPlayedSQL) { statement in
+                let timestamp = lastPlayed.timeIntervalSince1970
+                SQLiteDatabase.bind(statement, index: 1, value: String(timestamp))
+                SQLiteDatabase.bind(statement, index: 2, value: lastPlayed)
+                SQLiteDatabase.bind(statement, index: 3, value: Date())
+                SQLiteDatabase.bind(statement, index: 4, value: id)
+                try stepStatement(statement)
             }
         }
     }
@@ -172,36 +161,15 @@ class GameVersionDatabase {
     /// - Parameter workingPath: The working path to load games for.
     /// - Returns: An array of game versions, ordered by last played date.
     func loadGames(workingPath: String) throws -> [GameVersionInfo] {
-        let sql = """
-        SELECT data_json FROM \(tableName)
-        WHERE working_path = ?
-        ORDER BY last_played DESC
-        """
-
-        let statement = try db.prepare(sql)
-        defer { sqlite3_finalize(statement) }
-
-        SQLiteDatabase.bind(statement, index: 1, value: workingPath)
-
         var games: [GameVersionInfo] = []
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .secondsSince1970
-
-        while sqlite3_step(statement) == SQLITE_ROW {
-            guard let jsonString = SQLiteDatabase.stringColumn(statement, index: 0),
-                  let jsonData = jsonString.data(using: .utf8) else {
-                continue
-            }
-
-            do {
-                let game = try decoder.decode(GameVersionInfo.self, from: jsonData)
-                games.append(game)
-            } catch {
-                AppLog.game.error("Failed to decode game data: \(error.localizedDescription)")
-                continue
+        try withPreparedStatement(selectByPathSQL) { statement in
+            SQLiteDatabase.bind(statement, index: 1, value: workingPath)
+            while sqlite3_step(statement) == SQLITE_ROW {
+                if let game = decodeGameFromStatement(statement, columnIndex: 0) {
+                    games.append(game)
+                }
             }
         }
-
         return games
     }
 
@@ -209,37 +177,16 @@ class GameVersionDatabase {
     ///
     /// - Returns: A dictionary of working paths to their associated game arrays.
     func loadAllGames() throws -> [String: [GameVersionInfo]] {
-        let sql = """
-        SELECT working_path, data_json FROM \(tableName)
-        ORDER BY working_path, last_played DESC
-        """
-
-        let statement = try db.prepare(sql)
-        defer { sqlite3_finalize(statement) }
-
         var gamesByPath: [String: [GameVersionInfo]] = [:]
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .secondsSince1970
-
-        while sqlite3_step(statement) == SQLITE_ROW {
-            guard let workingPath = SQLiteDatabase.stringColumn(statement, index: 0),
-                  let jsonString = SQLiteDatabase.stringColumn(statement, index: 1),
-                  let jsonData = jsonString.data(using: .utf8) else {
-                continue
-            }
-
-            do {
-                let game = try decoder.decode(GameVersionInfo.self, from: jsonData)
-                if gamesByPath[workingPath] == nil {
-                    gamesByPath[workingPath] = []
+        try withPreparedStatement(selectAllSQL) { statement in
+            while sqlite3_step(statement) == SQLITE_ROW {
+                guard let workingPath = SQLiteDatabase.stringColumn(statement, index: 0),
+                      let game = decodeGameFromStatement(statement, columnIndex: 1) else {
+                    continue
                 }
-                gamesByPath[workingPath]?.append(game)
-            } catch {
-                AppLog.game.error("Failed to decode game data: \(error.localizedDescription)")
-                continue
+                gamesByPath[workingPath, default: []].append(game)
             }
         }
-
         return gamesByPath
     }
 
@@ -247,18 +194,13 @@ class GameVersionDatabase {
     ///
     /// Uses a SQL `GROUP BY` query without loading JSON payloads.
     func loadWorkingPathsWithCounts() throws -> [(path: String, count: Int)] {
-        let sql = """
-        SELECT working_path, COUNT(*) FROM \(tableName)
-        GROUP BY working_path
-        ORDER BY working_path
-        """
-        let statement = try db.prepare(sql)
-        defer { sqlite3_finalize(statement) }
         var result: [(String, Int)] = []
-        while sqlite3_step(statement) == SQLITE_ROW {
-            guard let path = SQLiteDatabase.stringColumn(statement, index: 0) else { continue }
-            let count = Int(SQLiteDatabase.intColumn(statement, index: 1))
-            result.append((path, count))
+        try withPreparedStatement(countByPathSQL) { statement in
+            while sqlite3_step(statement) == SQLITE_ROW {
+                guard let path = SQLiteDatabase.stringColumn(statement, index: 0) else { continue }
+                let count = Int(SQLiteDatabase.intColumn(statement, index: 1))
+                result.append((path, count))
+            }
         }
         return result
     }
@@ -268,22 +210,14 @@ class GameVersionDatabase {
     /// - Parameter id: The unique identifier of the game.
     /// - Returns: The game version, or `nil` if no matching record exists.
     func getGame(by id: String) throws -> GameVersionInfo? {
-        let sql = "SELECT data_json FROM \(tableName) WHERE id = ? LIMIT 1"
-
-        let statement = try db.prepare(sql)
-        defer { sqlite3_finalize(statement) }
-
-        SQLiteDatabase.bind(statement, index: 1, value: id)
-
-        guard sqlite3_step(statement) == SQLITE_ROW,
-              let jsonString = SQLiteDatabase.stringColumn(statement, index: 0),
-              let jsonData = jsonString.data(using: .utf8) else {
-            return nil
+        var result: GameVersionInfo?
+        try withPreparedStatement(selectByIdSQL) { statement in
+            SQLiteDatabase.bind(statement, index: 1, value: id)
+            if sqlite3_step(statement) == SQLITE_ROW {
+                result = decodeGameFromStatement(statement, columnIndex: 0)
+            }
         }
-
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .secondsSince1970
-        return try decoder.decode(GameVersionInfo.self, from: jsonData)
+        return result
     }
 
     /// Deletes a game by its identifier.
@@ -291,20 +225,9 @@ class GameVersionDatabase {
     /// - Parameter id: The unique identifier of the game to delete.
     func deleteGame(id: String) throws {
         try db.transaction {
-            let sql = "DELETE FROM \(tableName) WHERE id = ?"
-            let statement = try db.prepare(sql)
-            defer { sqlite3_finalize(statement) }
-
-            SQLiteDatabase.bind(statement, index: 1, value: id)
-
-            let result = sqlite3_step(statement)
-            guard result == SQLITE_DONE else {
-                let errorMessage = String(cString: sqlite3_errmsg(db.database))
-                throw GlobalError.validation(
-                    i18nKey: "error.validation.game_delete_failed",
-                    level: .notification,
-                    message: "Failed to delete game id=\(id) from table=\(tableName), sqlite error=\(errorMessage)",
-                )
+            try withPreparedStatement(deleteByIdSQL) { statement in
+                SQLiteDatabase.bind(statement, index: 1, value: id)
+                try stepStatement(statement)
             }
         }
     }
@@ -314,20 +237,9 @@ class GameVersionDatabase {
     /// - Parameter workingPath: The working path whose games should be deleted.
     func deleteGames(workingPath: String) throws {
         try db.transaction {
-            let sql = "DELETE FROM \(tableName) WHERE working_path = ?"
-            let statement = try db.prepare(sql)
-            defer { sqlite3_finalize(statement) }
-
-            SQLiteDatabase.bind(statement, index: 1, value: workingPath)
-
-            let result = sqlite3_step(statement)
-            guard result == SQLITE_DONE else {
-                let errorMessage = String(cString: sqlite3_errmsg(db.database))
-                throw GlobalError.validation(
-                    i18nKey: "error.validation.games_delete_failed",
-                    level: .notification,
-                    message: "Failed to delete games for workingPath=\(workingPath) from table=\(tableName), sqlite error=\(errorMessage)",
-                )
+            try withPreparedStatement(deleteByPathSQL) { statement in
+                SQLiteDatabase.bind(statement, index: 1, value: workingPath)
+                try stepStatement(statement)
             }
         }
     }
@@ -341,58 +253,73 @@ class GameVersionDatabase {
     ///   - gameName: The game name to match.
     func deleteGames(workingPath: String, gameName: String) throws {
         try db.transaction {
-            let sql = "DELETE FROM \(tableName) WHERE working_path = ? AND game_name = ?"
-            let statement = try db.prepare(sql)
-            defer { sqlite3_finalize(statement) }
-
-            SQLiteDatabase.bind(statement, index: 1, value: workingPath)
-            SQLiteDatabase.bind(statement, index: 2, value: gameName)
-
-            let result = sqlite3_step(statement)
-            guard result == SQLITE_DONE else {
-                let errorMessage = String(cString: sqlite3_errmsg(db.database))
-                throw GlobalError.validation(
-                    i18nKey: "error.validation.game_delete_failed",
-                    level: .notification,
-                    message: "Failed to delete games for workingPath=\(workingPath) gameName=\(gameName), sqlite error=\(errorMessage)",
-                )
+            try withPreparedStatement(deleteByPathAndNameSQL) { statement in
+                SQLiteDatabase.bind(statement, index: 1, value: workingPath)
+                SQLiteDatabase.bind(statement, index: 2, value: gameName)
+                try stepStatement(statement)
             }
         }
     }
 
-    /// Updates the last played date for a game.
-    ///
-    /// - Parameters:
-    ///   - id: The unique identifier of the game.
-    ///   - lastPlayed: The new last played date.
-    func updateLastPlayed(id: String, lastPlayed: Date) throws {
-        try db.transaction {
-            let timestamp = lastPlayed.timeIntervalSince1970
-            let sql = """
-            UPDATE \(tableName)
-            SET data_json = json_set(data_json, '$.lastPlayed', ?),
-                last_played = ?,
-                updated_at = ?
-            WHERE id = ?
-            """
+    private func withPreparedStatement<T>(
+        _ sql: String,
+        _ body: (OpaquePointer) throws -> T,
+    ) throws -> T {
+        let statement = try db.prepare(sql)
+        defer { sqlite3_finalize(statement) }
+        return try body(statement)
+    }
 
-            let statement = try db.prepare(sql)
-            defer { sqlite3_finalize(statement) }
-
-            SQLiteDatabase.bind(statement, index: 1, value: String(timestamp))
-            SQLiteDatabase.bind(statement, index: 2, value: lastPlayed)
-            SQLiteDatabase.bind(statement, index: 3, value: Date())
-            SQLiteDatabase.bind(statement, index: 4, value: id)
-
-            let result = sqlite3_step(statement)
-            guard result == SQLITE_DONE else {
-                let errorMessage = String(cString: sqlite3_errmsg(db.database))
-                throw GlobalError.validation(
-                    i18nKey: "error.validation.last_played_update_failed",
-                    level: .notification,
-                    message: "Failed to update lastPlayed for game id=\(id) in table=\(tableName), sqlite error=\(errorMessage)",
-                )
-            }
+    private func stepStatement(_ statement: OpaquePointer) throws {
+        let result = sqlite3_step(statement)
+        guard result == SQLITE_DONE else {
+            let errorMessage = String(cString: sqlite3_errmsg(db.database))
+            throw GlobalError.validation(
+                i18nKey: "error.validation.sql_execution_failed",
+                level: .notification,
+                message: "SQLite step failed, expected SQLITE_DONE. Error: \(errorMessage)",
+            )
         }
+    }
+
+    private func encodeGame(_ game: GameVersionInfo) throws -> String {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .secondsSince1970
+        let jsonData = try encoder.encode(game)
+        guard let jsonString = String(data: jsonData, encoding: .utf8) else {
+            throw GlobalError.validation(
+                i18nKey: "error.validation.json_encode_failed",
+                level: .notification,
+                message: "Failed to encode game=\(game.gameName) id=\(game.id) to UTF-8 JSON string",
+            )
+        }
+        return jsonString
+    }
+
+    private func decodeGameFromStatement(_ statement: OpaquePointer, columnIndex: Int32) -> GameVersionInfo? {
+        guard let jsonString = SQLiteDatabase.stringColumn(statement, index: columnIndex),
+              let jsonData = jsonString.data(using: .utf8) else {
+            return nil
+        }
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .secondsSince1970
+        return try? decoder.decode(GameVersionInfo.self, from: jsonData)
+    }
+
+    private func bindGameStatement(
+        _ statement: OpaquePointer,
+        game: GameVersionInfo,
+        workingPath: String,
+        jsonString: String,
+        now: Date,
+    ) {
+        SQLiteDatabase.bind(statement, index: 1, value: game.id)
+        SQLiteDatabase.bind(statement, index: 2, value: workingPath)
+        SQLiteDatabase.bind(statement, index: 3, value: game.gameName)
+        SQLiteDatabase.bind(statement, index: 4, value: jsonString)
+        SQLiteDatabase.bind(statement, index: 5, value: game.lastPlayed)
+        SQLiteDatabase.bind(statement, index: 6, value: game.id)
+        SQLiteDatabase.bind(statement, index: 7, value: now)
+        SQLiteDatabase.bind(statement, index: 8, value: now)
     }
 }

@@ -44,8 +44,8 @@ class SQLiteDatabase {
 
     private init(path: String) {
         dbPath = path
-        self.queue = DispatchQueue(label: "com.swiftcraftlauncher.sqlite", qos: .utility)
-        self.queue.setSpecific(key: Self.queueKey, value: true)
+        queue = DispatchQueue(label: "com.swiftcraftlauncher.sqlite", qos: .utility)
+        queue.setSpecific(key: Self.queueKey, value: true)
     }
 
     private var isOnQueue: Bool {
