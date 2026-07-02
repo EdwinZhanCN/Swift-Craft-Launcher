@@ -232,7 +232,7 @@ struct ModrinthDetailCardView: View {
 
     private var followerInfoView: some View {
         ModrinthDetailCardInfoRowView(
-            icon: "heart",
+            icon: "star",
             text: Self.formatNumber(project.follows),
         )
     }
