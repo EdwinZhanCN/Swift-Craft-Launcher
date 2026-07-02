@@ -27,9 +27,6 @@ class GameVersionDatabase {
     private let deleteByPathAndNameSQL: String
     private let updateLastPlayedSQL: String
 
-    /// Creates a game version database.
-    ///
-    /// - Parameter dbPath: The file path for the SQLite database.
     init(dbPath: String) {
         db = SQLiteDatabase.database(at: dbPath)
         upsertSQL = """

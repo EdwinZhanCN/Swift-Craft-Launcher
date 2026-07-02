@@ -64,8 +64,7 @@ class GameRepository: ObservableObject {
         self.workingPathProvider = workingPathProvider
         self.errorHandler = errorHandler
         self.modScanner = modScanner
-        let dbPath = AppPaths.gameVersionDatabase.path
-        database = GameVersionDatabase(dbPath: dbPath)
+        database = GameVersionDatabase(dbPath: AppPaths.gameVersionDatabase.path)
 
         lastWorkingPath = currentWorkingPath
 
