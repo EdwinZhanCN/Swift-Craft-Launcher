@@ -142,7 +142,7 @@ struct SkinUploadSectionView: View {
             presenting: pendingDeletion,
         ) { item in
             Button("common.delete".localized(), role: .destructive) {
-                _ = skinLibraryStore.deleteItem(item)
+                try? skinLibraryStore.deleteItem(item)
                 pendingDeletion = nil
                 reloadSkinLibraryItems()
             }
@@ -218,7 +218,7 @@ struct SkinUploadSectionView: View {
     }
 
     private func reloadSkinLibraryItems() {
-        skinLibraryItems = skinLibraryStore.loadItems()
+        skinLibraryItems = (try? skinLibraryStore.loadItems()) ?? []
     }
 }
 

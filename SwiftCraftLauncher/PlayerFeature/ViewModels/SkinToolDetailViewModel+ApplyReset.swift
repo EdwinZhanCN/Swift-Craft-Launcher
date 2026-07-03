@@ -186,7 +186,7 @@ extension SkinToolDetailViewModel {
         guard AppServices.playerSettingsManager.enableHistorySkinLibrary else { return }
         guard let selectedSkinData else { return }
         let originalFileName = selectedSkinPath.map { URL(fileURLWithPath: $0).lastPathComponent }
-        if let item = skinLibraryStore.saveSkin(
+        if let item = try? skinLibraryStore.saveSkin(
             data: selectedSkinData,
             model: currentModel,
             originalFileName: originalFileName,

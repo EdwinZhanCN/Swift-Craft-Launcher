@@ -15,7 +15,7 @@ import SQLite3
 /// records are automatically cleaned up when the corresponding file is missing.
 final class SkinLibraryStore {
     private let fileManager: FileManager
-    private let database: SQLiteDatabase
+    private let db: SQLiteDatabase
     private let tableName = AppConstants.DatabaseTables.skinLibrary
     private var isInitialized = false
 
@@ -27,7 +27,7 @@ final class SkinLibraryStore {
 
     init(fileManager: FileManager = .default) {
         self.fileManager = fileManager
-        database = SQLiteDatabase.database(at: AppPaths.gameVersionDatabase.path)
+        db = SQLiteDatabase.database(at: AppPaths.gameVersionDatabase.path)
         createTableSQL = """
         CREATE TABLE IF NOT EXISTS \(AppConstants.DatabaseTables.skinLibrary) (
             original_file_name TEXT NOT NULL,
@@ -50,25 +50,20 @@ final class SkinLibraryStore {
     }
 
     /// Loads all skin library items, omitting entries whose files are missing.
-    func loadItems() -> [SkinLibraryItem] {
-        do {
-            try initializeIfNeeded()
-            var items: [SkinLibraryItem] = []
-            try withPreparedStatement(selectAllSQL) { statement in
-                while sqlite3_step(statement) == SQLITE_ROW {
-                    guard let item = decodeItem(from: statement) else { continue }
-                    if fileManager.fileExists(atPath: item.fileURL.path) {
-                        items.append(item)
-                    } else {
-                        try? deleteItemRecord(sha1: item.sha1)
-                    }
+    func loadItems() throws -> [SkinLibraryItem] {
+        try initializeIfNeeded()
+        var items: [SkinLibraryItem] = []
+        try withPreparedStatement(selectAllSQL) { statement in
+            while sqlite3_step(statement) == SQLITE_ROW {
+                guard let item = decodeItem(from: statement) else { continue }
+                if fileManager.fileExists(atPath: item.fileURL.path) {
+                    items.append(item)
+                } else {
+                    try? deleteItemRecord(sha1: item.sha1)
                 }
             }
-            return items
-        } catch {
-            AppLog.player.error("Failed to load skin library: \(error.localizedDescription)")
-            return []
         }
+        return items
     }
 
     /// Saves skin data to the library and writes the image file to disk.
@@ -79,67 +74,52 @@ final class SkinLibraryStore {
     ///   - data: The raw PNG data of the skin.
     ///   - model: The skin model type.
     ///   - originalFileName: The original file name, used for display purposes.
-    /// - Returns: The created library item, or `nil` if saving fails.
+    /// - Returns: The created library item.
     @discardableResult
     func saveSkin(
         data: Data,
         model: PlayerSkinService.PublicSkinInfo.SkinModel,
         originalFileName: String?,
-    ) -> SkinLibraryItem? {
-        do {
-            try initializeIfNeeded()
+    ) throws -> SkinLibraryItem {
+        try initializeIfNeeded()
 
-            let sha1 = data.sha1
-            let libraryFileName = "\(sha1).png"
-            let destinationURL = AppPaths.skinsDirectory.appendingPathComponent(libraryFileName)
-            let now = Date()
+        let sha1 = data.sha1
+        let libraryFileName = "\(sha1).png"
+        let destinationURL = AppPaths.skinsDirectory.appendingPathComponent(libraryFileName)
+        let now = Date()
 
-            if !fileManager.fileExists(atPath: destinationURL.path) {
-                try data.write(to: destinationURL, options: .atomic)
-            }
-
-            let item = SkinLibraryItem(
-                originalFileName: normalizedFileName(from: originalFileName),
-                sha1: sha1,
-                model: model,
-                lastUsedAt: now,
-            )
-
-            try upsert(item)
-            return item
-        } catch {
-            AppLog.player.error("Failed to save skin into library: \(error.localizedDescription)")
-            return nil
+        if !fileManager.fileExists(atPath: destinationURL.path) {
+            try data.write(to: destinationURL, options: .atomic)
         }
+
+        let item = SkinLibraryItem(
+            originalFileName: normalizedFileName(from: originalFileName),
+            sha1: sha1,
+            model: model,
+            lastUsedAt: now,
+        )
+
+        try upsert(item)
+        return item
     }
 
     /// Deletes a skin library item and its associated file.
     ///
     /// - Parameter item: The item to delete.
-    /// - Returns: `true` if the deletion was successful.
-    func deleteItem(_ item: SkinLibraryItem) -> Bool {
-        do {
-            try initializeIfNeeded()
+    func deleteItem(_ item: SkinLibraryItem) throws {
+        try initializeIfNeeded()
 
-            if fileManager.fileExists(atPath: item.fileURL.path) {
-                try fileManager.removeItem(at: item.fileURL)
-            }
-
-            try deleteItemRecord(sha1: item.sha1)
-            return true
-        } catch {
-            AppLog.player.error("Failed to delete skin library item: \(error.localizedDescription)")
-            return false
+        if fileManager.fileExists(atPath: item.fileURL.path) {
+            try fileManager.removeItem(at: item.fileURL)
         }
+
+        try deleteItemRecord(sha1: item.sha1)
     }
 
     private func initializeIfNeeded() throws {
-        if isInitialized {
-            return
-        }
-
+        guard !isInitialized else { return }
         try ensureDirectoriesIfNeeded()
-        try database.open()
+        try db.open()
         try migrateTableIfNeeded()
         try createTableIfNeeded()
         try createIndexesIfNeeded()
@@ -155,7 +135,7 @@ final class SkinLibraryStore {
     }
 
     private func createTableIfNeeded() throws {
-        try database.execute(createTableSQL)
+        try db.execute(createTableSQL)
     }
 
     private func migrateTableIfNeeded() throws {
@@ -174,9 +154,9 @@ final class SkinLibraryStore {
         let needsMigration = columns.contains("id") || columns.contains("created_at") || columns.contains("file_name")
         guard needsMigration else { return }
 
-        try database.transaction {
+        try db.transaction {
             let tempTable = "\(tableName)_new"
-            try database.execute("""
+            try db.execute("""
             CREATE TABLE IF NOT EXISTS \(tempTable) (
                 original_file_name TEXT NOT NULL,
                 sha1 TEXT NOT NULL PRIMARY KEY,
@@ -184,27 +164,27 @@ final class SkinLibraryStore {
                 last_used_at REAL NOT NULL
             );
             """)
-            try database.execute("""
+            try db.execute("""
             INSERT OR REPLACE INTO \(tempTable) (original_file_name, sha1, model, last_used_at)
             SELECT original_file_name, sha1, model, last_used_at
             FROM \(tableName);
             """)
-            try database.execute("DROP TABLE \(tableName);")
-            try database.execute("ALTER TABLE \(tempTable) RENAME TO \(tableName);")
+            try db.execute("DROP TABLE \(tableName);")
+            try db.execute("ALTER TABLE \(tempTable) RENAME TO \(tableName);")
         }
     }
 
     private func createIndexesIfNeeded() throws {
-        try? database.execute(
+        try? db.execute(
             "CREATE INDEX IF NOT EXISTS idx_skin_library_last_used_at ON \(tableName)(last_used_at DESC);",
         )
-        try? database.execute(
+        try? db.execute(
             "CREATE INDEX IF NOT EXISTS idx_skin_library_sha1 ON \(tableName)(sha1);",
         )
     }
 
     private func upsert(_ item: SkinLibraryItem) throws {
-        try database.transaction {
+        try db.transaction {
             try withPreparedStatement(upsertSQL) { statement in
                 SQLiteDatabase.bind(statement, index: 1, value: item.originalFileName)
                 SQLiteDatabase.bind(statement, index: 2, value: item.sha1)
@@ -216,7 +196,7 @@ final class SkinLibraryStore {
     }
 
     private func deleteItemRecord(sha1: String) throws {
-        try database.transaction {
+        try db.transaction {
             try withPreparedStatement(deleteSQL) { statement in
                 SQLiteDatabase.bind(statement, index: 1, value: sha1)
                 try stepStatement(statement)
@@ -228,7 +208,7 @@ final class SkinLibraryStore {
         _ sql: String,
         _ body: (OpaquePointer) throws -> T,
     ) throws -> T {
-        let statement = try database.prepare(sql)
+        let statement = try db.prepare(sql)
         defer { sqlite3_finalize(statement) }
         return try body(statement)
     }
@@ -236,7 +216,7 @@ final class SkinLibraryStore {
     private func stepStatement(_ statement: OpaquePointer) throws {
         let result = sqlite3_step(statement)
         guard result == SQLITE_DONE else {
-            let errorMessage = String(cString: sqlite3_errmsg(database.database))
+            let errorMessage = String(cString: sqlite3_errmsg(db.database))
             throw GlobalError.validation(
                 i18nKey: "error.validation.sql_execution_failed",
                 level: .notification,
