@@ -29,9 +29,7 @@ enum DataSource: String, CaseIterable, Codable {
 
 /// Manages global application settings for the launcher.
 class GameSettingsManager: ObservableObject {
-    static let shared = GameSettingsManager()
-
-    private init() { }
+    init() { }
 
     @AppStorage(AppConstants.UserDefaultsKeys.globalXms)
     var globalXms: Int = 512 {

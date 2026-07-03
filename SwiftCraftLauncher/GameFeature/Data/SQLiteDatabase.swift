@@ -12,25 +12,40 @@ import SQLite3
 ///
 /// Manages a single database connection with WAL journal mode and memory-mapped I/O.
 /// All operations are serialized on a dedicated dispatch queue.
+///
+/// Instances are shared by path: calling ``database(at:)`` with the same path
+/// returns the same connection, avoiding redundant opens and file descriptors.
 class SQLiteDatabase {
     private var db: OpaquePointer?
     private let dbPath: String
     private let queue: DispatchQueue
     private static let queueKey = DispatchSpecificKey<Bool>()
 
-    /// Creates a database connection.
+    private static var instances: [String: SQLiteDatabase] = [:]
+    private static let instancesLock = NSLock()
+
+    /// Returns a shared `SQLiteDatabase` instance for the given file path.
     ///
-    /// - Parameters:
-    ///   - path: The file path of the SQLite database.
-    ///   - queue: An optional dispatch queue for serializing operations.
-    init(path: String, queue: DispatchQueue? = nil) {
-        dbPath = path
-        self.queue = queue ?? DispatchQueue(label: "com.swiftcraftlauncher.sqlite", qos: .utility)
-        self.queue.setSpecific(key: Self.queueKey, value: true)
+    /// The instance is lazily created on first access and reused thereafter.
+    /// The connection is not closed until the process exits.
+    ///
+    /// - Parameter path: The file path of the SQLite database.
+    /// - Returns: A shared database instance.
+    static func database(at path: String) -> SQLiteDatabase {
+        instancesLock.lock()
+        defer { instancesLock.unlock() }
+        if let existing = instances[path] {
+            return existing
+        }
+        let db = SQLiteDatabase(path: path)
+        instances[path] = db
+        return db
     }
 
-    deinit {
-        close()
+    private init(path: String) {
+        dbPath = path
+        queue = DispatchQueue(label: "com.swiftcraftlauncher.sqlite", qos: .utility)
+        queue.setSpecific(key: Self.queueKey, value: true)
     }
 
     private var isOnQueue: Bool {
@@ -76,13 +91,11 @@ class SQLiteDatabase {
     }
 
     /// Closes the database connection.
+    ///
+    /// Shared instances ignore this call; the connection is closed only when
+    /// the process exits.
     func close() {
-        sync {
-            guard let db else { return }
-            sqlite3_close(db)
-            self.db = nil
-            AppLog.game.debug("SQLite database closed")
-        }
+        // Shared instances must not close the underlying connection.
     }
 
     private func enableWALMode() throws {

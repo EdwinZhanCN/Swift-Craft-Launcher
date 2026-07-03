@@ -20,9 +20,7 @@ struct SkinPreviewData {
 /// Shared observable store for passing data between auxiliary windows.
 @MainActor
 class WindowDataStore: ObservableObject {
-    static let shared = WindowDataStore()
-
-    private init() { }
+    init() { }
 
     @Published var aiChatState: ChatState?
 

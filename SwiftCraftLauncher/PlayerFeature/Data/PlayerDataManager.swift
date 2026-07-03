@@ -11,8 +11,6 @@ import Foundation
 ///
 /// Profiles are persisted to `UserDefaults` (plist) and credentials are stored in the system Keychain.
 class PlayerDataManager {
-    static let shared = PlayerDataManager()
-
     private let errorHandler: GlobalErrorHandler
     private let profileStore: UserProfileStore
     private let credentialStore = AuthCredentialStore()

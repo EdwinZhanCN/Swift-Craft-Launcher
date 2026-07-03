@@ -76,7 +76,11 @@ final class SidebarItemExtendedTests: XCTestCase {
 
     func testResourceType_localizedName_notEmpty() {
         for type in ResourceType.allCases {
-            XCTAssertFalse(type.localizedName.isEmpty, "localizedName for \(type.rawValue) should not be empty")
+            let localizedName = type.localizedName.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            XCTAssertFalse(localizedName.isEmpty, "localizedName for \(type.rawValue) should not be empty")
+            XCTAssertNotEqual(localizedName, "…", "localizedName for \(type.rawValue) should not be ellipsis-only")
+            XCTAssertNotEqual(localizedName, "...", "localizedName for \(type.rawValue) should not be ellipsis-only")
         }
     }
 

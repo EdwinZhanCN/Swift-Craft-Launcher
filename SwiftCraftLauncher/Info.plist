@@ -68,10 +68,6 @@
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
 			<string>com.su.code.SwiftCraftLauncher</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>swift-craft-launcher</string>
-			</array>
 		</dict>
 	</array>
 	<key>UTImportedTypeDeclarations</key>

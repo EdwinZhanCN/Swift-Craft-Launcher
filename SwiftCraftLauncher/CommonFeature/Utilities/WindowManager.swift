@@ -12,11 +12,9 @@ import SwiftUI
 
 @MainActor
 class WindowManager {
-    static let shared = WindowManager()
-
     private var openAuxiliaryWindowAction: ((AuxiliaryWindowID) -> Void)?
 
-    private init() { }
+    init() { }
 
     func setOpenAuxiliaryWindowAction(_ action: @escaping (AuxiliaryWindowID) -> Void) {
         openAuxiliaryWindowAction = action

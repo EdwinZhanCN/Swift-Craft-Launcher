@@ -9,14 +9,12 @@ import Foundation
 
 /// Provides a SQLite-backed cache for parsed mod metadata.
 class ModCacheManager {
-    static let shared = ModCacheManager()
-
     private let modCacheDB: ModCacheDatabase
     private let errorHandler: GlobalErrorHandler
     private let queue = DispatchQueue(label: "ModCacheManager.queue")
     private var isInitialized = false
 
-    private init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
+    init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
         self.errorHandler = errorHandler
         let dbPath = AppPaths.gameVersionDatabase.path
         modCacheDB = ModCacheDatabase(dbPath: dbPath)

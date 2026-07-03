@@ -9,13 +9,12 @@ import Foundation
 
 /// Tracks game running and launching states per player using process keys.
 class GameStatusManager: ObservableObject {
-    static let shared = GameStatusManager()
     /// Running states keyed by processKey(gameId, userId).
     @Published private var gameRunningStates: [String: Bool] = [:]
     /// Launching states keyed by processKey(gameId, userId).
     @Published private var gameLaunchingStates: [String: Bool] = [:]
 
-    private init() { }
+    init() { }
 
     func cachedIsGameRunning(gameId: String, userId: String) -> Bool {
         let key = GameProcessManager.processKey(gameId: gameId, userId: userId)

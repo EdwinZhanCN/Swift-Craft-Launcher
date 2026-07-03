@@ -48,12 +48,10 @@ struct MinecraftSkinUtils: View {
             if let cache = renderedCache {
                 avatarLayers(for: cache)
             } else if isLoading {
-                VStack(spacing: 8) {
-                    ProgressView()
-                        .controlSize(.small)
-                }
+                ProgressView()
+                    .controlSize(.small)
             } else if error != nil {
-                Self(type: .asset, src: "steve", size: size)
+                fallbackIcon
             }
         }
         .frame(width: size, height: size)
@@ -80,6 +78,17 @@ struct MinecraftSkinUtils: View {
             loadTask?.cancel()
             loadTask = nil
         }
+    }
+
+    private var fallbackIcon: some View {
+        Image(systemName: "person.fill")
+            .resizable()
+            .interpolation(.none)
+            .frame(width: size * 0.6, height: size * 0.6)
+            .foregroundStyle(.secondary)
+            .frame(width: size, height: size)
+            .background(Color(nsColor: .controlBackgroundColor))
+            .clipShape(Circle())
     }
 
     private func avatarLayers(for cache: RenderedImageCache) -> some View {

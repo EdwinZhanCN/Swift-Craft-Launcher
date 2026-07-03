@@ -10,8 +10,6 @@ import SwiftUI
 
 /// Shares the currently selected game ID between the main view and settings.
 class SelectedGameManager: ObservableObject {
-    static let shared = SelectedGameManager()
-
     /// The currently selected game identifier.
     @Published var selectedGameId: String? {
         didSet {
@@ -26,7 +24,7 @@ class SelectedGameManager: ObservableObject {
         }
     }
 
-    private init() { }
+    init() { }
 
     /// Sets the selected game.
     /// - Parameter gameId: The game identifier, or `nil` to clear the selection.

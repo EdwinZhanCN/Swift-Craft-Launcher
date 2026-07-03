@@ -11,13 +11,12 @@ import SwiftUI
 /// Collects game crash logs and presents them in an AI chat window.
 @MainActor
 class GameLogCollector {
-    static let shared = GameLogCollector()
     private let errorHandler: GlobalErrorHandler
     private let windowManager: WindowManager
     private let aiChatManager: AIChatManager
     private let windowDataStore: WindowDataStore
 
-    private init(
+    init(
         errorHandler: GlobalErrorHandler = AppServices.errorHandler,
         windowManager: WindowManager = AppServices.windowManager,
         aiChatManager: AIChatManager = AppServices.aiChatManager,

@@ -9,11 +9,10 @@ import Foundation
 
 /// Provides thread-safe JSON-based caching organized by namespaces.
 class AppCacheManager {
-    static let shared = AppCacheManager()
     private let queue = DispatchQueue(label: "AppCacheManager.queue")
     private let errorHandler: GlobalErrorHandler
 
-    private init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
+    init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
         self.errorHandler = errorHandler
     }
 

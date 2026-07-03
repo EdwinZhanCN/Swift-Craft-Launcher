@@ -10,8 +10,6 @@ import Foundation
 /// Manages Java runtime downloads and tracks their progress.
 @MainActor
 class JavaDownloadManager: ObservableObject {
-    static let shared = JavaDownloadManager()
-
     @Published var downloadState = JavaDownloadState()
     @Published var isWindowVisible = false
 
@@ -21,8 +19,8 @@ class JavaDownloadManager: ObservableObject {
     private var currentDownloadTask: Task<Void, Error>?
     private var cancelRequested = false
 
-    private init(
-        javaRuntimeDownloader: JavaRuntimeDownloader = .shared,
+    init(
+        javaRuntimeDownloader: JavaRuntimeDownloader = AppServices.javaRuntimeDownloader,
         windowManager: WindowManager = AppServices.windowManager,
     ) {
         self.javaRuntimeDownloader = javaRuntimeDownloader

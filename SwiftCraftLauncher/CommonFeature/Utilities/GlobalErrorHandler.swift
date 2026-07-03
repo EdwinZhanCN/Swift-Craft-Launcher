@@ -263,8 +263,6 @@ extension GlobalError {
 
 /// Manages global error state, including presentation and history.
 class GlobalErrorHandler: ObservableObject {
-    static let shared = GlobalErrorHandler()
-
     @Published var currentError: GlobalError?
     @Published var errorHistory: [GlobalError] = []
 

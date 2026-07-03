@@ -48,8 +48,6 @@ struct SwiftCraftLauncherApp: App {
 
         Self.configureURLCache()
         Self.configureNotifications(delegate: notificationCenterDelegate)
-
-        AppServices.freeze()
     }
 
     /// The app's scene hierarchy.

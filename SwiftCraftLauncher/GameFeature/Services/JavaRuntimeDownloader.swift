@@ -10,13 +10,11 @@ import ZIPFoundation
 
 /// Downloads and installs Java runtime distributions.
 class JavaRuntimeDownloader {
-    static let shared = JavaRuntimeDownloader()
-
     private let progressActor = ProgressActor()
     private let cancelActor = CancelActor()
     private let generalSettingsManager: GeneralSettingsManager
 
-    private init(generalSettingsManager: GeneralSettingsManager = AppServices.generalSettingsManager) {
+    init(generalSettingsManager: GeneralSettingsManager = AppServices.generalSettingsManager) {
         self.generalSettingsManager = generalSettingsManager
     }
 
@@ -38,12 +36,12 @@ class JavaRuntimeDownloader {
             try FileManager.default.removeItem(at: dir)
         }
 
-        if let bundledVersionURL = JavaRuntimeService.shared.specialJavaRuntimeURL(for: version) {
+        if let bundledVersionURL = AppServices.javaRuntimeService.specialJavaRuntimeURL(for: version) {
             try await downloadBundledJavaRuntime(version: version, url: bundledVersionURL)
             return
         }
 
-        let manifestURL = try await JavaRuntimeService.shared.getManifestURL(for: version)
+        let manifestURL = try await AppServices.javaRuntimeService.getManifestURL(for: version)
         let manifestData = try await fetchDataFromURL(manifestURL)
         guard let manifest = try JSONSerialization.jsonObject(with: manifestData) as? [String: Any],
               let files = manifest["files"] as? [String: Any] else {

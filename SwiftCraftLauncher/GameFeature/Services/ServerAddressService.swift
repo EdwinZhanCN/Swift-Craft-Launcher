@@ -11,9 +11,7 @@ import Foundation
 /// Reads and manages Minecraft server addresses from `servers.dat` files.
 @MainActor
 class ServerAddressService {
-    static let shared = ServerAddressService()
-
-    private init() { }
+    init() { }
 
     nonisolated func parseServerAddress(from detail: ModrinthProjectDetail) -> String {
         let rawFileName = detail.fileName ?? ""

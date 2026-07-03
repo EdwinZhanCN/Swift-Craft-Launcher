@@ -21,8 +21,6 @@ public enum InterfaceLayoutStyle: String, CaseIterable {
 
 /// Manages general application settings including proxy, downloads, and layout preferences.
 class GeneralSettingsManager: ObservableObject, WorkingPathProviding {
-    static let shared = GeneralSettingsManager()
-
     /// Whether GitHub proxy is enabled.
     @AppStorage(AppConstants.UserDefaultsKeys.enableGitHubProxy)
     var enableGitHubProxy: Bool = true {
@@ -62,7 +60,7 @@ class GeneralSettingsManager: ObservableObject, WorkingPathProviding {
         didSet { objectWillChange.send() }
     }
 
-    private init() { }
+    init() { }
 
     /// The current working path, falling back to the default support directory when empty.
     var currentWorkingPath: String {

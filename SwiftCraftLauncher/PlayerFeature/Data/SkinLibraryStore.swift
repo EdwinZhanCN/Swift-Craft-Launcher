@@ -27,7 +27,7 @@ final class SkinLibraryStore {
 
     init(fileManager: FileManager = .default) {
         self.fileManager = fileManager
-        database = SQLiteDatabase(path: AppPaths.gameVersionDatabase.path)
+        database = SQLiteDatabase.database(at: AppPaths.gameVersionDatabase.path)
         createTableSQL = """
         CREATE TABLE IF NOT EXISTS \(AppConstants.DatabaseTables.skinLibrary) (
             original_file_name TEXT NOT NULL,
@@ -204,17 +204,23 @@ final class SkinLibraryStore {
     }
 
     private func upsert(_ item: SkinLibraryItem) throws {
-        try executeUpdate(upsertSQL, errorPrefix: "Failed to save skin library") { statement in
-            SQLiteDatabase.bind(statement, index: 1, value: item.originalFileName)
-            SQLiteDatabase.bind(statement, index: 2, value: item.sha1)
-            SQLiteDatabase.bind(statement, index: 3, value: item.model.rawValue)
-            SQLiteDatabase.bind(statement, index: 4, value: item.lastUsedAt)
+        try database.transaction {
+            try withPreparedStatement(upsertSQL) { statement in
+                SQLiteDatabase.bind(statement, index: 1, value: item.originalFileName)
+                SQLiteDatabase.bind(statement, index: 2, value: item.sha1)
+                SQLiteDatabase.bind(statement, index: 3, value: item.model.rawValue)
+                SQLiteDatabase.bind(statement, index: 4, value: item.lastUsedAt)
+                try stepStatement(statement)
+            }
         }
     }
 
     private func deleteItemRecord(sha1: String) throws {
-        try executeUpdate(deleteSQL, errorPrefix: "Failed to delete skin library record") { statement in
-            SQLiteDatabase.bind(statement, index: 1, value: sha1)
+        try database.transaction {
+            try withPreparedStatement(deleteSQL) { statement in
+                SQLiteDatabase.bind(statement, index: 1, value: sha1)
+                try stepStatement(statement)
+            }
         }
     }
 
@@ -227,22 +233,15 @@ final class SkinLibraryStore {
         return try body(statement)
     }
 
-    private func executeUpdate(
-        _ sql: String,
-        errorPrefix _: String = "SQL execution failed",
-        bind: (OpaquePointer) throws -> Void,
-    ) throws {
-        try database.transaction {
-            try withPreparedStatement(sql) { statement in
-                try bind(statement)
-                guard sqlite3_step(statement) == SQLITE_DONE else {
-                    throw GlobalError.validation(
-                        i18nKey: "error.validation.sql_execution_failed",
-                        level: .notification,
-                        message: "SQLite step returned \(sqlite3_step(statement)), expected SQLITE_DONE. DB error: \(sqliteErrorMessage())",
-                    )
-                }
-            }
+    private func stepStatement(_ statement: OpaquePointer) throws {
+        let result = sqlite3_step(statement)
+        guard result == SQLITE_DONE else {
+            let errorMessage = String(cString: sqlite3_errmsg(database.database))
+            throw GlobalError.validation(
+                i18nKey: "error.validation.sql_execution_failed",
+                level: .notification,
+                message: "SQLite step failed, expected SQLITE_DONE. Error: \(errorMessage)",
+            )
         }
     }
 
@@ -265,12 +264,5 @@ final class SkinLibraryStore {
             model: model,
             lastUsedAt: SQLiteDatabase.dateColumn(statement, index: 3),
         )
-    }
-
-    private func sqliteErrorMessage() -> String {
-        guard let db = database.database else {
-            return "Unknown SQLite error"
-        }
-        return String(cString: sqlite3_errmsg(db))
     }
 }

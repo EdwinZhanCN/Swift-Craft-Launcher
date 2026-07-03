@@ -11,8 +11,6 @@ import SwiftUI
 
 /// Manages OAuth2 authentication with Yggdrasil-compatible authentication servers.
 final class YggdrasilAuthService: NSObject, ObservableObject {
-    static let shared = YggdrasilAuthService()
-
     /// The current authentication state.
     @Published var authState: YggdrasilAuthState = .idle
 
@@ -27,7 +25,7 @@ final class YggdrasilAuthService: NSObject, ObservableObject {
 
     private var webAuthSession: ASWebAuthenticationSession?
 
-    override private init() {
+    override init() {
         super.init()
     }
 }

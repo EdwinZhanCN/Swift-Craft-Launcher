@@ -15,22 +15,19 @@ import SQLite3
 class ModCacheDatabase {
     private let db: SQLiteDatabase
     private let tableName = AppConstants.DatabaseTables.modCache
+    private var isInitialized = false
+
+    private let createTableSQL: String
+    private let upsertSQL: String
+    private let selectSQL: String
+    private let deleteAllSQL: String
 
     /// Creates a mod cache database.
     ///
     /// - Parameter dbPath: The file path for the SQLite database.
     init(dbPath: String) {
-        db = SQLiteDatabase(path: dbPath)
-    }
-
-    /// Opens the database connection and creates the table if needed.
-    func open() throws {
-        try db.open()
-        try createTable()
-    }
-
-    private func createTable() throws {
-        let createTableSQL = """
+        db = SQLiteDatabase.database(at: dbPath)
+        createTableSQL = """
         CREATE TABLE IF NOT EXISTS \(tableName) (
             hash TEXT PRIMARY KEY,
             json_data BLOB NOT NULL,
@@ -38,122 +35,113 @@ class ModCacheDatabase {
             updated_at REAL NOT NULL
         );
         """
-
-        try db.execute(createTableSQL)
-
-        let createIndexSQL = """
-        CREATE INDEX IF NOT EXISTS idx_mod_cache_updated_at ON \(tableName)(updated_at);
+        upsertSQL = """
+        INSERT OR REPLACE INTO \(tableName)
+        (hash, json_data, created_at, updated_at)
+        VALUES (?, ?,
+            COALESCE((SELECT created_at FROM \(tableName) WHERE hash = ?), ?),
+            ?)
         """
-        try? db.execute(createIndexSQL)
+        selectSQL = "SELECT json_data FROM \(tableName) WHERE hash = ? LIMIT 1"
+        deleteAllSQL = "DELETE FROM \(tableName)"
+    }
 
+    /// Opens the database connection and creates the table if needed.
+    func open() throws {
+        if isInitialized {
+            return
+        }
+        try db.open()
+        try createTable()
+        isInitialized = true
+    }
+
+    private func createTable() throws {
+        try db.execute(createTableSQL)
+        try? db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_mod_cache_updated_at ON \(tableName)(updated_at);",
+        )
         AppLog.game.debug("Mod cache table created or already exists")
     }
 
-    /// Closes the database connection.
-    func close() {
-        db.close()
-    }
-
-    /// Saves a mod cache entry.
-    ///
+    /// Stores mod metadata in the cache.
     /// - Parameters:
     ///   - hash: The hash of the mod file.
-    ///   - jsonData: The raw JSON data of the mod metadata.
+    ///   - jsonData: The raw JSON bytes to cache.
     func saveModCache(hash: String, jsonData: Data) throws {
         try db.transaction {
             let now = Date()
-            let sql = """
-            INSERT OR REPLACE INTO \(tableName)
-            (hash, json_data, created_at, updated_at)
-            VALUES (?, ?,
-                COALESCE((SELECT created_at FROM \(tableName) WHERE hash = ?), ?),
-                ?)
-            """
-
-            let statement = try db.prepare(sql)
-            defer { sqlite3_finalize(statement) }
-
-            SQLiteDatabase.bind(statement, index: 1, value: hash)
-            SQLiteDatabase.bind(statement, index: 2, data: jsonData)
-            SQLiteDatabase.bind(statement, index: 3, value: hash)
-            SQLiteDatabase.bind(statement, index: 4, value: now)
-            SQLiteDatabase.bind(statement, index: 5, value: now)
-
-            let result = sqlite3_step(statement)
-            guard result == SQLITE_DONE else {
-                let errorMessage = String(cString: sqlite3_errmsg(db.database))
-                throw GlobalError.validation(
-                    i18nKey: "error.validation.mod_cache_save_failed",
-                    level: .notification,
-                    message: "Failed to save mod cache entry hash=\(hash) in table=\(tableName), sqlite error=\(errorMessage)",
-                )
-            }
-        }
-    }
-
-    /// Saves multiple mod cache entries within a single transaction.
-    ///
-    /// - Parameter data: A dictionary mapping file hashes to JSON data.
-    func saveModCaches(_ data: [String: Data]) throws {
-        try db.transaction {
-            let now = Date()
-            let sql = """
-            INSERT OR REPLACE INTO \(tableName)
-            (hash, json_data, created_at, updated_at)
-            VALUES (?, ?,
-                COALESCE((SELECT created_at FROM \(tableName) WHERE hash = ?), ?),
-                ?)
-            """
-
-            let statement = try db.prepare(sql)
-            defer { sqlite3_finalize(statement) }
-
-            for (hash, jsonData) in data {
-                sqlite3_reset(statement)
+            try withPreparedStatement(upsertSQL) { statement in
                 SQLiteDatabase.bind(statement, index: 1, value: hash)
                 SQLiteDatabase.bind(statement, index: 2, data: jsonData)
                 SQLiteDatabase.bind(statement, index: 3, value: hash)
                 SQLiteDatabase.bind(statement, index: 4, value: now)
                 SQLiteDatabase.bind(statement, index: 5, value: now)
+                try stepStatement(statement)
+            }
+        }
+    }
 
-                let result = sqlite3_step(statement)
-                guard result == SQLITE_DONE else {
-                    let errorMessage = String(cString: sqlite3_errmsg(db.database))
-                    throw GlobalError.validation(
-                        i18nKey: "error.validation.mod_cache_batch_save_failed",
-                        level: .notification,
-                        message: "Batch save failed for mod cache hash=\(hash) in table=\(tableName), sqlite error=\(errorMessage)",
-                    )
+    /// Stores multiple mod cache entries within a single transaction.
+    /// - Parameter data: A dictionary mapping file hashes to JSON data.
+    func saveModCaches(_ data: [String: Data]) throws {
+        try db.transaction {
+            let now = Date()
+            try withPreparedStatement(upsertSQL) { statement in
+                for (hash, jsonData) in data {
+                    sqlite3_reset(statement)
+                    SQLiteDatabase.bind(statement, index: 1, value: hash)
+                    SQLiteDatabase.bind(statement, index: 2, data: jsonData)
+                    SQLiteDatabase.bind(statement, index: 3, value: hash)
+                    SQLiteDatabase.bind(statement, index: 4, value: now)
+                    SQLiteDatabase.bind(statement, index: 5, value: now)
+                    try stepStatement(statement)
                 }
             }
         }
     }
 
     /// Retrieves cached mod data for the specified hash.
-    ///
     /// - Parameter hash: The hash of the mod file.
     /// - Returns: The raw JSON data, or `nil` if no cached entry exists.
     func getModCache(hash: String) throws -> Data? {
-        let sql = "SELECT json_data FROM \(tableName) WHERE hash = ? LIMIT 1"
-
-        let statement = try db.prepare(sql)
-        defer { sqlite3_finalize(statement) }
-
-        SQLiteDatabase.bind(statement, index: 1, value: hash)
-
-        guard sqlite3_step(statement) == SQLITE_ROW,
-              let jsonData = SQLiteDatabase.dataColumn(statement, index: 0) else {
-            return nil
+        var result: Data?
+        try withPreparedStatement(selectSQL) { statement in
+            SQLiteDatabase.bind(statement, index: 1, value: hash)
+            guard sqlite3_step(statement) == SQLITE_ROW,
+                  let data = SQLiteDatabase.dataColumn(statement, index: 0) else {
+                return
+            }
+            result = data
         }
-
-        return jsonData
+        return result
     }
 
     /// Removes all cached mod entries from the database.
     func clearAllModCaches() throws {
         try db.transaction {
-            let sql = "DELETE FROM \(tableName)"
-            try db.execute(sql)
+            try db.execute(deleteAllSQL)
+        }
+    }
+
+    private func withPreparedStatement<T>(
+        _ sql: String,
+        _ body: (OpaquePointer) throws -> T,
+    ) throws -> T {
+        let statement = try db.prepare(sql)
+        defer { sqlite3_finalize(statement) }
+        return try body(statement)
+    }
+
+    private func stepStatement(_ statement: OpaquePointer) throws {
+        let result = sqlite3_step(statement)
+        guard result == SQLITE_DONE else {
+            let errorMessage = String(cString: sqlite3_errmsg(db.database))
+            throw GlobalError.validation(
+                i18nKey: "error.validation.sql_execution_failed",
+                level: .notification,
+                message: "SQLite step failed, expected SQLITE_DONE. Error: \(errorMessage)",
+            )
         }
     }
 }

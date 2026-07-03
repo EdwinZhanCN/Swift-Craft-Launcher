@@ -12,8 +12,6 @@ import SwiftUI
 
 /// Handles Microsoft OAuth authentication for Minecraft accounts.
 class MinecraftAuthService: NSObject, ObservableObject {
-    static let shared = MinecraftAuthService()
-
     @Published var authState: AuthenticationState = .notAuthenticated
     @Published var isLoading: Bool = false
     var webAuthSession: ASWebAuthenticationSession?
@@ -24,7 +22,7 @@ class MinecraftAuthService: NSObject, ObservableObject {
 
     let refreshTasksLock = OSAllocatedUnfairLock<[String: Task<Player, Error>]>(initialState: [:])
 
-    override private init() {
+    override init() {
         super.init()
     }
 

@@ -14,9 +14,7 @@ public class LanguageManager {
         Self.getDefaultLanguage()
     }
 
-    public static let shared = LanguageManager()
-
-    private init() { }
+    init() { }
 
     /// Returns the language code currently in use by the app, respecting system preferences and supported localizations.
     public static func getDefaultLanguage() -> String {

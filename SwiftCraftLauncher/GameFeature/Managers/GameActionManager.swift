@@ -11,9 +11,7 @@ import SwiftUI
 /// Provides game-related actions such as revealing in Finder and deletion.
 @MainActor
 class GameActionManager: ObservableObject {
-    static let shared = GameActionManager()
-
-    private init() { }
+    init() { }
 
     /// Reveals the game directory in Finder.
     /// - Parameter game: The game version to locate.

@@ -10,8 +10,6 @@ import SwiftUI
 
 /// Manages cache size calculations for application data and game profiles.
 class CacheInfoManager: ObservableObject {
-    static let shared = CacheInfoManager()
-
     @Published var cacheInfo: CacheInfo = .init(fileCount: 0, totalSize: 0)
     private let errorHandler: GlobalErrorHandler
     private let calculator: CacheCalculator

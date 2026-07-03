@@ -16,8 +16,6 @@ import MinecraftFriendsKit
 /// interval while a Microsoft account is selected and presence notifications are enabled.
 @MainActor
 final class MinecraftFriendsPresencePollingCoordinator {
-    static let shared = MinecraftFriendsPresencePollingCoordinator()
-
     private static let pollingIntervalNanoseconds: UInt64 = 10_000_000_000
 
     private let hostAdapter: MinecraftFriendsPresenceMonitorHostAdapter
@@ -33,7 +31,7 @@ final class MinecraftFriendsPresencePollingCoordinator {
     private var lastPresenceNotificationsEnabled =
         AppServices.playerSettingsManager.enableMinecraftFriendsPresenceNotifications
 
-    private init(
+    init(
         friendsService: MinecraftFriendsService = AppServices.minecraftFriendsService,
     ) {
         hostAdapter = MinecraftFriendsPresenceMonitorHostAdapter()
