@@ -104,6 +104,10 @@ enum AppServices {
     static let aiSettingsManager = AISettingsManager()
     static let aiChatManager = mainActorSingleton { AIChatManager() }
 
+    // Image loading
+
+    static let nukeManager = NukeManager()
+
     // Utilities
 
     static let sparkleUpdateService = SparkleUpdateService()

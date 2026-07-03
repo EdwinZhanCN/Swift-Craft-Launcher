@@ -14,6 +14,7 @@
 		90A1DB462FB619CD00DAD886 /* MinecraftFriendsKit in Frameworks */ = {isa = PBXBuildFile; productRef = 90A1DB452FB619CD00DAD886 /* MinecraftFriendsKit */; };
 		90A1FC1D2FB6406900DAD886 /* MinecraftFriendsKit in Frameworks */ = {isa = PBXBuildFile; productRef = 90A1FC1C2FB6406900DAD886 /* MinecraftFriendsKit */; };
 		90E123456789ABCD0001 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 90E123456789ABCD0002 /* Sparkle */; };
+		BB0000013000000200000003 /* Nuke in Frameworks */ = {isa = PBXBuildFile; productRef = BB0000013000000200000002 /* Nuke */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +70,7 @@
 				90645F072F6BF80C006AD2D8 /* SwiftMarkDownUI in Frameworks */,
 				90A1FC1D2FB6406900DAD886 /* MinecraftFriendsKit in Frameworks */,
 				9049FDB12F1151B50070A9E3 /* SkinRenderKit in Frameworks */,
+				BB0000013000000200000003 /* Nuke in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -120,6 +122,7 @@
 				90645F062F6BF80C006AD2D8 /* SwiftMarkDownUI */,
 				90A1DB452FB619CD00DAD886 /* MinecraftFriendsKit */,
 				90A1FC1C2FB6406900DAD886 /* MinecraftFriendsKit */,
+				BB0000013000000200000002 /* Nuke */,
 			);
 			productName = SwiftCraftLauncher;
 			productReference = 90D620D12FD7083C00108105 /* Swift Craft Launcher.app */;
@@ -203,6 +206,7 @@
 				9098463D2F688B0400D7876B /* XCRemoteSwiftPackageReference "CFModrinthAdapterKit" */,
 				90645F052F6BF80C006AD2D8 /* XCRemoteSwiftPackageReference "SwiftMarkDownUI" */,
 				90A1FC1B2FB6406900DAD886 /* XCRemoteSwiftPackageReference "MinecraftFriendsKit" */,
+				BB0000013000000200000001 /* XCRemoteSwiftPackageReference "Nuke" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9023D8282E3139B5005A53F1;
@@ -597,6 +601,14 @@
 				minimumVersion = 2.5.0;
 			};
 		};
+		BB0000013000000200000001 /* XCRemoteSwiftPackageReference "Nuke" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kean/Nuke";
+			requirement = {
+				kind = exactVersion;
+				version = 12.8.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -638,6 +650,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 90E123456789ABCD0003 /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
+		};
+		BB0000013000000200000002 /* Nuke */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BB0000013000000200000001 /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = Nuke;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -57,9 +57,9 @@ struct ModrinthProjectDetailView: View {
     private func projectIcon(_ project: ModrinthProjectDetail) -> some View {
         Group {
             if let iconUrl = project.iconUrl, let url = URL(string: iconUrl) {
-                AsyncImage(url: url) { phase in
+                NukeImageView(url: url) { phase in
                     switch phase {
-                    case .empty:
+                    case .empty, .loading:
                         ProgressView()
                             .controlSize(.small)
                             .frame(width: 80, height: 80)
@@ -70,18 +70,11 @@ struct ModrinthProjectDetailView: View {
                     case .failure:
                         Image(systemName: "photo")
                             .foregroundColor(.secondary)
-                    @unknown default:
-                        EmptyView()
                     }
                 }
                 .frame(width: Constants.iconSize, height: Constants.iconSize)
                 .cornerRadius(Constants.cornerRadius)
                 .clipped()
-                .onDisappear {
-                    URLCache.shared.removeCachedResponse(
-                        for: URLRequest(url: url),
-                    )
-                }
             }
         }
     }

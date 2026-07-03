@@ -97,23 +97,14 @@ struct ModrinthDetailCardView: View {
                 localResourceIcon
             } else if let iconUrl = project.iconUrl,
                 let url = URL(string: iconUrl) {
-                AsyncImage(
-                    url: url,
-                    transaction: Transaction(
-                        animation: .easeInOut(duration: 0.2),
-                    ),
-                ) { phase in
+                NukeImageView(url: url) { phase in
                     switch phase {
-                    case .empty:
-                        placeholderIcon
                     case let .success(image):
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .transition(.opacity)
-                    case .failure:
-                        placeholderIcon
-                    @unknown default:
+                    default:
                         placeholderIcon
                     }
                 }
@@ -123,11 +114,6 @@ struct ModrinthDetailCardView: View {
                 )
                 .cornerRadius(ModrinthConstants.UIConstants.cornerRadius)
                 .clipped()
-                .onDisappear {
-                    URLCache.shared.removeCachedResponse(
-                        for: URLRequest(url: url),
-                    )
-                }
             } else {
                 placeholderIcon
             }
