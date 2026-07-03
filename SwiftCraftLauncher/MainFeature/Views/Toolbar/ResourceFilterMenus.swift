@@ -80,7 +80,7 @@ enum ResourceFilterMenus {
                 filterState.showFavoritesOnly
                     ? "resource.local_filter.all".localized()
                     : "favorites".localized(),
-                systemImage: filterState.showFavoritesOnly ? "heart.fill" : "heart"
+                systemImage: filterState.showFavoritesOnly ? "heart.fill" : "heart",
             )
             .labelStyle(.iconOnly)
             .applyReplaceTransition()

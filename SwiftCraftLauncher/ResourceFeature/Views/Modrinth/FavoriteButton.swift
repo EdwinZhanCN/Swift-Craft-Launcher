@@ -38,7 +38,7 @@ struct FavoriteButton: View {
         .buttonStyle(.plain)
         .applyReplaceTransition()
         .task {
-            isFavorited = store.isFavorite(id: projectId, type: query)
+            isFavorited = (try? store.isFavorite(id: projectId, type: query)) ?? false
         }
     }
 
@@ -51,10 +51,10 @@ struct FavoriteButton: View {
         }
 
         if isFavorited {
-            store.removeFavorite(id: projectId, type: query)
+            try? store.removeFavorite(id: projectId, type: query)
         } else {
-            store.addFavorite(id: projectId, type: query, detail: detail)
+            try? store.addFavorite(id: projectId, type: query, detail: detail)
         }
-        isFavorited = store.isFavorite(id: projectId, type: query)
+        isFavorited = (try? store.isFavorite(id: projectId, type: query)) ?? false
     }
 }
