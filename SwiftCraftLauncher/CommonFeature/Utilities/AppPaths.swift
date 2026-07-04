@@ -142,11 +142,6 @@ extension AppPaths {
         return launcherSupportDirectory.appendingPathComponent("Cache", isDirectory: true)
     }
 
-    /// mod picture cache
-    static var imageCachae: URL {
-        launcherSupportDirectory.appendingPathComponent("imagecache", isDirectory: true)
-    }
-
     /// The data directory for application-specific storage.
     static var dataDirectory: URL {
         launcherSupportDirectory.appendingPathComponent(AppConstants.DirectoryNames.data, isDirectory: true)

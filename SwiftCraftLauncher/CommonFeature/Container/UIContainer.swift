@@ -53,7 +53,7 @@ final class UIContainer {
     private let _playerDataManager = LazyContainer { PlayerDataManager() }
     var playerDataManager: PlayerDataManager { _playerDataManager.value() }
 
-    private let _selectedGameManager = LazyContainer { SelectedGameManager() }
+    private let _selectedGameManager = MainActorLazyContainer { SelectedGameManager() }
     @MainActor var selectedGameManager: SelectedGameManager {
         _selectedGameManager.value()
     }
@@ -69,10 +69,7 @@ final class UIContainer {
 
     // Minecraft Friends
 
-    private let _minecraftFriendsPresencePollingCoordinator = MainActorLazyContainer {
-        MinecraftFriendsPresencePollingCoordinator()
-    }
-
+    private let _minecraftFriendsPresencePollingCoordinator = MainActorLazyContainer { MinecraftFriendsPresencePollingCoordinator() }
     @MainActor var minecraftFriendsPresencePollingCoordinator: MinecraftFriendsPresencePollingCoordinator {
         _minecraftFriendsPresencePollingCoordinator.value()
     }
