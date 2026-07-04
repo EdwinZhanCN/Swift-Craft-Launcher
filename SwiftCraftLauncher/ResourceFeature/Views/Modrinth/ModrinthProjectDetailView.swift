@@ -57,12 +57,8 @@ struct ModrinthProjectDetailView: View {
     private func projectIcon(_ project: ModrinthProjectDetail) -> some View {
         Group {
             if let iconUrl = project.iconUrl, let url = URL(string: iconUrl) {
-                NukeImageView(url: url) { phase in
+                AsyncImage(url: url) { phase in
                     switch phase {
-                    case .empty, .loading:
-                        ProgressView()
-                            .controlSize(.small)
-                            .frame(width: 80, height: 80)
                     case let .success(image):
                         image
                             .resizable()
@@ -70,7 +66,14 @@ struct ModrinthProjectDetailView: View {
                     case .failure:
                         Image(systemName: "photo")
                             .foregroundColor(.secondary)
+                    default:
+                        ProgressView()
+                            .controlSize(.small)
+                            .frame(width: 80, height: 80)
                     }
+                }
+                .onDisappear {
+                    URLCache.shared.removeCachedResponse(for: URLRequest(url: url))
                 }
                 .frame(width: Constants.iconSize, height: Constants.iconSize)
                 .cornerRadius(Constants.cornerRadius)

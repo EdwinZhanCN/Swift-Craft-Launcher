@@ -53,9 +53,4 @@ final class SystemContainer {
     var premiumAccountFlagManager: PremiumAccountFlagManager {
         _premiumAccountFlagManager.value()
     }
-
-    // Image loading
-
-    private let _nukeManager = LazyContainer { NukeManager() }
-    var nukeManager: NukeManager { _nukeManager.value() }
 }

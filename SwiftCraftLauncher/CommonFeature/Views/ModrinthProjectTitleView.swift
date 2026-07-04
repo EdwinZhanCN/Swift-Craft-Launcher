@@ -90,7 +90,7 @@ struct ModrinthProjectTitleView: View {
 
         case let .asyncImage(url):
             if let url {
-                NukeImageView(url: url) { phase in
+                AsyncImage(url: url) { phase in
                     switch phase {
                     case let .success(image):
                         image
@@ -100,6 +100,9 @@ struct ModrinthProjectTitleView: View {
                         RoundedRectangle(cornerRadius: 8)
                             .fill(Color.secondary.opacity(0.2))
                     }
+                }
+                .onDisappear {
+                    URLCache.shared.removeCachedResponse(for: URLRequest(url: url))
                 }
                 .frame(width: 64, height: 64)
                 .cornerRadius(8)

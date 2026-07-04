@@ -94,10 +94,10 @@ struct ModrinthDetailCardView: View {
     private var iconView: some View {
         Group {
             if project.projectId.hasPrefix("local_") || project.projectId.hasPrefix("file_") {
-                localResourceIcon
+                ModrinthDetailCardPlaceholderIcon()
             } else if let iconUrl = project.iconUrl,
                       let url = URL(string: iconUrl) {
-                NukeImageView(url: url) { phase in
+                AsyncImage(url: url) { phase in
                     switch phase {
                     case let .success(image):
                         image
@@ -105,8 +105,11 @@ struct ModrinthDetailCardView: View {
                             .aspectRatio(contentMode: .fill)
                             .transition(.opacity)
                     default:
-                        placeholderIcon
+                        ModrinthDetailCardPlaceholderIcon()
                     }
+                }
+                .onDisappear {
+                    URLCache.shared.removeCachedResponse(for: URLRequest(url: url))
                 }
                 .frame(
                     width: ModrinthConstants.UIConstants.iconSize,
@@ -115,13 +118,9 @@ struct ModrinthDetailCardView: View {
                 .cornerRadius(ModrinthConstants.UIConstants.cornerRadius)
                 .clipped()
             } else {
-                placeholderIcon
+                ModrinthDetailCardPlaceholderIcon()
             }
         }
-    }
-
-    private var placeholderIcon: some View {
-        ModrinthDetailCardPlaceholderIcon()
     }
 
     private var localResourceIcon: some View {

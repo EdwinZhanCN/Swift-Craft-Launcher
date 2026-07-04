@@ -145,11 +145,8 @@ struct GameCreationView: View {
     private var iconContainer: some View {
         ZStack {
             if let url = viewModel.pendingIconURLForDisplay {
-                NukeImageView(url: url) { phase in
+                AsyncImage(url: url) { phase in
                     switch phase {
-                    case .empty, .loading:
-                        ProgressView()
-                            .controlSize(.small)
                     case let .success(image):
                         image
                             .resizable()
@@ -167,7 +164,13 @@ struct GameCreationView: View {
                             .contentShape(Rectangle())
                     case .failure:
                         iconPlaceholderView
+                    default:
+                        ProgressView()
+                            .controlSize(.small)
                     }
+                }
+                .onDisappear {
+                    URLCache.shared.removeCachedResponse(for: URLRequest(url: url))
                 }
                 .id(url.absoluteString)
             } else {

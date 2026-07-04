@@ -1,5 +1,5 @@
 {
-  "originHash" : "029635479b25f26abc8841fe6dd367ec607ce0c2cc7d159fffab630dbef2d5d1",
+  "originHash" : "5f9c059f5a9d6c83e6ec04905dfea45831e12208b8e2fce365938bbe12fc8c89",
   "pins" : [
     {
       "identity" : "cfmodrinthadapterkit",
@@ -35,15 +35,6 @@
       "state" : {
         "branch" : "release",
         "revision" : "4443a5413b3638ef5141c7f0d0a8aff18d8925a6"
-      }
-    },
-    {
-      "identity" : "nuke",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kean/Nuke",
-      "state" : {
-        "revision" : "0ead44350d2737db384908569c012fe67c421e4d",
-        "version" : "12.8.0"
       }
     },
     {
