@@ -11,7 +11,7 @@ import XCTest
 @MainActor
 final class ModInstallationCacheTests: XCTestCase {
     func testAddAndRetrieve() async {
-        let cache = AppServices.modInstallationCache
+        let cache = ModScanner.ModInstallationCache()
         await cache.addHash("hash1", to: "testGame")
 
         let hashes = await cache.getAllModsInstalled(for: "testGame")
@@ -19,7 +19,7 @@ final class ModInstallationCacheTests: XCTestCase {
     }
 
     func testAddMultipleHashes() async {
-        let cache = AppServices.modInstallationCache
+        let cache = ModScanner.ModInstallationCache()
         await cache.addHash("hash1", to: "game1")
         await cache.addHash("hash2", to: "game1")
         await cache.addHash("hash3", to: "game1")
@@ -32,7 +32,7 @@ final class ModInstallationCacheTests: XCTestCase {
     }
 
     func testRemoveHash() async {
-        let cache = AppServices.modInstallationCache
+        let cache = ModScanner.ModInstallationCache()
         await cache.addHash("hash1", to: "game1")
         await cache.addHash("hash2", to: "game1")
         await cache.removeHash("hash1", from: "game1")
@@ -43,7 +43,7 @@ final class ModInstallationCacheTests: XCTestCase {
     }
 
     func testRemoveGame() async {
-        let cache = AppServices.modInstallationCache
+        let cache = ModScanner.ModInstallationCache()
         await cache.addHash("hash1", to: "game1")
         await cache.removeGame(gameName: "game1")
 
@@ -52,7 +52,7 @@ final class ModInstallationCacheTests: XCTestCase {
     }
 
     func testHasCache() async {
-        let cache = AppServices.modInstallationCache
+        let cache = ModScanner.ModInstallationCache()
         let before = await cache.hasCache(for: "newGame")
         XCTAssertFalse(before)
         await cache.addHash("hash1", to: "newGame")
@@ -61,7 +61,7 @@ final class ModInstallationCacheTests: XCTestCase {
     }
 
     func testSetAllModsInstalled() async {
-        let cache = AppServices.modInstallationCache
+        let cache = ModScanner.ModInstallationCache()
         let hashes: Set = ["h1", "h2", "h3"]
         await cache.setAllModsInstalled(for: "game1", hashes: hashes)
 
@@ -70,7 +70,7 @@ final class ModInstallationCacheTests: XCTestCase {
     }
 
     func testGetEmptyGame() async {
-        let cache = AppServices.modInstallationCache
+        let cache = ModScanner.ModInstallationCache()
         let hashes = await cache.getAllModsInstalled(for: "nonexistent")
         XCTAssertTrue(hashes.isEmpty)
     }

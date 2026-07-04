@@ -9,7 +9,7 @@
 import XCTest
 
 final class ModScannerFallbackTests: XCTestCase {
-    private lazy var modScanner = ModScanner(errorHandler: AppServices.errorHandler)
+    private lazy var modScanner = ModScanner()
 
     func testCreateFallbackDetail_jarFile() {
         let fileURL = URL(fileURLWithPath: "/tmp/mods/MyMod-1.0.jar")

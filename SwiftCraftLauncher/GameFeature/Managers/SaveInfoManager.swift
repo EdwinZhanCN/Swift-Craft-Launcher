@@ -96,6 +96,7 @@ final class SaveInfoManager: ObservableObject {
     }
 
     /// Checks which save types are available on disk, performing I/O off the main thread.
+    @MainActor
     private func checkTypesAvailability() async {
         let name = gameName
         let (worlds, screenshots, _, litematica, logs) = await Task.detached(priority: .userInitiated) {
@@ -194,6 +195,7 @@ final class SaveInfoManager: ObservableObject {
         hasLogsType = logs
     }
 
+    @MainActor
     private func fetchData() async {
         await checkTypesAvailability()
 
@@ -262,6 +264,7 @@ final class SaveInfoManager: ObservableObject {
         screenshots = result
     }
 
+    @MainActor
     private func loadServers() async {
         isLoadingServers = true
         defer { isLoadingServers = false }
@@ -286,6 +289,7 @@ final class SaveInfoManager: ObservableObject {
         }
     }
 
+    @MainActor
     private func loadLogs() async {
         isLoadingLogs = true
         defer { isLoadingLogs = false }

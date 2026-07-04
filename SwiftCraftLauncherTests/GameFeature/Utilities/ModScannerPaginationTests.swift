@@ -10,7 +10,7 @@ import XCTest
 
 final class ModScannerPaginationTests: XCTestCase {
     func testCalculatePageRange_normalPage() {
-        let scanner = AppServices.modScanner
+        let scanner = ModScanner()
         let result = scanner.calculatePageRange(totalCount: 100, page: 1, pageSize: 20)
 
         XCTAssertNotNil(result)
@@ -20,7 +20,7 @@ final class ModScannerPaginationTests: XCTestCase {
     }
 
     func testCalculatePageRange_lastPage() {
-        let scanner = AppServices.modScanner
+        let scanner = ModScanner()
         let result = scanner.calculatePageRange(totalCount: 25, page: 2, pageSize: 20)
 
         XCTAssertNotNil(result)
@@ -30,21 +30,21 @@ final class ModScannerPaginationTests: XCTestCase {
     }
 
     func testCalculatePageRange_emptyTotal() {
-        let scanner = AppServices.modScanner
+        let scanner = ModScanner()
         let result = scanner.calculatePageRange(totalCount: 0, page: 1, pageSize: 20)
 
         XCTAssertNil(result)
     }
 
     func testCalculatePageRange_pageBeyondTotal() {
-        let scanner = AppServices.modScanner
+        let scanner = ModScanner()
         let result = scanner.calculatePageRange(totalCount: 10, page: 5, pageSize: 20)
 
         XCTAssertNil(result)
     }
 
     func testCalculatePageRange_zeroPageSize() {
-        let scanner = AppServices.modScanner
+        let scanner = ModScanner()
         let result = scanner.calculatePageRange(totalCount: 10, page: 1, pageSize: 0)
 
         XCTAssertNotNil(result)
@@ -53,7 +53,7 @@ final class ModScannerPaginationTests: XCTestCase {
     }
 
     func testCalculatePageRange_pageZero() {
-        let scanner = AppServices.modScanner
+        let scanner = ModScanner()
         let result = scanner.calculatePageRange(totalCount: 10, page: 0, pageSize: 5)
 
         XCTAssertNotNil(result)
