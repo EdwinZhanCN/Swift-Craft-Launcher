@@ -26,7 +26,7 @@ extension ModrinthService {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.common.error("Failed to search Modrinth projects: \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return ModrinthResult(hits: [], offset: offset, limit: limit, totalHits: 0)
         }
     }

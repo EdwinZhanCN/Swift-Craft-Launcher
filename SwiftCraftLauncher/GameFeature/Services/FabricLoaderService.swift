@@ -15,7 +15,7 @@ enum FabricLoaderService {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.game.error("Failed to get Fabric loader version: \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return []
         }
     }
@@ -48,7 +48,7 @@ enum FabricLoaderService {
     static func fetchSpecificLoaderVersion(for minecraftVersion: String, loaderVersion: String) async throws -> ModrinthLoader {
         let cacheKey = "\(minecraftVersion)-\(loaderVersion)"
 
-        if let cached = AppServices.appCacheManager.get(namespace: GameLoader.fabric.displayName, key: cacheKey, as: ModrinthLoader.self) {
+        if let cached = DIContainer.shared.core.appCacheManager.get(namespace: GameLoader.fabric.displayName, key: cacheKey, as: ModrinthLoader.self) {
             return cached
         }
 
@@ -58,7 +58,7 @@ enum FabricLoaderService {
         var result = try JSONDecoder().decode(ModrinthLoader.self, from: data)
         result.version = loaderVersion
         result = CommonService.processGameVersionPlaceholders(loader: result, gameVersion: minecraftVersion)
-        AppServices.appCacheManager.setSilently(namespace: GameLoader.fabric.displayName, key: cacheKey, value: result)
+        DIContainer.shared.core.appCacheManager.setSilently(namespace: GameLoader.fabric.displayName, key: cacheKey, value: result)
         return result
     }
 
@@ -78,7 +78,7 @@ enum FabricLoaderService {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.game.error("Failed to set Fabric specified version: \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return nil
         }
     }

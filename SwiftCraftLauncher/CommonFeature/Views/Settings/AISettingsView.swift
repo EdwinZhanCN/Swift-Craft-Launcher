@@ -9,21 +9,13 @@ import SwiftUI
 
 /// A view for configuring AI service settings.
 public struct AISettingsView: View {
-    @StateObject private var aiSettings: AISettingsManager
+    @EnvironmentObject private var aiSettingsManager: AISettingsManager
     @State private var showApiKey = false
-
-    public init() {
-        _aiSettings = StateObject(wrappedValue: AppServices.aiSettingsManager)
-    }
-
-    init(aiSettings: AISettingsManager) {
-        _aiSettings = StateObject(wrappedValue: aiSettings)
-    }
 
     public var body: some View {
         Form {
             LabeledContent("settings.ai.api_type.label".localized()) {
-                Picker("", selection: $aiSettings.selectedProvider) {
+                Picker("", selection: $aiSettingsManager.selectedProvider) {
                     ForEach(AIProvider.allCases) { provider in
                         Text(provider.displayName).tag(provider)
                     }
@@ -38,10 +30,10 @@ public struct AISettingsView: View {
                     HStack {
                         Group {
                             if showApiKey {
-                                TextField("".localized(), text: $aiSettings.apiKey)
+                                TextField("".localized(), text: $aiSettingsManager.apiKey)
                                     .textFieldStyle(.roundedBorder).labelsHidden()
                             } else {
-                                SecureField("".localized(), text: $aiSettings.apiKey)
+                                SecureField("".localized(), text: $aiSettingsManager.apiKey)
                                     .textFieldStyle(.roundedBorder).labelsHidden()
                             }
                         }
@@ -59,9 +51,9 @@ public struct AISettingsView: View {
                 .labeledContentStyle(.custom)
                 CommonDescriptionText(text: "settings.ai.api_key.description".localized())
             }
-            if aiSettings.selectedProvider == .ollama {
+            if aiSettingsManager.selectedProvider == .ollama {
                 LabeledContent("settings.ai.ollama.url.label".localized()) {
-                    TextField(URLConfig.API.AIService.ollamaDefaultBaseURL, text: $aiSettings.ollamaBaseURL)
+                    TextField(URLConfig.API.AIService.ollamaDefaultBaseURL, text: $aiSettingsManager.ollamaBaseURL)
                         .textFieldStyle(.roundedBorder)
                         .labelsHidden()
                         .frame(maxWidth: 300)
@@ -71,9 +63,9 @@ public struct AISettingsView: View {
                 .labeledContentStyle(.custom)
             }
 
-            if aiSettings.selectedProvider.apiFormat == .openAI {
+            if aiSettingsManager.selectedProvider.apiFormat == .openAI {
                 LabeledContent("settings.ai.api_url.label".localized()) {
-                    TextField(aiSettings.selectedProvider.baseURL, text: $aiSettings.openAIBaseURL)
+                    TextField(aiSettingsManager.selectedProvider.baseURL, text: $aiSettingsManager.openAIBaseURL)
                         .textFieldStyle(.roundedBorder)
                         .labelsHidden()
                         .frame(width: 180)
@@ -84,7 +76,7 @@ public struct AISettingsView: View {
             }
 
             LabeledContent("settings.ai.model.label".localized()) {
-                TextField("settings.ai.model.placeholder".localized(), text: $aiSettings.modelOverride)
+                TextField("settings.ai.model.placeholder".localized(), text: $aiSettingsManager.modelOverride)
                     .textFieldStyle(.roundedBorder)
                     .labelsHidden()
                     .frame(width: 180)
@@ -96,13 +88,13 @@ public struct AISettingsView: View {
             Group {
                 MinecraftSkinUtils(
                     type: .url,
-                    src: aiSettings.aiAvatarURL,
+                    src: aiSettingsManager.aiAvatarURL,
                     size: 42,
                 )
                 .padding(.leading, 2)
                 Group {
                     LabeledContent("settings.ai.avatar.label".localized()) {
-                        TextField("settings.ai.avatar.placeholder".localized(), text: $aiSettings.aiAvatarURL)
+                        TextField("settings.ai.avatar.placeholder".localized(), text: $aiSettingsManager.aiAvatarURL)
                             .textFieldStyle(.roundedBorder)
                             .labelsHidden()
                             .frame(maxWidth: 300)

@@ -9,7 +9,8 @@ import SwiftUI
 
 /// Attaches main-window presentation layers including export sheets, deletion confirmation, and startup announcement.
 struct MainViewPresentationModifier: ViewModifier {
-    @ObservedObject private var gameDialogsPresenter: GameDialogsPresenter
+    @StateObject private var gameDialogsPresenter: GameDialogsPresenter
+    @StateObject private var container: DIContainer
     @ObservedObject var detailState: ResourceDetailState
 
     @StateObject private var startupAnnouncementViewModel = StartupAnnouncementViewModel()
@@ -18,10 +19,12 @@ struct MainViewPresentationModifier: ViewModifier {
 
     init(
         detailState: ResourceDetailState,
-        gameDialogsPresenter: GameDialogsPresenter = AppServices.gameDialogsPresenter,
+        gameDialogsPresenter: GameDialogsPresenter,
+        container: DIContainer,
     ) {
         self.detailState = detailState
-        _gameDialogsPresenter = ObservedObject(wrappedValue: gameDialogsPresenter)
+        _gameDialogsPresenter = StateObject(wrappedValue: gameDialogsPresenter)
+        _container = StateObject(wrappedValue: container)
     }
 
     func body(content: Content) -> some View {
@@ -48,15 +51,20 @@ struct MainViewPresentationModifier: ViewModifier {
                 gamePendingDeletion: $gameDialogsPresenter.gamePendingDeletion,
                 detailState: detailState,
             )
-            .authlibInjectorMissingAlert()
+            .authlibInjectorMissingAlert(container)
     }
 }
 
 extension View {
-    func mainViewPresentations(detailState: ResourceDetailState) -> some View {
+    func mainViewPresentations(
+        container: DIContainer,
+        detailState: ResourceDetailState,
+    ) -> some View {
         modifier(
             MainViewPresentationModifier(
                 detailState: detailState,
+                gameDialogsPresenter: container.ui.gameDialogsPresenter,
+                container: container,
             ),
         )
     }

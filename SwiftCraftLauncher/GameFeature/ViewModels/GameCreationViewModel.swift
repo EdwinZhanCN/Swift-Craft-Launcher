@@ -34,18 +34,12 @@ class GameCreationViewModel: BaseGameFormViewModel {
     var pendingIconData: Data?
     var pendingIconURL: URL?
     var didInit = false
-    let gameSettingsManager: GameSettingsManager
 
     var gameRepository: GameRepository?
     var playerListViewModel: PlayerListViewModel?
 
-    init(
-        configuration: GameFormConfiguration,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
-        gameSettingsManager: GameSettingsManager = AppServices.gameSettingsManager,
-    ) {
-        self.gameSettingsManager = gameSettingsManager
-        super.init(configuration: configuration, errorHandler: errorHandler)
+    override init(configuration: GameFormConfiguration) {
+        super.init(configuration: configuration)
     }
 
     func setup(gameRepository: GameRepository, playerListViewModel: PlayerListViewModel) {

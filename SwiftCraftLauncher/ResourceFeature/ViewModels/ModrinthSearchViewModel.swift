@@ -18,11 +18,8 @@ final class ModrinthSearchViewModel: ObservableObject {
 
     var searchTask: Task<Void, Never>?
     let pageSize: Int = 20
-    private let errorHandler: GlobalErrorHandler
 
-    init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
-        self.errorHandler = errorHandler
-    }
+    init() { }
 
     deinit {
         searchTask?.cancel()
@@ -131,7 +128,7 @@ final class ModrinthSearchViewModel: ObservableObject {
                     self.isLoadingMore = false
                 }
                 AppLog.resource.error("Search failed: \(globalError.localizedDescription)")
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
             }
         }
     }

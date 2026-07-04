@@ -10,11 +10,7 @@ import Foundation
 /// View model that prepares mod pack import files by copying them to a temporary directory.
 @MainActor
 final class GameFormImportViewModel: ObservableObject {
-    private let errorHandler: GlobalErrorHandler
-
-    init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
-        self.errorHandler = errorHandler
-    }
+    init() { }
 
     /// Prepares a mod pack file for import by copying it to a temporary directory.
     /// - Parameter result: The file picker result containing selected URLs.
@@ -29,7 +25,7 @@ final class GameFormImportViewModel: ObservableObject {
                     i18nKey: "error.filesystem.file_access_failed",
                     level: .notification,
                 )
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
                 return nil
             }
 
@@ -39,12 +35,12 @@ final class GameFormImportViewModel: ObservableObject {
                 let tempFile = try await copyToTempDirectory(url: url)
                 return .modPackImport(file: tempFile, shouldProcess: true)
             } catch {
-                errorHandler.handle(GlobalError.from(error))
+                DIContainer.shared.core.errorHandler.handle(GlobalError.from(error))
                 return nil
             }
 
         case let .failure(error):
-            errorHandler.handle(GlobalError.from(error))
+            DIContainer.shared.core.errorHandler.handle(GlobalError.from(error))
             return nil
         }
     }

@@ -10,11 +10,8 @@ import Foundation
 /// Manages local Java runtime installation, validation, and discovery.
 class JavaManager {
     private let fileManager = FileManager.default
-    private let javaDownloadManager: JavaDownloadManager
 
-    init(javaDownloadManager: JavaDownloadManager = AppServices.javaDownloadManager) {
-        self.javaDownloadManager = javaDownloadManager
-    }
+    init() { }
 
     func getJavaExecutablePath(version: String) -> String {
         AppPaths.javaExecutablePath(version: version)
@@ -117,7 +114,7 @@ class JavaManager {
         }
 
         AppLog.game.info("Java version \(version) not found, starting download...")
-        await javaDownloadManager.downloadJavaRuntime(version: version)
+        await DIContainer.shared.system.javaDownloadManager.downloadJavaRuntime(version: version)
         AppLog.game.info("Java version \(version) download completed")
 
         let newPath = findJavaExecutable(version: version)

@@ -15,26 +15,24 @@ private enum Constants {
 }
 
 struct CustomVersionPicker: View {
+    @EnvironmentObject private var container: DIContainer
     @Binding var selected: String
     let availableVersions: [String]
     @Binding var time: String
     let onVersionSelected: (String) async -> String
     @State private var showMenu = false
     @State private var error: GlobalError?
-    private let errorHandler: GlobalErrorHandler
 
     init(
         selected: Binding<String>,
         availableVersions: [String],
         time: Binding<String>,
         onVersionSelected: @escaping (String) async -> String,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
     ) {
         _selected = selected
         self.availableVersions = availableVersions
         _time = time
         self.onVersionSelected = onVersionSelected
-        self.errorHandler = errorHandler
     }
 
     private var versionItems: [FilterItem] {
@@ -151,7 +149,7 @@ struct CustomVersionPicker: View {
             level: .notification,
         )
         AppLog.game.error("Version picker error: \(globalError.localizedDescription)")
-        errorHandler.handle(globalError)
+        container.core.errorHandler.handle(globalError)
         error = globalError
     }
 }

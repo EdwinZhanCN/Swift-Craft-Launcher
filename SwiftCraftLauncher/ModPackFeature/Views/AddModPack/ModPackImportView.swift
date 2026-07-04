@@ -38,33 +38,33 @@ struct ModPackImportView: View {
 
     var body: some View {
         formContentView
-        .onAppear {
-            viewModel.setup(gameRepository: gameRepository)
-        }
-        .gameFormStateListeners(viewModel: viewModel, triggerConfirm: triggerConfirm, triggerCancel: triggerCancel)
-        .onChange(of: viewModel.selectedModPackFile) { oldValue, newValue in
-            if oldValue != newValue {
-                viewModel.updateParentState()
+            .onAppear {
+                viewModel.setup(gameRepository: gameRepository)
             }
-        }
-        .onChange(of: viewModel.modPackIndexInfo?.modPackName) { oldValue, newValue in
-            if oldValue != newValue {
-                viewModel.updateParentState()
+            .gameFormStateListeners(viewModel: viewModel, triggerConfirm: triggerConfirm, triggerCancel: triggerCancel)
+            .onChange(of: viewModel.selectedModPackFile) { oldValue, newValue in
+                if oldValue != newValue {
+                    viewModel.updateParentState()
+                }
             }
-        }
-        .onChange(of: viewModel.modPackViewModelForProgress.modPackInstallState.isInstalling) { oldValue, newValue in
-            if oldValue != newValue {
-                viewModel.updateParentState()
+            .onChange(of: viewModel.modPackIndexInfo?.modPackName) { oldValue, newValue in
+                if oldValue != newValue {
+                    viewModel.updateParentState()
+                }
             }
-        }
-        .onChange(of: viewModel.isProcessingModPack) { oldValue, newValue in
-            if oldValue != newValue {
-                viewModel.updateParentState()
+            .onChange(of: viewModel.modPackViewModelForProgress.modPackInstallState.isInstalling) { oldValue, newValue in
+                if oldValue != newValue {
+                    viewModel.updateParentState()
+                }
             }
-        }
-        .onDisappear {
-            clearAllData()
-        }
+            .onChange(of: viewModel.isProcessingModPack) { oldValue, newValue in
+                if oldValue != newValue {
+                    viewModel.updateParentState()
+                }
+            }
+            .onDisappear {
+                clearAllData()
+            }
     }
 
     private func clearAllData() {
@@ -77,8 +77,8 @@ struct ModPackImportView: View {
         VStack {
             modPackImportContentView.padding(.bottom, 10)
             if viewModel.hasSelectedModPack,
-                viewModel.isGameVersionSupported,
-                viewModel.modPackIndexInfo != nil {
+               viewModel.isGameVersionSupported,
+               viewModel.modPackIndexInfo != nil {
                 modPackGameNameInputSection
             }
 

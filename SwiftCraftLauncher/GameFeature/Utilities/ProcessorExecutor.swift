@@ -217,10 +217,10 @@ enum ProcessorExecutor {
                 if processedArg.range(of: placeholder).location != NSNotFound {
                     let replacementValue =
                         value.contains(":") && !value.hasPrefix("/")
-                    ? (
-                        CommonFileManager.extractClientValue(from: value).map {
-                            librariesDir.appendingPathComponent($0).path
-                        } ?? value) : value
+                        ? (
+                            CommonFileManager.extractClientValue(from: value).map {
+                                librariesDir.appendingPathComponent($0).path
+                            } ?? value) : value
 
                     processedArg.replaceOccurrences(
                         of: placeholder,

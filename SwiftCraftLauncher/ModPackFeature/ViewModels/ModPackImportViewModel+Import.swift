@@ -67,7 +67,7 @@ extension ModPackImportViewModel {
                 i18nKey: "error.resource.local_modpack_import_failed",
                 level: .notification,
             )
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             modPackViewModel.modPackInstallState.reset()
             gameSetupService.downloadState.reset()
         }

@@ -12,7 +12,7 @@ enum ModrinthService {
     static func fetchVersionInfo(from version: String) async throws -> MinecraftVersionManifest {
         let cacheKey = "version_info_\(version)"
 
-        if let cachedVersionInfo: MinecraftVersionManifest = AppServices.appCacheManager.get(
+        if let cachedVersionInfo: MinecraftVersionManifest = DIContainer.shared.core.appCacheManager.get(
             namespace: "version_info",
             key: cacheKey,
             as: MinecraftVersionManifest.self,
@@ -22,7 +22,7 @@ enum ModrinthService {
 
         let versionInfo = try await fetchVersionInfoThrowing(from: version)
 
-        AppServices.appCacheManager.setSilently(
+        DIContainer.shared.core.appCacheManager.setSilently(
             namespace: "version_info",
             key: cacheKey,
             value: versionInfo,
@@ -34,7 +34,7 @@ enum ModrinthService {
     static func queryVersionTime(from version: String) async -> String {
         let cacheKey = "version_time_\(version)"
 
-        if let cachedTime: String = AppServices.appCacheManager.get(
+        if let cachedTime: String = DIContainer.shared.core.appCacheManager.get(
             namespace: "version_time",
             key: cacheKey,
             as: String.self,
@@ -46,7 +46,7 @@ enum ModrinthService {
             let versionInfo = try await Self.fetchVersionInfo(from: version)
             let formattedTime = CommonUtil.formatRelativeTime(versionInfo.releaseTime)
 
-            AppServices.appCacheManager.setSilently(
+            DIContainer.shared.core.appCacheManager.setSilently(
                 namespace: "version_time",
                 key: cacheKey,
                 value: formattedTime,

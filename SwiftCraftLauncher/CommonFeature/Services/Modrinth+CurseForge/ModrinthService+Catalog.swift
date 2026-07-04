@@ -15,7 +15,7 @@ extension ModrinthService {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.common.error("Failed to fetch Modrinth loader list: \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return []
         }
     }
@@ -31,7 +31,7 @@ extension ModrinthService {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.common.error("Failed to fetch Modrinth category list: \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return []
         }
     }
@@ -47,7 +47,7 @@ extension ModrinthService {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.common.error("Failed to fetch Modrinth game version list: \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return []
         }
     }

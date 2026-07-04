@@ -46,7 +46,7 @@ extension ModScanner {
         let standardizedDir = dir.standardizedFileURL
         let jarFiles = try readJarZipFiles(from: standardizedDir)
 
-        let concurrentCount = AppServices.generalSettingsManager.concurrentDownloads
+        let concurrentCount = DIContainer.shared.ui.generalSettingsManager.concurrentDownloads
         let semaphore = AsyncSemaphore(value: concurrentCount)
 
         let hashes: Set<String> = await withTaskGroup(of: String?.self) { group in
@@ -71,12 +71,12 @@ extension ModScanner {
             return result
         }
 
-        await AppServices.directoryHashCache.set(hashes, for: standardizedDir)
+        await DIContainer.shared.core.directoryHashCache.set(hashes, for: standardizedDir)
 
         if isModsDirectory(standardizedDir) {
             let gameName = gameNameHint ?? extractGameName(from: standardizedDir)
             if let gameName {
-                await AppServices.modInstallationCache.setAllModsInstalled(
+                await DIContainer.shared.core.modInstallationCache.setAllModsInstalled(
                     for: gameName,
                     hashes: hashes,
                 )
@@ -96,7 +96,7 @@ extension ModScanner {
             guard isModsDirectory(standardizedDirectory) else { return nil }
             return extractGameName(from: standardizedDirectory)
         }()
-        await AppServices.modDirectoryWatcherRegistry.ensureWatching(
+        await DIContainer.shared.core.modDirectoryWatcherRegistry.ensureWatching(
             directoryURL: standardizedDirectory,
             gameNameHint: hint,
         )
@@ -106,7 +106,7 @@ extension ModScanner {
     func scanAllDetailIdsAfterWatcherRegisteredThrowing(
         standardizedDirectory: URL,
     ) async throws -> Set<String> {
-        if let cached = await AppServices.directoryHashCache.get(for: standardizedDirectory) {
+        if let cached = await DIContainer.shared.core.directoryHashCache.get(for: standardizedDirectory) {
             return cached
         }
         return try await rebuildDirectoryHashes(dir: standardizedDirectory)
@@ -124,7 +124,7 @@ extension ModScanner {
             } catch {
                 let globalError = GlobalError.from(error)
                 AppLog.game.error("Failed to scan all detailIds: \(globalError.localizedDescription)")
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
                 completion(Set<String>())
             }
         }

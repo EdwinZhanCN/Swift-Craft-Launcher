@@ -11,6 +11,7 @@ import Combine
 import SwiftUI
 
 struct GameHeaderListRow: View {
+    @EnvironmentObject private var container: DIContainer
     private static let iconSize: CGFloat = 80
     private static let iconPaddingRatio: CGFloat = 0.125
     private static let iconCornerRadiusRatio: CGFloat = 0.2
@@ -19,7 +20,6 @@ struct GameHeaderListRow: View {
     let cacheInfo: CacheInfo
     let query: String
     var onIconTap: (() -> Void)?
-    private let iconRefreshNotifier: IconRefreshNotifier
 
     @State private var refreshTrigger: UUID = .init()
     @State private var cancellable: AnyCancellable?
@@ -29,13 +29,11 @@ struct GameHeaderListRow: View {
         cacheInfo: CacheInfo,
         query: String,
         onIconTap: (() -> Void)? = nil,
-        iconRefreshNotifier: IconRefreshNotifier = AppServices.iconRefreshNotifier,
     ) {
         self.game = game
         self.cacheInfo = cacheInfo
         self.query = query
         self.onIconTap = onIconTap
-        self.iconRefreshNotifier = iconRefreshNotifier
     }
 
     var body: some View {
@@ -142,7 +140,7 @@ struct GameHeaderListRow: View {
             onIconTap?()
         }
         .onAppear {
-            cancellable = iconRefreshNotifier.refreshPublisher
+            cancellable = container.ui.iconRefreshNotifier.refreshPublisher
                 .sink { refreshedGameName in
                     if refreshedGameName == nil || refreshedGameName == game.gameName {
                         refreshTrigger = UUID()

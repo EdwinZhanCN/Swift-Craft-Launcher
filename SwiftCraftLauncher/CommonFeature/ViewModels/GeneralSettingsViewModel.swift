@@ -18,17 +18,10 @@ final class GeneralSettingsViewModel: ObservableObject {
     @Published var concurrentDownloadsDraft: Double
     @Published var isEditingConcurrentDownloads = false
 
-    private let generalSettings: GeneralSettingsManager
-    private let errorHandler: GlobalErrorHandler
     private weak var gameRepository: GameRepository?
 
-    init(
-        generalSettings: GeneralSettingsManager = AppServices.generalSettingsManager,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
-    ) {
-        self.generalSettings = generalSettings
-        self.errorHandler = errorHandler
-        concurrentDownloadsDraft = Double(generalSettings.concurrentDownloads)
+    init() {
+        concurrentDownloadsDraft = Double(DIContainer.shared.ui.generalSettingsManager.concurrentDownloads)
     }
 
     /// Configures the view model with a game repository reference.
@@ -59,7 +52,7 @@ final class GeneralSettingsViewModel: ObservableObject {
             }
 
             try FileManager.default.createDirectory(at: supportDir, withIntermediateDirectories: true)
-            generalSettings.launcherWorkingDirectory = supportDir.path
+            DIContainer.shared.ui.generalSettingsManager.launcherWorkingDirectory = supportDir.path
             AppLog.common.info("Working directory reset to: \(supportDir.path)")
         } catch {
             present(GlobalError.from(error))
@@ -81,7 +74,7 @@ final class GeneralSettingsViewModel: ObservableObject {
                     )
                 }
 
-                generalSettings.launcherWorkingDirectory = url.path
+                DIContainer.shared.ui.generalSettingsManager.launcherWorkingDirectory = url.path
                 AppLog.common.info("Working directory set to: \(url.path)")
             } catch {
                 present(GlobalError.from(error))
@@ -106,7 +99,7 @@ final class GeneralSettingsViewModel: ObservableObject {
 
     /// Syncs the concurrent downloads draft value with current settings.
     func onAppearSyncConcurrentDownloads() {
-        concurrentDownloadsDraft = Double(generalSettings.concurrentDownloads)
+        concurrentDownloadsDraft = Double(DIContainer.shared.ui.generalSettingsManager.concurrentDownloads)
     }
 
     /// Updates the concurrent downloads draft when not actively editing.
@@ -119,7 +112,7 @@ final class GeneralSettingsViewModel: ObservableObject {
     func commitConcurrentDownloadsIfNeeded(isEditing: Bool) {
         isEditingConcurrentDownloads = isEditing
         if !isEditing {
-            generalSettings.concurrentDownloads = Int(concurrentDownloadsDraft.rounded())
+            DIContainer.shared.ui.generalSettingsManager.concurrentDownloads = Int(concurrentDownloadsDraft.rounded())
         }
     }
 
@@ -129,7 +122,7 @@ final class GeneralSettingsViewModel: ObservableObject {
     }
 
     private func present(_ globalError: GlobalError) {
-        errorHandler.handle(globalError)
+        DIContainer.shared.core.errorHandler.handle(globalError)
         error = globalError
     }
 }

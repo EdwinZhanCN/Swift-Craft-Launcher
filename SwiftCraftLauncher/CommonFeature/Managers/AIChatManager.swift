@@ -11,22 +11,7 @@ import SwiftUI
 
 @MainActor
 class AIChatManager: ObservableObject {
-    private let settings: AISettingsManager
-    private let errorHandler: GlobalErrorHandler
-    private let windowManager: WindowManager
-    private let windowDataStore: WindowDataStore
-
-    init(
-        settings: AISettingsManager = AppServices.aiSettingsManager,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
-        windowManager: WindowManager = AppServices.windowManager,
-        windowDataStore: WindowDataStore = AppServices.windowDataStore,
-    ) {
-        self.settings = settings
-        self.errorHandler = errorHandler
-        self.windowManager = windowManager
-        self.windowDataStore = windowDataStore
-    }
+    init() { }
 
     /// Sends a message to the AI service and streams the response.
     /// - Parameters:
@@ -34,7 +19,7 @@ class AIChatManager: ObservableObject {
     ///   - attachments: File attachments to include with the message.
     ///   - chatState: The current chat state to update.
     func sendMessage(_ text: String, attachments: [MessageAttachmentType] = [], chatState: ChatState) async {
-        guard !settings.apiKey.isEmpty else {
+        guard !DIContainer.shared.ui.aiSettingsManager.apiKey.isEmpty else {
             let error = GlobalError.configuration(
                 i18nKey: "error.configuration.ai_service_not_configured",
                 level: .notification,
@@ -42,20 +27,20 @@ class AIChatManager: ObservableObject {
             )
             await MainActor.run {
                 chatState.isSending = false
-                errorHandler.handle(error)
+                DIContainer.shared.core.errorHandler.handle(error)
             }
             return
         }
 
-        guard !settings.getModel().isEmpty else {
+        guard !DIContainer.shared.ui.aiSettingsManager.getModel().isEmpty else {
             let error = GlobalError.configuration(
                 i18nKey: "error.configuration.ai_model_not_configured",
                 level: .notification,
-                message: "AI model is empty for provider \(settings.selectedProvider.rawValue)",
+                message: "AI model is empty for provider \(DIContainer.shared.ui.aiSettingsManager.selectedProvider.rawValue)",
             )
             await MainActor.run {
                 chatState.isSending = false
-                errorHandler.handle(error)
+                DIContainer.shared.core.errorHandler.handle(error)
             }
             return
         }
@@ -78,7 +63,7 @@ class AIChatManager: ObservableObject {
         allMessages.append(userMessage)
 
         do {
-            switch settings.selectedProvider.apiFormat {
+            switch DIContainer.shared.ui.aiSettingsManager.selectedProvider.apiFormat {
             case .openAI:
                 try await sendOpenAIMessage(messages: allMessages, chatState: chatState)
             case .ollama:
@@ -92,7 +77,7 @@ class AIChatManager: ObservableObject {
                 chatState.isSending = false
 
                 if let globalError = error as? GlobalError {
-                    errorHandler.handle(globalError)
+                    DIContainer.shared.core.errorHandler.handle(globalError)
                     if let lastIndex = chatState.messages.indices.last {
                         let userFriendlyMessage = globalError.localizedDescription
                         chatState.messages[lastIndex].content = userFriendlyMessage
@@ -103,7 +88,7 @@ class AIChatManager: ObservableObject {
                         level: .notification,
                         message: "AI request failed: \(error.localizedDescription)",
                     )
-                    errorHandler.handle(globalError)
+                    DIContainer.shared.core.errorHandler.handle(globalError)
                     if let lastIndex = chatState.messages.indices.last {
                         let userFriendlyMessage = globalError.localizedDescription
                         chatState.messages[lastIndex].content = userFriendlyMessage
@@ -114,7 +99,7 @@ class AIChatManager: ObservableObject {
     }
 
     private func sendOpenAIMessage(messages: [ChatMessage], chatState: ChatState) async throws {
-        let apiURL = settings.getAPIURL()
+        let apiURL = DIContainer.shared.ui.aiSettingsManager.getAPIURL()
         guard let url = URL(string: apiURL) else {
             throw GlobalError.network(
                 i18nKey: "error.network.invalid_url",
@@ -124,7 +109,7 @@ class AIChatManager: ObservableObject {
         }
 
         let requestBody: [String: Any] = [
-            "model": settings.getModel(),
+            "model": DIContainer.shared.ui.aiSettingsManager.getModel(),
             "stream": true,
             "messages": try await buildOpenAIMessages(messages: messages),
         ]
@@ -132,7 +117,7 @@ class AIChatManager: ObservableObject {
         var request = URLRequest(url: url)
         request.httpMethod = APIClient.HTTPMethods.post
         request.setValue(APIClient.MimeType.json, forHTTPHeaderField: APIClient.Header.contentType)
-        request.setValue(APIClient.bearer(settings.apiKey), forHTTPHeaderField: APIClient.Header.authorization)
+        request.setValue(APIClient.bearer(DIContainer.shared.ui.aiSettingsManager.apiKey), forHTTPHeaderField: APIClient.Header.authorization)
 
         let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
         request.httpBody = jsonData
@@ -219,10 +204,10 @@ class AIChatManager: ObservableObject {
     }
 
     private func sendOllamaMessage(messages: [ChatMessage], chatState: ChatState) async throws {
-        let baseURL = settings.selectedProvider == .ollama
-            ? (settings.ollamaBaseURL.isEmpty ? settings.selectedProvider.baseURL : settings.ollamaBaseURL)
-            : settings.selectedProvider.baseURL
-        let apiURL = baseURL + settings.selectedProvider.apiPath
+        let baseURL = DIContainer.shared.ui.aiSettingsManager.selectedProvider == .ollama
+            ? (DIContainer.shared.ui.aiSettingsManager.ollamaBaseURL.isEmpty ? DIContainer.shared.ui.aiSettingsManager.selectedProvider.baseURL : DIContainer.shared.ui.aiSettingsManager.ollamaBaseURL)
+            : DIContainer.shared.ui.aiSettingsManager.selectedProvider.baseURL
+        let apiURL = baseURL + DIContainer.shared.ui.aiSettingsManager.selectedProvider.apiPath
 
         guard let url = URL(string: apiURL) else {
             throw GlobalError.network(
@@ -233,7 +218,7 @@ class AIChatManager: ObservableObject {
         }
 
         let requestBody: [String: Any] = [
-            "model": settings.getModel(),
+            "model": DIContainer.shared.ui.aiSettingsManager.getModel(),
             "stream": true,
             "messages": try await buildOllamaMessages(messages: messages),
         ]
@@ -242,8 +227,8 @@ class AIChatManager: ObservableObject {
         request.httpMethod = APIClient.HTTPMethods.post
         request.setValue(APIClient.MimeType.json, forHTTPHeaderField: APIClient.Header.contentType)
 
-        if !settings.apiKey.isEmpty {
-            request.setValue(settings.apiKey, forHTTPHeaderField: APIClient.Header.authorization)
+        if !DIContainer.shared.ui.aiSettingsManager.apiKey.isEmpty {
+            request.setValue(DIContainer.shared.ui.aiSettingsManager.apiKey, forHTTPHeaderField: APIClient.Header.authorization)
         }
 
         let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
@@ -322,8 +307,9 @@ class AIChatManager: ObservableObject {
     }
 
     private func sendGeminiMessage(messages: [ChatMessage], chatState: ChatState) async throws {
-        let model = settings.getModel()
-        let apiURL = "\(settings.selectedProvider.baseURL)/v1/models/\(model):streamGenerateContent?key=\(settings.apiKey.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? settings.apiKey)"
+        let model = DIContainer.shared.ui.aiSettingsManager.getModel()
+        let apiKey = DIContainer.shared.ui.aiSettingsManager.apiKey
+        let apiURL = "\(DIContainer.shared.ui.aiSettingsManager.selectedProvider.baseURL)/v1/models/\(model):streamGenerateContent?key=\(apiKey.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? apiKey)"
 
         guard let url = URL(string: apiURL) else {
             throw GlobalError.network(
@@ -422,12 +408,12 @@ class AIChatManager: ObservableObject {
 
         guard let fileSize = await getFileSize(url: url) else {
             return await readFileContent(url: url, fileName: fileName) ??
-                   String(format: "ai.file.cannot_read".localized(), fileName)
+                String(format: "ai.file.cannot_read".localized(), fileName)
         }
 
         if fileSize <= maxFileSizeForReading {
             return await readFileContent(url: url, fileName: fileName) ??
-                   String(format: "ai.file.cannot_read_text".localized(), fileName)
+                String(format: "ai.file.cannot_read_text".localized(), fileName)
         } else {
             let sizeDescription = formatFileSize(fileSize)
             return String(format: "ai.file.too_large".localized(), fileName, sizeDescription)
@@ -483,7 +469,7 @@ class AIChatManager: ObservableObject {
     /// Opens the AI chat window with a fresh chat state.
     func openChatWindow() {
         let chatState = ChatState()
-        windowDataStore.aiChatState = chatState
-        windowManager.openWindow(id: .aiChat)
+        DIContainer.shared.ui.windowDataStore.aiChatState = chatState
+        DIContainer.shared.ui.windowManager.openWindow(id: .aiChat)
     }
 }

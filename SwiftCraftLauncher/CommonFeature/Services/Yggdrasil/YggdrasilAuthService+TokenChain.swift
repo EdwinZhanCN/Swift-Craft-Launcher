@@ -48,6 +48,47 @@ extension YggdrasilAuthService {
         }
     }
 
+    func refreshToken(refreshToken: String, server: YggdrasilServerConfig) async throws -> TokenResponse {
+        guard let refreshTokenURL = server.tokenURL else {
+            throw GlobalError.validation(
+                i18nKey: "error.validation.yggdrasil_refresh_token_url_invalid",
+                level: .notification,
+                message: "Yggdrasil refresh token URL is nil for server \(server.baseURL.absoluteString)",
+            )
+        }
+
+        AppLog.common.debug("Refreshing token for server \(server.name)")
+
+        var parameters: [String: String] = [
+            "grant_type": "refresh_token",
+            "refresh_token": refreshToken,
+        ]
+
+        if let clientId = server.clientId {
+            parameters["client_id"] = clientId
+        }
+        if let clientSecret = server.clientSecret {
+            parameters["client_secret"] = clientSecret
+        }
+
+        do {
+            let data = try await APIClient.post(
+                url: refreshTokenURL,
+                body: APIClient.formURLEncodedBody(from: parameters),
+                headers: APIClient.DefaultHeaders.contentTypeFormURLEncoded,
+            )
+            AppLog.common.info("Token refreshed successfully for server \(server.name)")
+            return try JSONDecoder().decode(TokenResponse.self, from: data)
+        } catch {
+            AppLog.common.error("Token refreshed failed for server \(server.name)")
+            throw GlobalError.validation(
+                i18nKey: "error.validation.yggdrasil_token_response_parse_failed",
+                level: .notification,
+                message: "Failed to parse Yggdrasil refresh token response from \(refreshTokenURL): \(error.localizedDescription)",
+            )
+        }
+    }
+
     func fetchProfileList(
         accessToken: String,
         server: YggdrasilServerConfig,
@@ -82,15 +123,30 @@ extension YggdrasilAuthService {
         )
     }
 
-    func getMinecraftToken(profile: YggdrasilProfile, server: YggdrasilServerConfig) async throws -> String {
+    func getMinecraftToken(profile: YggdrasilProfile, server: YggdrasilServerConfig) async throws -> (minecraftToken: String, updatedProfile: YggdrasilProfile) {
+        let tokenResponse = try? await refreshToken(refreshToken: profile.refreshToken, server: server)
+
         guard let parser = YggdrasilMinecraftTokenParsers.make(for: server.parserId) else {
             AppLog.common.error("TODO: Minecraft token fetch not yet implemented for this server (\(server.name)), falling back to OAuth2 token")
-            return profile.accessToken
+            return (profile.accessToken, profile)
         }
-        return try await parser.fetchMinecraftToken(
+
+        let minecraftToken = try await parser.fetchMinecraftToken(
             profileId: profile.id,
             minecraftTokenURL: server.minecraftTokenURL,
             oauthToken: profile.accessToken,
         )
+
+        let updatedProfile = YggdrasilProfile(
+            id: profile.id,
+            name: profile.name,
+            skins: profile.skins,
+            capes: profile.capes,
+            accessToken: tokenResponse?.accessToken ?? profile.accessToken,
+            refreshToken: tokenResponse?.refreshToken ?? profile.refreshToken,
+            serverBaseURL: profile.serverBaseURL,
+        )
+
+        return (minecraftToken, updatedProfile)
     }
 }

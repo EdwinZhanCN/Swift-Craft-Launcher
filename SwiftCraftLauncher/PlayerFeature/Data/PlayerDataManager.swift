@@ -11,13 +11,11 @@ import Foundation
 ///
 /// Profiles are persisted to `UserDefaults` (plist) and credentials are stored in the system Keychain.
 class PlayerDataManager {
-    private let errorHandler: GlobalErrorHandler
     private let profileStore: UserProfileStore
     private let credentialStore = AuthCredentialStore()
 
-    init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
-        self.errorHandler = errorHandler
-        profileStore = UserProfileStore(errorHandler: errorHandler)
+    init() {
+        profileStore = UserProfileStore()
     }
 
     /// Adds a new player with the specified properties.
@@ -134,7 +132,7 @@ class PlayerDataManager {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.player.error("Failed to add player: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return false
         }
     }
@@ -148,7 +146,7 @@ class PlayerDataManager {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.player.error("Failed to load player data: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return []
         }
     }
@@ -184,7 +182,7 @@ class PlayerDataManager {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.player.error("Failed to check player existence: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return false
         }
     }
@@ -229,7 +227,7 @@ class PlayerDataManager {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.player.error("Failed to delete player: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return false
         }
     }
@@ -243,7 +241,7 @@ class PlayerDataManager {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.player.error("Failed to save player data: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
         }
     }
 
@@ -317,7 +315,7 @@ class PlayerDataManager {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.player.error("Failed to update player info: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return false
         }
     }

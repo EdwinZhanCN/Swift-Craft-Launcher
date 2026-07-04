@@ -10,6 +10,7 @@ import SwiftUI
 
 /// Provides the primary toolbar content for the main content area.
 public struct ContentToolbarView: ToolbarContent {
+    @EnvironmentObject private var container: DIContainer
     @EnvironmentObject private var playerListViewModel: PlayerListViewModel
     @State private var showingAddPlayerSheet = false
     @State private var playerName = ""
@@ -21,20 +22,7 @@ public struct ContentToolbarView: ToolbarContent {
     @State private var showingMinecraftFriendsSheet = false
     @State private var minecraftFriendsSheetHost: MinecraftFriendsSheetHostAdapter?
     @StateObject private var viewModel = ContentToolbarViewModel()
-    @StateObject private var minecraftFriendsSheetViewModel = MinecraftFriendsSheetViewModel(friendsService: AppServices.minecraftFriendsService)
-    private let minecraftAuthService: MinecraftAuthService
-    private let yggdrasilAuthService: YggdrasilAuthService
-    private let premiumAccountFlagManager: PremiumAccountFlagManager
-
-    init(
-        minecraftAuthService: MinecraftAuthService = AppServices.minecraftAuthService,
-        yggdrasilAuthService: YggdrasilAuthService = AppServices.yggdrasilAuthService,
-        premiumAccountFlagManager: PremiumAccountFlagManager = AppServices.premiumAccountFlagManager,
-    ) {
-        self.minecraftAuthService = minecraftAuthService
-        self.yggdrasilAuthService = yggdrasilAuthService
-        self.premiumAccountFlagManager = premiumAccountFlagManager
-    }
+    @StateObject private var minecraftFriendsSheetViewModel = MinecraftFriendsSheetViewModel(friendsService: DIContainer.shared.ui.minecraftFriendsService)
 
     private var currentPlayer: Player? {
         playerListViewModel.currentPlayer
@@ -90,16 +78,16 @@ public struct ContentToolbarView: ToolbarContent {
 
                         showingAddPlayerSheet = false
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            minecraftAuthService.clearAuthenticationData()
+                            container.system.minecraftAuthService.clearAuthenticationData()
                         }
                     },
                     onLogin: { profile in
                         AppLog.main.debug("Premium login successful, user: \(profile.name)")
                         _ = playerListViewModel.addOnlinePlayer(profile: profile)
-                        premiumAccountFlagManager.setPremiumAccountAdded()
+                        container.system.premiumAccountFlagManager.setPremiumAccountAdded()
                         showingAddPlayerSheet = false
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            minecraftAuthService.clearAuthenticationData()
+                            container.system.minecraftAuthService.clearAuthenticationData()
                         }
                     },
                     onYggdrasilLogin: { profile in
@@ -108,7 +96,7 @@ public struct ContentToolbarView: ToolbarContent {
                         _ = playerListViewModel.addOnlinePlayer(profile: profile)
                         showingAddPlayerSheet = false
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            yggdrasilAuthService.logout()
+                            container.system.yggdrasilAuthService.logout()
                         }
                     },
                     playerListViewModel: playerListViewModel,
@@ -176,10 +164,10 @@ public struct ContentToolbarView: ToolbarContent {
                             playerId: p.id,
                             viewModel: minecraftFriendsSheetViewModel,
                             localize: MinecraftFriendsSheetLocalize.resolver(
-                                localeIdentifier: { AppServices.languageManager.selectedLanguage },
+                                localeIdentifier: { container.ui.languageManager.selectedLanguage },
                                 fallback: { $0.localized() },
                             ),
-                            limitBodyScrollHeight: AppServices.generalSettingsManager.limitCommonSheetHeight,
+                            limitBodyScrollHeight: container.ui.generalSettingsManager.limitCommonSheetHeight,
                         ) { _, url in
                             Group {
                                 if let u = url, !u.isEmpty {

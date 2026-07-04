@@ -11,7 +11,7 @@ import SwiftUI
 struct ErrorAlertModifier: ViewModifier {
     @StateObject private var errorHandler: GlobalErrorHandler
 
-    init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
+    init(errorHandler: GlobalErrorHandler) {
         _errorHandler = StateObject(wrappedValue: errorHandler)
     }
 
@@ -34,7 +34,9 @@ struct ErrorAlertModifier: ViewModifier {
 
 extension View {
     /// Adds error alert handling to the view.
-    func errorAlert() -> some View {
-        modifier(ErrorAlertModifier())
+    func errorAlert(
+        _ errorHandler: GlobalErrorHandler,
+    ) -> some View {
+        modifier(ErrorAlertModifier(errorHandler: errorHandler))
     }
 }

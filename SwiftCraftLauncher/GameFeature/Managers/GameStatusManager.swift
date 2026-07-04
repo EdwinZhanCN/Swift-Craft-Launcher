@@ -27,7 +27,7 @@ class GameStatusManager: ObservableObject {
         applyOnMain { [self] in
             var updated = gameRunningStates
             var changed = false
-            let processManager = AppServices.gameProcessManager
+            let processManager = DIContainer.shared.core.gameProcessManager
 
             for game in games {
                 let key = GameProcessManager.processKey(gameId: game.id, userId: userId)
@@ -45,7 +45,7 @@ class GameStatusManager: ObservableObject {
     }
 
     func isGameRunning(gameId: String, userId: String) -> Bool {
-        let actuallyRunning = AppServices.gameProcessManager.isGameRunning(gameId: gameId, userId: userId)
+        let actuallyRunning = DIContainer.shared.core.gameProcessManager.isGameRunning(gameId: gameId, userId: userId)
         let key = GameProcessManager.processKey(gameId: gameId, userId: userId)
 
         applyOnMain { [self] in
@@ -75,7 +75,7 @@ class GameStatusManager: ObservableObject {
     ///   - gameId: The game identifier.
     ///   - userId: The player identifier.
     func refreshGameStatus(gameId: String, userId: String) {
-        let actuallyRunning = AppServices.gameProcessManager.isGameRunning(gameId: gameId, userId: userId)
+        let actuallyRunning = DIContainer.shared.core.gameProcessManager.isGameRunning(gameId: gameId, userId: userId)
         let key = GameProcessManager.processKey(gameId: gameId, userId: userId)
         applyOnMain { [weak self] in
             guard let self else { return }
@@ -103,7 +103,7 @@ class GameStatusManager: ObservableObject {
 
     /// Removes cached states for games that are no longer running.
     func cleanupStoppedGames() {
-        let processManager = AppServices.gameProcessManager
+        let processManager = DIContainer.shared.core.gameProcessManager
 
         applyOnMain { [weak self] in
             guard let self else { return }

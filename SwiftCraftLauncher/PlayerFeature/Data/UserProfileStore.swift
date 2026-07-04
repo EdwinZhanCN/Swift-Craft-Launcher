@@ -9,11 +9,7 @@ import Foundation
 
 /// Stores and manages user profiles using `UserDefaults`.
 class UserProfileStore {
-    private let errorHandler: GlobalErrorHandler
-
-    init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
-        self.errorHandler = errorHandler
-    }
+    init() { }
 
     /// Loads all stored user profiles.
     ///
@@ -62,7 +58,7 @@ class UserProfileStore {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.player.error("Failed to save user profile: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
         }
     }
 

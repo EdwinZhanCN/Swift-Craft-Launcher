@@ -19,11 +19,8 @@ final class GameSettingsJavaRuntimeViewModel: ObservableObject {
 
     private var loadTask: Task<Void, Never>?
     private var loadGeneration: Int = 0
-    private let javaManager: JavaManager
 
-    init(javaManager: JavaManager = AppServices.javaManager) {
-        self.javaManager = javaManager
-    }
+    init() { }
 
     /// A description of the Java runtime details for display in an info popover.
     var javaDetailsDescription: String {
@@ -44,7 +41,7 @@ final class GameSettingsJavaRuntimeViewModel: ObservableObject {
         loadGeneration += 1
         let generation = loadGeneration
 
-        let path = javaManager.getJavaExecutablePath(version: component)
+        let path = DIContainer.shared.system.javaManager.getJavaExecutablePath(version: component)
         javaExecutablePath = path
 
         guard FileManager.default.isExecutableFile(atPath: path) else {
@@ -52,10 +49,10 @@ final class GameSettingsJavaRuntimeViewModel: ObservableObject {
             return
         }
 
-        loadTask = Task { [weak self, javaManager] in
+        loadTask = Task { [weak self] in
             guard let self else { return }
             let info = await Task.detached {
-                javaManager.getJavaVersionInfo(at: path) ?? ""
+                await DIContainer.shared.system.javaManager.getJavaVersionInfo(at: path) ?? ""
             }.value
             guard generation == loadGeneration else { return }
             javaVersionInfo = info
@@ -66,10 +63,10 @@ final class GameSettingsJavaRuntimeViewModel: ObservableObject {
         if showScanningIndicator {
             installedRuntimeComponents = nil
         }
-        Task { [weak self, javaManager] in
+        Task { [weak self] in
             guard let self else { return }
             let list = await Task.detached(priority: .utility) {
-                javaManager.listInstalledRuntimeComponents()
+                await DIContainer.shared.system.javaManager.listInstalledRuntimeComponents()
             }.value
             installedRuntimeComponents = list
             if list.isEmpty {

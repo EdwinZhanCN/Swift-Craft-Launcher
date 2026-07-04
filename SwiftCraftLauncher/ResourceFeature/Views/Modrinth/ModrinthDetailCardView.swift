@@ -94,28 +94,22 @@ struct ModrinthDetailCardView: View {
     private var iconView: some View {
         Group {
             if project.projectId.hasPrefix("local_") || project.projectId.hasPrefix("file_") {
-                localResourceIcon
+                ModrinthDetailCardPlaceholderIcon()
             } else if let iconUrl = project.iconUrl,
-                let url = URL(string: iconUrl) {
-                AsyncImage(
-                    url: url,
-                    transaction: Transaction(
-                        animation: .easeInOut(duration: 0.2),
-                    ),
-                ) { phase in
+                      let url = URL(string: iconUrl) {
+                AsyncImage(url: url) { phase in
                     switch phase {
-                    case .empty:
-                        placeholderIcon
                     case let .success(image):
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .transition(.opacity)
-                    case .failure:
-                        placeholderIcon
-                    @unknown default:
-                        placeholderIcon
+                    default:
+                        ModrinthDetailCardPlaceholderIcon()
                     }
+                }
+                .onDisappear {
+                    URLCache.shared.removeCachedResponse(for: URLRequest(url: url))
                 }
                 .frame(
                     width: ModrinthConstants.UIConstants.iconSize,
@@ -123,19 +117,10 @@ struct ModrinthDetailCardView: View {
                 )
                 .cornerRadius(ModrinthConstants.UIConstants.cornerRadius)
                 .clipped()
-                .onDisappear {
-                    URLCache.shared.removeCachedResponse(
-                        for: URLRequest(url: url),
-                    )
-                }
             } else {
-                placeholderIcon
+                ModrinthDetailCardPlaceholderIcon()
             }
         }
-    }
-
-    private var placeholderIcon: some View {
-        ModrinthDetailCardPlaceholderIcon()
     }
 
     private var localResourceIcon: some View {

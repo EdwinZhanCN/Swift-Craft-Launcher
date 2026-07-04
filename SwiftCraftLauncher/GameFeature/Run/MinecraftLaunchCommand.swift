@@ -12,29 +12,6 @@ import Foundation
 struct MinecraftLaunchCommand {
     let player: Player?
     let game: GameVersionInfo
-    private let minecraftAuthService: MinecraftAuthService
-    private let yggdrasilAuthService: YggdrasilAuthService
-    private let gameSettingsManager: GameSettingsManager
-    private let gameProcessManager: GameProcessManager
-    private let gameStatusManager: GameStatusManager
-
-    init(
-        player: Player?,
-        game: GameVersionInfo,
-        minecraftAuthService: MinecraftAuthService = AppServices.minecraftAuthService,
-        yggdrasilAuthService: YggdrasilAuthService = AppServices.yggdrasilAuthService,
-        gameSettingsManager: GameSettingsManager = AppServices.gameSettingsManager,
-        gameProcessManager: GameProcessManager = AppServices.gameProcessManager,
-        gameStatusManager: GameStatusManager = AppServices.gameStatusManager,
-    ) {
-        self.player = player
-        self.game = game
-        self.minecraftAuthService = minecraftAuthService
-        self.yggdrasilAuthService = yggdrasilAuthService
-        self.gameSettingsManager = gameSettingsManager
-        self.gameProcessManager = gameProcessManager
-        self.gameStatusManager = gameStatusManager
-    }
 
     func launchGame() async {
         do {
@@ -46,7 +23,7 @@ struct MinecraftLaunchCommand {
 
     func stopGame() async {
         let userId = player?.id ?? ""
-        _ = gameProcessManager.stopProcess(for: game.id, userId: userId)
+        _ = DIContainer.shared.core.gameProcessManager.stopProcess(for: game.id, userId: userId)
     }
 
     func launchGameThrowing() async throws {
@@ -72,13 +49,13 @@ struct MinecraftLaunchCommand {
 
         var playerWithCredential = player
         if playerWithCredential.credential == nil {
-            let dataManager = AppServices.playerDataManager
+            let dataManager = DIContainer.shared.ui.playerDataManager
             if let credential = dataManager.loadCredential(userId: playerWithCredential.id) {
                 playerWithCredential.credential = credential
             }
         }
 
-        let validatedPlayer = try await minecraftAuthService.validateAndRefreshPlayerTokenThrowing(for: playerWithCredential)
+        let validatedPlayer = try await DIContainer.shared.system.minecraftAuthService.validateAndRefreshPlayerTokenThrowing(for: playerWithCredential)
 
         if validatedPlayer.authAccessToken != player.authAccessToken {
             AppLog.game.info("Player \(player.name) token updated, saved to data manager")
@@ -89,7 +66,7 @@ struct MinecraftLaunchCommand {
     }
 
     private func updatePlayerInDataManager(_ updatedPlayer: Player) async {
-        let dataManager = AppServices.playerDataManager
+        let dataManager = DIContainer.shared.ui.playerDataManager
         let success = dataManager.updatePlayerSilently(updatedPlayer)
         if success {
             AppLog.game.debug("Updated token info in player data manager")
@@ -157,8 +134,11 @@ struct MinecraftLaunchCommand {
         }
 
         let accessToken: String
+        let updatedProfile: YggdrasilProfile
         do {
-            accessToken = try await yggdrasilAuthService.getMinecraftToken(profile: profile, server: server)
+            let result = try await DIContainer.shared.system.yggdrasilAuthService.getMinecraftToken(profile: profile, server: server)
+            accessToken = result.minecraftToken
+            updatedProfile = result.updatedProfile
         } catch {
             throw GlobalError.authentication(
                 i18nKey: "error.authentication.token_fetch_failed",
@@ -167,10 +147,13 @@ struct MinecraftLaunchCommand {
             )
         }
 
+        // Update the stored profile with refreshed tokens
+        OfflineUserServerMap.setServer(updatedProfile, for: player.id)
+
         let jarPath = AppConstants.AuthlibInjector.jarPath
         if !FileManager.default.fileExists(atPath: jarPath) {
             AppLog.game.error("Authlib Injector JAR does not exist, waiting for user selection: \(jarPath)")
-            let choice = await AppServices.authlibInjectorMissingPresenter.requestUserChoice()
+            let choice = await DIContainer.shared.ui.authlibInjectorMissingPresenter.requestUserChoice()
             switch choice {
             case .continueWithoutInjector:
                 return (accessToken, command)
@@ -187,7 +170,7 @@ struct MinecraftLaunchCommand {
     }
 
     private func replaceGameParameters(command: [String]) -> [String] {
-        let settings = gameSettingsManager
+        let settings = DIContainer.shared.ui.gameSettingsManager
 
         let xms = game.xms > 0 ? game.xms : settings.globalXms
         let xmx = game.xmx > 0 ? game.xmx : settings.globalXmx
@@ -265,20 +248,20 @@ struct MinecraftLaunchCommand {
         }
 
         let userId = player?.id ?? ""
-        gameProcessManager.storeProcess(gameId: game.id, userId: userId, process: process)
+        DIContainer.shared.core.gameProcessManager.storeProcess(gameId: game.id, userId: userId, process: process)
 
         do {
             try process.run()
 
             _ = await MainActor.run {
-                gameStatusManager.setGameRunning(gameId: game.id, userId: userId, isRunning: true)
+                DIContainer.shared.core.gameStatusManager.setGameRunning(gameId: game.id, userId: userId, isRunning: true)
             }
         } catch {
             AppLog.game.error("Failed to launch process: \(error.localizedDescription)")
 
-            _ = gameProcessManager.stopProcess(for: game.id, userId: userId)
+            _ = DIContainer.shared.core.gameProcessManager.stopProcess(for: game.id, userId: userId)
             _ = await MainActor.run {
-                gameStatusManager.setGameRunning(gameId: game.id, userId: userId, isRunning: false)
+                DIContainer.shared.core.gameStatusManager.setGameRunning(gameId: game.id, userId: userId, isRunning: false)
             }
 
             throw GlobalError.gameLaunch(
@@ -293,6 +276,6 @@ struct MinecraftLaunchCommand {
         AppLog.game.error("Failed to launch game: \(error.localizedDescription)")
 
         let globalError = GlobalError.from(error)
-        AppServices.errorHandler.handle(globalError)
+        DIContainer.shared.core.errorHandler.handle(globalError)
     }
 }

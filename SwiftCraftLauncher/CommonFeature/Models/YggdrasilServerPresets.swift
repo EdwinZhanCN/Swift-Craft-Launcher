@@ -48,7 +48,7 @@ enum YggdrasilServerPresets {
             authorizePath: "/oauth2/v1",
             tokenPath: "/api/oauth2/v1/token",
             profilePath: "/api/account/v1/info",
-            scope: "account_info",
+            scope: "account_info offline_access minecraft_server_session",
             parserId: .ely,
             token: "/api/yggdrasil/authserver/oauth",
         ),

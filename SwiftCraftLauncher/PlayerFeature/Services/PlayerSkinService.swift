@@ -23,7 +23,7 @@ enum PlayerSkinService {
     private static func handleError(_ error: Error, operation: String) {
         let globalError = GlobalError.from(error)
         AppLog.player.error("\(operation) failed: \(globalError.localizedDescription)")
-        AppServices.errorHandler.handle(globalError)
+        DIContainer.shared.core.errorHandler.handle(globalError)
     }
 
     private static func validateAccessToken(_ player: Player) throws {
@@ -89,7 +89,7 @@ enum PlayerSkinService {
     /// - Returns: `true` if the update was successful.
     private static func updatePlayerSkinInfo(uuid: String, skinInfo: PublicSkinInfo) async -> Bool {
         do {
-            let dataManager = AppServices.playerDataManager
+            let dataManager = DIContainer.shared.ui.playerDataManager
             let players = try dataManager.loadPlayersThrowing()
 
             guard let player = players.first(where: { $0.id == uuid }) else {
@@ -232,7 +232,7 @@ enum PlayerSkinService {
         func appendField(name: String, value: String) {
             if let fieldData =
                 "--\(boundary)\r\nContent-Disposition: form-data; name=\"\(name)\"\r\n\r\n\(value)\r\n"
-                .data(using: .utf8) {
+                    .data(using: .utf8) {
                 body.append(fieldData)
             }
         }
@@ -356,7 +356,7 @@ enum PlayerSkinService {
     /// - Parameter player: The player to query.
     /// - Returns: The profile response, or `nil` on failure.
     static func fetchPlayerProfile(player: Player) async
-        -> MinecraftProfileResponse? {
+    -> MinecraftProfileResponse? {
         do {
             return try await fetchPlayerProfileThrowing(player: player)
         } catch {
@@ -367,7 +367,7 @@ enum PlayerSkinService {
 
     /// Fetches the player's Minecraft profile including cape information, throwing on failure.
     static func fetchPlayerProfileThrowing(player: Player) async throws
-        -> MinecraftProfileResponse {
+    -> MinecraftProfileResponse {
         try validateAccessToken(player)
 
         let data = try await APIClient.get(

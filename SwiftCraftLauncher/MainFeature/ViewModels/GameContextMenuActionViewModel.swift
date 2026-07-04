@@ -10,11 +10,7 @@ import Foundation
 /// Handles context menu actions for launching or stopping a game.
 @MainActor
 final class GameContextMenuActionViewModel: ObservableObject {
-    private let gameStatusManager: GameStatusManager
-
-    init(gameStatusManager: GameStatusManager = AppServices.gameStatusManager) {
-        self.gameStatusManager = gameStatusManager
-    }
+    init() { }
 
     /// Toggles the running state of a game by launching or stopping it.
     ///
@@ -34,8 +30,8 @@ final class GameContextMenuActionViewModel: ObservableObject {
             if isRunning {
                 await gameLaunchUseCase.stopGame(player: player, game: game)
             } else {
-                gameStatusManager.setGameLaunching(gameId: game.id, userId: userId, isLaunching: true)
-                defer { gameStatusManager.setGameLaunching(gameId: game.id, userId: userId, isLaunching: false) }
+                DIContainer.shared.core.gameStatusManager.setGameLaunching(gameId: game.id, userId: userId, isLaunching: true)
+                defer { DIContainer.shared.core.gameStatusManager.setGameLaunching(gameId: game.id, userId: userId, isLaunching: false) }
                 await gameLaunchUseCase.launchGame(player: player, game: game)
             }
         }

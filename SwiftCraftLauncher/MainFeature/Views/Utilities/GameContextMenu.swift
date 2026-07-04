@@ -10,16 +10,12 @@
 import SwiftUI
 
 struct GameContextMenu: View {
+    @EnvironmentObject private var container: DIContainer
     let game: GameVersionInfo
     let onDelete: () -> Void
     let onOpenSettings: () -> Void
     let onExport: () -> Void
     let showsShowInLauncher: Bool
-
-    @EnvironmentObject private var gameStatusManager: GameStatusManager
-    @EnvironmentObject private var gameActionManager: GameActionManager
-    @ObservedObject private var selectedGameManager: SelectedGameManager
-    private let windowManager: WindowManager
 
     init(
         game: GameVersionInfo,
@@ -27,16 +23,12 @@ struct GameContextMenu: View {
         onOpenSettings: @escaping () -> Void,
         onExport: @escaping () -> Void,
         showsShowInLauncher: Bool = false,
-        selectedGameManager: SelectedGameManager = AppServices.selectedGameManager,
-        windowManager: WindowManager = AppServices.windowManager,
     ) {
         self.game = game
         self.onDelete = onDelete
         self.onOpenSettings = onOpenSettings
         self.onExport = onExport
         self.showsShowInLauncher = showsShowInLauncher
-        self.selectedGameManager = selectedGameManager
-        self.windowManager = windowManager
     }
 
     @EnvironmentObject private var playerListViewModel: PlayerListViewModel
@@ -47,7 +39,7 @@ struct GameContextMenu: View {
     /// Whether the game is currently running, determined by cached process state.
     private var isRunning: Bool {
         let userId = playerListViewModel.currentPlayer?.id ?? ""
-        return gameStatusManager.cachedIsGameRunning(gameId: game.id, userId: userId)
+        return container.core.gameStatusManager.cachedIsGameRunning(gameId: game.id, userId: userId)
     }
 
     var body: some View {
@@ -61,23 +53,23 @@ struct GameContextMenu: View {
         })
 
         Button(action: {
-            gameActionManager.showInFinder(game: game)
+            container.core.gameActionManager.showInFinder(game: game)
         }, label: {
             Label("sidebar.context_menu.show_in_finder".localized(), systemImage: "folder")
         })
 
         if showsShowInLauncher {
             Button(action: {
-                selectedGameManager.setSelectedGame(game.id)
-                windowManager.showAndActivateMainWindow()
+                container.core.selectedGameManager.setSelectedGame(game.id)
+                container.ui.windowManager.showAndActivateMainWindow()
             }, label: {
                 Label("sidebar.context_menu.show_in_launcher".localized(), systemImage: "macwindow")
             })
         }
 
         Button(action: {
-            selectedGameManager.setSelectedGameAndOpenAdvancedSettings(game.id)
-            windowManager.showAndActivateMainWindow()
+            container.core.selectedGameManager.setSelectedGameAndOpenAdvancedSettings(game.id)
+            container.ui.windowManager.showAndActivateMainWindow()
             onOpenSettings()
         }, label: {
             Label("settings.game.advanced".localized(), systemImage: "gearshape")
@@ -88,7 +80,7 @@ struct GameContextMenu: View {
         if game.modLoader != GameLoader.vanilla.displayName {
             Button(action: {
                 if showsShowInLauncher {
-                    windowManager.showAndActivateMainWindow()
+                    container.ui.windowManager.showAndActivateMainWindow()
                 }
                 onExport()
             }, label: {
@@ -98,7 +90,7 @@ struct GameContextMenu: View {
 
         Button(action: {
             if showsShowInLauncher {
-                windowManager.showAndActivateMainWindow()
+                container.ui.windowManager.showAndActivateMainWindow()
             }
             onDelete()
         }, label: {

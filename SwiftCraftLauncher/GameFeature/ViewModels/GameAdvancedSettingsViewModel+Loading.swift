@@ -14,8 +14,8 @@ extension GameAdvancedSettingsViewModel {
         isLoadingSettings = true
         defer { isLoadingSettings = false }
 
-        let xms = game.xms == 0 ? gameSettingsManager.globalXms : game.xms
-        let xmx = game.xmx == 0 ? gameSettingsManager.globalXmx : game.xmx
+        let xms = game.xms == 0 ? DIContainer.shared.ui.gameSettingsManager.globalXms : game.xms
+        let xmx = game.xmx == 0 ? DIContainer.shared.ui.gameSettingsManager.globalXmx : game.xmx
         memoryRange = Double(xms) ... Double(xmx)
         environmentVariables = game.environmentVariables
         javaPath = game.javaPath
@@ -45,7 +45,7 @@ extension GameAdvancedSettingsViewModel {
         }
 
         Task {
-            let info = javaManager.getJavaVersionInfo(at: path) ?? ""
+            let info = DIContainer.shared.system.javaManager.getJavaVersionInfo(at: path) ?? ""
             await MainActor.run {
                 if self.effectiveJavaPath == path {
                     self.javaVersionInfo = info

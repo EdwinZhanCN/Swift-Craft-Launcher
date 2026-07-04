@@ -10,11 +10,7 @@ import SwiftUI
 
 /// A row that displays the current language and opens system language settings.
 struct GeneralSettingsLanguageRow: View {
-    private let languageManager: LanguageManager
-
-    init(languageManager: LanguageManager = AppServices.languageManager) {
-        self.languageManager = languageManager
-    }
+    let languageManager: LanguageManager
 
     var body: some View {
         Group {
@@ -38,7 +34,7 @@ struct GeneralSettingsLanguageRow: View {
 
 /// A row with a theme picker selector.
 struct GeneralSettingsThemeRow: View {
-    @ObservedObject var themeManager: ThemeManager
+    @EnvironmentObject private var themeManager: ThemeManager
 
     var body: some View {
         Group {
@@ -54,7 +50,7 @@ struct GeneralSettingsThemeRow: View {
 
 /// A row for choosing the interface layout style.
 struct GeneralSettingsInterfaceLayoutRow: View {
-    @ObservedObject var generalSettings: GeneralSettingsManager
+    @EnvironmentObject private var generalSettings: GeneralSettingsManager
 
     var body: some View {
         LabeledContent("settings.interface_style.label".localized()) {
@@ -73,7 +69,7 @@ struct GeneralSettingsInterfaceLayoutRow: View {
 
 /// A row for configuring the launcher working directory.
 struct GeneralSettingsWorkingDirectoryRow: View {
-    @ObservedObject var generalSettings: GeneralSettingsManager
+    @EnvironmentObject private var generalSettings: GeneralSettingsManager
     @ObservedObject var viewModel: GeneralSettingsViewModel
     @ObservedObject var gameRepository: GameRepository
 
@@ -125,7 +121,7 @@ struct GeneralSettingsWorkingDirectoryRow: View {
 
 /// A row with a slider for the maximum concurrent download count.
 struct GeneralSettingsConcurrentDownloadsRow: View {
-    @ObservedObject var generalSettings: GeneralSettingsManager
+    @EnvironmentObject private var generalSettings: GeneralSettingsManager
     @ObservedObject var viewModel: GeneralSettingsViewModel
 
     var body: some View {
@@ -170,7 +166,7 @@ struct GeneralSettingsSystemProxyRow: View {
 
 /// A row for configuring a GitHub proxy URL.
 struct GeneralSettingsGitHubProxyRow: View {
-    @ObservedObject var generalSettings: GeneralSettingsManager
+    @EnvironmentObject private var generalSettings: GeneralSettingsManager
 
     var body: some View {
         LabeledContent("settings.github_proxy.label".localized()) {
@@ -202,7 +198,7 @@ struct GeneralSettingsGitHubProxyRow: View {
 
 /// A row to toggle the common sheet height limit.
 struct GeneralSettingsCommonSheetHeightLimitRow: View {
-    @ObservedObject var generalSettings: GeneralSettingsManager
+    @EnvironmentObject private var generalSettings: GeneralSettingsManager
 
     var body: some View {
         LabeledContent("settings.common_sheet_height_limit.label".localized()) {

@@ -100,12 +100,12 @@ enum ProgressDownloadManager {
         if let urlError = error as? URLError {
             switch urlError.code {
             case .timedOut,
-                    .cannotFindHost,
-                    .cannotConnectToHost,
-                    .networkConnectionLost,
-                    .dnsLookupFailed,
-                    .notConnectedToInternet,
-                    .resourceUnavailable:
+                 .cannotFindHost,
+                 .cannotConnectToHost,
+                 .networkConnectionLost,
+                 .dnsLookupFailed,
+                 .notConnectedToInternet,
+                 .resourceUnavailable:
                 return true
             default:
                 return false

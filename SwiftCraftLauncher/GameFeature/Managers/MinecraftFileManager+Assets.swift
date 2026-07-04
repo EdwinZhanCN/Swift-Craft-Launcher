@@ -70,7 +70,7 @@ extension MinecraftFileManager {
         let assets = Array(assetIndex.objects)
 
         let semaphore = AsyncSemaphore(
-            value: AppServices.generalSettingsManager.concurrentDownloads,
+            value: DIContainer.shared.ui.generalSettingsManager.concurrentDownloads,
         )
 
         for chunk in stride(

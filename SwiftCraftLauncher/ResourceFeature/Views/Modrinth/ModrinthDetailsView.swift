@@ -49,10 +49,10 @@ struct ModrinthDetailsSection: View, Equatable {
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.isLoading == rhs.isLoading &&
-        lhs.project?.id == rhs.project?.id &&
-        lhs.project?.license?.id == rhs.project?.license?.id &&
-        lhs.project?.published == rhs.project?.published &&
-        lhs.project?.updated == rhs.project?.updated
+            lhs.project?.id == rhs.project?.id &&
+            lhs.project?.license?.id == rhs.project?.license?.id &&
+            lhs.project?.published == rhs.project?.published &&
+            lhs.project?.updated == rhs.project?.updated
     }
 }
 

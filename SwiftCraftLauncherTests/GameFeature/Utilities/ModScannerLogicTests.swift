@@ -9,7 +9,7 @@
 import XCTest
 
 final class ModScannerLogicTests: XCTestCase {
-    private let scanner = ModScanner(errorHandler: AppServices.errorHandler)
+    private let scanner = ModScanner()
 
     func testIsModsDirectory_mods() {
         let url = URL(fileURLWithPath: "/path/to/game/mods")

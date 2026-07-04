@@ -75,7 +75,7 @@ struct SkeletonTag: Identifiable {
 private extension ModrinthDetailCardSkeletonView {
     var skeletonDescription: String {
         placeholder(lengthRange: 50 ... 90)
-        }
+    }
 
     var skeletonTitle: String { placeholder(lengthRange: 8 ... 18) }
     var skeletonAuthor: String { placeholder(lengthRange: 6 ... 14) }

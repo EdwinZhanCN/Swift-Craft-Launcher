@@ -69,7 +69,7 @@ public enum SHA1Calculator {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.common.error("Failed to calculate file hash: \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return nil
         }
     }

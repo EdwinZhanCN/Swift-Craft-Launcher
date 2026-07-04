@@ -65,7 +65,7 @@ public struct ContributorsView: View {
                 StaticContributorCardView(
                     contributor: staticViewModel.contributors[index],
                 )
-                    .id("static-\(index)")
+                .id("static-\(index)")
 
                 if index < staticViewModel.contributors.count - 1 {
                     Divider()

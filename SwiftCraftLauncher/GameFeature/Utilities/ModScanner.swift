@@ -10,11 +10,7 @@ import Foundation
 
 /// Scans mod and resource files, resolving details from Modrinth and CurseForge.
 class ModScanner {
-    let errorHandler: GlobalErrorHandler
-
-    init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
-        self.errorHandler = errorHandler
-    }
+    init() { }
 
     /// Schedules an asynchronous rebuild of directory hashes.
     nonisolated func scheduleDirectoryHashRebuild(
@@ -58,7 +54,7 @@ class ModScanner {
                 AppLog.game.error(
                     "Failed to get Modrinth project details: \(globalError.localizedDescription)",
                 )
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
                 completion(nil)
             }
         }
@@ -117,7 +113,7 @@ class ModScanner {
 
     /// Returns a cached mod detail for the given hash, or `nil` if absent.
     func getModCacheFromDatabase(hash: String) -> ModrinthProjectDetail? {
-        guard let jsonData = AppServices.modCacheManager.get(hash: hash) else {
+        guard let jsonData = DIContainer.shared.core.modCacheManager.get(hash: hash) else {
             return nil
         }
 
@@ -133,10 +129,10 @@ class ModScanner {
     func saveToCache(hash: String, detail: ModrinthProjectDetail) {
         do {
             let jsonData = try JSONEncoder().encode(detail)
-            AppServices.modCacheManager.setSilently(hash: hash, jsonData: jsonData)
+            DIContainer.shared.core.modCacheManager.setSilently(hash: hash, jsonData: jsonData)
         } catch {
             AppLog.game.error("Failed to encode mod cache: \(error.localizedDescription)")
-            errorHandler.handle(GlobalError.validation(
+            DIContainer.shared.core.errorHandler.handle(GlobalError.validation(
                 i18nKey: "error.validation.mod_cache_encode_failed",
                 level: .silent,
                 message: "failed to encode mod cache for hash: \(hash)",

@@ -23,7 +23,7 @@ extension ModrinthService {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.common.error("Failed to fetch project details (ID: \(id)): \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return nil
         }
     }
@@ -55,7 +55,7 @@ extension ModrinthService {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.common.error("Failed to fetch v3 project details (ID: \(id)): \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return nil
         }
     }
@@ -79,7 +79,7 @@ extension ModrinthService {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.common.error("Failed to fetch project version list (ID: \(id)): \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return []
         }
     }

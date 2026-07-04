@@ -9,7 +9,6 @@ import AppKit
 import SwiftUI
 
 /// Provides game-related actions such as revealing in Finder and deletion.
-@MainActor
 class GameActionManager: ObservableObject {
     init() { }
 
@@ -41,16 +40,16 @@ class GameActionManager: ObservableObject {
     ) {
         Task {
             do {
-                let gameProcessManager = AppServices.gameProcessManager
-                let gameStatusManager = AppServices.gameStatusManager
-                let modScanner = AppServices.modScanner
+                let gameProcessManager = DIContainer.shared.core.gameProcessManager
+                let gameStatusManager = DIContainer.shared.core.gameStatusManager
+                let modScanner = DIContainer.shared.core.modScanner
 
                 if gameProcessManager.isGameRunningForAnyUser(gameId: game.id) {
                     let error = GlobalError.validation(
                         i18nKey: "error.validation.game_running_cannot_delete",
                         level: .notification,
                     )
-                    AppServices.errorHandler.handle(error)
+                    DIContainer.shared.core.errorHandler.handle(error)
                     return
                 }
 
@@ -88,7 +87,7 @@ class GameActionManager: ObservableObject {
                     level: .notification,
                 )
                 AppLog.game.error("Failed to delete game: \(globalError.localizedDescription)")
-                AppServices.errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
             }
         }
     }
@@ -103,7 +102,7 @@ class GameActionManager: ObservableObject {
     ) {
         Task {
             do {
-                let modScanner = AppServices.modScanner
+                let modScanner = DIContainer.shared.core.modScanner
 
                 let profileDir = AppPaths.profileDirectory(gameName: name)
                 if FileManager.default.fileExists(atPath: profileDir.path) {
@@ -121,7 +120,7 @@ class GameActionManager: ObservableObject {
                     level: .notification,
                 )
                 AppLog.game.error("Failed to delete corrupted game: \(globalError.localizedDescription)")
-                AppServices.errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
             }
         }
     }

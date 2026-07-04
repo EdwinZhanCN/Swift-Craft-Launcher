@@ -32,10 +32,10 @@ struct DependencySectionView: View {
                             .bold()
                             .frame(maxWidth: .infinity, alignment: .leading)
                         if let versions = state.versions[dep.id],
-                            !versions.isEmpty {
+                           !versions.isEmpty {
                             CommonMenuPicker(
                                 selection:
-                                    Binding(
+                                Binding(
                                     get: {
                                         state.selected[dep.id] ?? versions.first
                                     },

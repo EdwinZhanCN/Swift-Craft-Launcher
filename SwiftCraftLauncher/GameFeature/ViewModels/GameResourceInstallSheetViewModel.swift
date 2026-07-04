@@ -21,7 +21,6 @@ final class GameResourceInstallSheetViewModel: ObservableObject {
     let resourceType: String
     let gameInfo: GameVersionInfo
     let isUpdateMode: Bool
-    private let errorHandler: GlobalErrorHandler
 
     private var gameRepository: GameRepository?
 
@@ -30,13 +29,11 @@ final class GameResourceInstallSheetViewModel: ObservableObject {
         resourceType: String,
         gameInfo: GameVersionInfo,
         isUpdateMode: Bool,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
     ) {
         self.project = project
         self.resourceType = resourceType
         self.gameInfo = gameInfo
         self.isUpdateMode = isUpdateMode
-        self.errorHandler = errorHandler
     }
 
     func setDependencies(gameRepository: GameRepository) {
@@ -60,7 +57,7 @@ final class GameResourceInstallSheetViewModel: ObservableObject {
             } catch {
                 let globalError = GlobalError.from(error)
                 AppLog.game.error("Failed to load dependencies: \(globalError.localizedDescription)")
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
                 dependencyState = DependencyState()
             }
         }
@@ -111,7 +108,7 @@ final class GameResourceInstallSheetViewModel: ObservableObject {
             } catch {
                 let globalError = GlobalError.from(error)
                 AppLog.game.error("Failed to manually download all dependencies: \(globalError.localizedDescription)")
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
                 isDownloadingAll = false
             }
         }
@@ -178,7 +175,7 @@ final class GameResourceInstallSheetViewModel: ObservableObject {
             } catch {
                 let globalError = GlobalError.from(error)
                 AppLog.game.error("Failed to download resource: \(globalError.localizedDescription)")
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
                 isDownloadingAll = false
             }
         }

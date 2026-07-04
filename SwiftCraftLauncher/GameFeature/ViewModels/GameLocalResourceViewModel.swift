@@ -30,21 +30,13 @@ final class GameLocalResourceViewModel: ObservableObject {
     private var searchTask: Task<Void, Never>?
     private var searchGeneration: Int = 0
     private var currentSearchText: String = ""
-    private let errorHandler: GlobalErrorHandler
-    private let modScanner: ModScanner
 
     private static let pageSize: Int = 20
     private var pageSize: Int { Self.pageSize }
 
     var displayedResources: [ModrinthProjectDetail] { scannedResources }
 
-    init(
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
-        modScanner: ModScanner = AppServices.modScanner,
-    ) {
-        self.errorHandler = errorHandler
-        self.modScanner = modScanner
-    }
+    init() { }
 
     func onDisappear() {
         clearAllData()
@@ -211,7 +203,7 @@ final class GameLocalResourceViewModel: ObservableObject {
                 level: .notification,
             )
             AppLog.game.error("Failed to initialize resource directory: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             error = globalError
         }
     }
@@ -235,7 +227,7 @@ final class GameLocalResourceViewModel: ObservableObject {
             return
         }
 
-        allFiles = modScanner.getAllResourceFiles(resourceDir)
+        allFiles = DIContainer.shared.core.modScanner.getAllResourceFiles(resourceDir)
     }
 
     private func filterResourcesByTitle(_ details: [ModrinthProjectDetail], searchText: String) -> [ModrinthProjectDetail] {
@@ -277,7 +269,7 @@ final class GameLocalResourceViewModel: ObservableObject {
         let isSearching = !effectiveSearchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         let generationAtStart = searchGeneration
 
-        modScanner.scanResourceFilesPage(
+        DIContainer.shared.core.modScanner.scanResourceFilesPage(
             fileURLs: sourceFiles,
             page: page,
             pageSize: pageSize,

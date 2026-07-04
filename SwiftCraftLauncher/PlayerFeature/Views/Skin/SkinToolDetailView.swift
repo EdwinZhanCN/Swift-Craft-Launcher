@@ -12,12 +12,12 @@ import UniformTypeIdentifiers
 
 /// A sheet for managing the current player's skin and cape.
 struct SkinToolDetailView: View {
+    @EnvironmentObject private var container: DIContainer
     @EnvironmentObject private var playerListViewModel: PlayerListViewModel
     @Environment(\.dismiss)
     private var dismiss
 
     @StateObject private var viewModel: SkinToolDetailViewModel
-    @StateObject private var playerSettings = AppServices.playerSettingsManager
 
     init(
         preloadedSkinInfo: PlayerSkinService.PublicSkinInfo? = nil,
@@ -82,7 +82,7 @@ struct SkinToolDetailView: View {
                 isCapeLoading: $viewModel.isCapeLoading,
                 capeLoadCompleted: $viewModel.capeLoadCompleted,
                 showingSkinPreview: $viewModel.showingSkinPreview,
-                showSkinLibrary: playerSettings.enableHistorySkinLibrary,
+                showSkinLibrary: container.ui.playerSettingsManager.enableHistorySkinLibrary,
                 onSkinDropped: { image in
                     viewModel.handleSkinDroppedImage(image)
                 },
@@ -122,8 +122,8 @@ struct SkinToolDetailView: View {
                         dismiss()
                     }
                 }
-                    .keyboardShortcut(.defaultAction)
-                    .disabled(viewModel.operationInProgress || !viewModel.hasChanges)
+                .keyboardShortcut(.defaultAction)
+                .disabled(viewModel.operationInProgress || !viewModel.hasChanges)
             }
         }
     }

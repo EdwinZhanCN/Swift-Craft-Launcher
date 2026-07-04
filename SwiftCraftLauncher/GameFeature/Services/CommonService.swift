@@ -23,7 +23,7 @@ enum CommonService {
             AppLog.game.error(
                 "Failed to get \(loader) version: \(globalError.localizedDescription)",
             )
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return []
         }
     }
@@ -61,7 +61,7 @@ enum CommonService {
                     let formattedTime = CommonUtil.formatRelativeTime(
                         version.date,
                     )
-                    AppServices.appCacheManager.setSilently(
+                    DIContainer.shared.core.appCacheManager.setSilently(
                         namespace: "version_time",
                         key: cacheKey,
                         value: formattedTime,
@@ -99,7 +99,7 @@ enum CommonService {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.game.error("Failed to get loader version: \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return nil
         }
     }

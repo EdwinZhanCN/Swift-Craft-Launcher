@@ -10,12 +10,10 @@ import Foundation
 /// Provides a SQLite-backed cache for parsed mod metadata.
 class ModCacheManager {
     private let modCacheDB: ModCacheDatabase
-    private let errorHandler: GlobalErrorHandler
     private let queue = DispatchQueue(label: "ModCacheManager.queue")
     private var isInitialized = false
 
-    init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
-        self.errorHandler = errorHandler
+    init() {
         let dbPath = AppPaths.gameVersionDatabase.path
         modCacheDB = ModCacheDatabase(dbPath: dbPath)
     }
@@ -52,7 +50,7 @@ class ModCacheManager {
         do {
             try set(hash: hash, jsonData: jsonData)
         } catch {
-            errorHandler.handle(error)
+            DIContainer.shared.core.errorHandler.handle(error)
         }
     }
 
@@ -65,7 +63,7 @@ class ModCacheManager {
                 try ensureInitialized()
                 return try modCacheDB.getModCache(hash: hash)
             } catch {
-                errorHandler.handle(error)
+                DIContainer.shared.core.errorHandler.handle(error)
                 return nil
             }
         }
@@ -79,7 +77,7 @@ class ModCacheManager {
                 try modCacheDB.clearAllModCaches()
             }
         } catch {
-            errorHandler.handle(error)
+            DIContainer.shared.core.errorHandler.handle(error)
         }
     }
 }

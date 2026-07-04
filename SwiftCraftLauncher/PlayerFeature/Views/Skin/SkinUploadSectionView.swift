@@ -13,6 +13,7 @@ import UniformTypeIdentifiers
 
 /// Provides the skin upload area, render preview, and library access.
 struct SkinUploadSectionView: View {
+    @EnvironmentObject private var container: DIContainer
     @Binding var currentModel: PlayerSkinService.PublicSkinInfo.SkinModel
     @Binding var showingFileImporter: Bool
     @Binding var selectedSkinImage: NSImage?
@@ -32,8 +33,6 @@ struct SkinUploadSectionView: View {
     let onSkinDropped: (NSImage) -> Void
     let onDrop: ([NSItemProvider]) -> Bool
     let onSelectSkinLibraryItem: (SkinLibraryItem) -> Void
-    private let windowDataStore: WindowDataStore
-    private let windowManager: WindowManager
     private let skinLibraryStore: SkinLibraryStore
 
     init(
@@ -52,8 +51,6 @@ struct SkinUploadSectionView: View {
         onSkinDropped: @escaping (NSImage) -> Void,
         onDrop: @escaping ([NSItemProvider]) -> Bool,
         onSelectSkinLibraryItem: @escaping (SkinLibraryItem) -> Void,
-        windowDataStore: WindowDataStore = AppServices.windowDataStore,
-        windowManager: WindowManager = AppServices.windowManager,
         skinLibraryStore: SkinLibraryStore = SkinLibraryStore(),
     ) {
         _currentModel = currentModel
@@ -71,8 +68,6 @@ struct SkinUploadSectionView: View {
         self.onSkinDropped = onSkinDropped
         self.onDrop = onDrop
         self.onSelectSkinLibraryItem = onSelectSkinLibraryItem
-        self.windowDataStore = windowDataStore
-        self.windowManager = windowManager
         self.skinLibraryStore = skinLibraryStore
     }
 
@@ -142,7 +137,7 @@ struct SkinUploadSectionView: View {
             presenting: pendingDeletion,
         ) { item in
             Button("common.delete".localized(), role: .destructive) {
-                _ = skinLibraryStore.deleteItem(item)
+                try? skinLibraryStore.deleteItem(item)
                 pendingDeletion = nil
                 reloadSkinLibraryItems()
             }
@@ -208,17 +203,17 @@ struct SkinUploadSectionView: View {
     /// Opens a separate 3D skin preview window.
     private func openSkinPreviewWindow() {
         let playerModel = convertToPlayerModel(currentModel)
-        windowDataStore.skinPreviewData = SkinPreviewData(
+        container.ui.windowDataStore.skinPreviewData = SkinPreviewData(
             skinImage: selectedSkinImage ?? currentSkinRenderImage,
             skinPath: selectedSkinPath,
             capeImage: selectedCapeImage,
             playerModel: playerModel,
         )
-        windowManager.openWindow(id: .skinPreview)
+        container.ui.windowManager.openWindow(id: .skinPreview)
     }
 
     private func reloadSkinLibraryItems() {
-        skinLibraryItems = skinLibraryStore.loadItems()
+        skinLibraryItems = (try? skinLibraryStore.loadItems()) ?? []
     }
 }
 

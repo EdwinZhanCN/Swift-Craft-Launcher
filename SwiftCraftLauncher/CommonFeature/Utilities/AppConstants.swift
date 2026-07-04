@@ -71,7 +71,12 @@ enum AppConstants {
     }()
 
     static let minecraftScope = "XboxLive.signin offline_access"
-    static let validResourceTypes = [ResourceType.mod.rawValue, ResourceType.datapack.rawValue, ResourceType.shader.rawValue, ResourceType.resourcepack.rawValue]
+    static let validResourceTypes = [
+        ResourceType.mod.rawValue,
+        ResourceType.datapack.rawValue,
+        ResourceType.shader.rawValue,
+        ResourceType.resourcepack.rawValue,
+    ]
     /// The CurseForge API key, decrypted at launch.
     static let curseForgeAPIKey: String? = {
         let encrypted = "$(CURSEFORGE_API_KEY)"
@@ -96,7 +101,12 @@ enum AppConstants {
         return Obfuscator.decryptAPIKey(encrypted)
     }()
 
-    static let cacheResourceTypes = [DirectoryNames.libraries, DirectoryNames.natives, DirectoryNames.assets, DirectoryNames.versions]
+    static let cacheResourceTypes = [
+        DirectoryNames.libraries,
+        DirectoryNames.natives,
+        DirectoryNames.assets,
+        DirectoryNames.versions,
+    ]
 
     static let logTag = Bundle.main.identifier + ".logger"
 

@@ -15,9 +15,9 @@ enum Architecture {
     /// The current process architecture.
     static let current: Architecture = {
         #if arch(arm64)
-        return .arm64
+            return .arm64
         #else
-        return .x86_64
+            return .x86_64
         #endif
     }()
 

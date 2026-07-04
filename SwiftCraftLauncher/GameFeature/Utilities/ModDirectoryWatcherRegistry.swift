@@ -10,11 +10,6 @@ import Foundation
 /// Manages a registry of directory watchers for mod directories.
 actor ModDirectoryWatcherRegistry {
     private var watchers: [String: ModsDirectoryTreeWatcher] = [:]
-    private let modScanner: ModScanner
-
-    init(modScanner: ModScanner = AppServices.modScanner) {
-        self.modScanner = modScanner
-    }
 
     /// Ensures a directory is being watched for mod changes.
     /// - Parameters:
@@ -32,7 +27,7 @@ actor ModDirectoryWatcherRegistry {
 
         let hint = gameNameHint
         let watcher = ModsDirectoryTreeWatcher(path: key) {
-            self.modScanner.scheduleDirectoryHashRebuild(
+            DIContainer.shared.core.modScanner.scheduleDirectoryHashRebuild(
                 standardizedDirectoryURL: standardized,
                 gameNameHint: hint,
             )

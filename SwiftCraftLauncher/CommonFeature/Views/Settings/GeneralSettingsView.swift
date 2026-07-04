@@ -9,37 +9,45 @@ import SwiftUI
 
 /// A view for configuring general launcher settings.
 public struct GeneralSettingsView: View {
-    @StateObject private var generalSettings: GeneralSettingsManager
-    @StateObject private var themeManager: ThemeManager
+    @EnvironmentObject private var container: DIContainer
     @StateObject private var viewModel: GeneralSettingsViewModel
     @EnvironmentObject private var gameRepository: GameRepository
 
     @MainActor
     public init() {
-        _generalSettings = StateObject(wrappedValue: AppServices.generalSettingsManager)
-        _themeManager = StateObject(wrappedValue: AppServices.themeManager)
         _viewModel = StateObject(wrappedValue: GeneralSettingsViewModel())
     }
 
     public var body: some View {
         Form {
-            GeneralSettingsLanguageRow()
-            GeneralSettingsThemeRow(themeManager: themeManager)
-            GeneralSettingsInterfaceLayoutRow(generalSettings: generalSettings)
+            GeneralSettingsLanguageRow(languageManager: container.ui.languageManager)
+
+            GeneralSettingsThemeRow()
+                .environmentObject(container.ui.themeManager)
+
+            GeneralSettingsInterfaceLayoutRow()
+                .environmentObject(container.ui.generalSettingsManager)
+
             GeneralSettingsWorkingDirectoryRow(
-                generalSettings: generalSettings,
                 viewModel: viewModel,
                 gameRepository: gameRepository,
             )
+            .environmentObject(container.ui.generalSettingsManager)
+
             GeneralSettingsConcurrentDownloadsRow(
-                generalSettings: generalSettings,
                 viewModel: viewModel,
             )
+            .environmentObject(container.ui.generalSettingsManager)
+
             GeneralSettingsSystemProxyRow()
-            GeneralSettingsGitHubProxyRow(generalSettings: generalSettings)
-            GeneralSettingsCommonSheetHeightLimitRow(generalSettings: generalSettings)
+
+            GeneralSettingsGitHubProxyRow()
+                .environmentObject(container.ui.generalSettingsManager)
+
+            GeneralSettingsCommonSheetHeightLimitRow()
+                .environmentObject(container.ui.generalSettingsManager)
         }
-        .errorHandler()
+        .errorHandler(container.core.errorHandler)
         .onAppear {
             viewModel.configure(gameRepository: gameRepository)
         }

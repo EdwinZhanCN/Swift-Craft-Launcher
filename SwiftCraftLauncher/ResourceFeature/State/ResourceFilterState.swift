@@ -30,7 +30,7 @@ final class ResourceFilterState: ObservableObject {
 
     init(
         dataSource: DataSource? = nil,
-        gameSettingsManager: GameSettingsManager = AppServices.gameSettingsManager,
+        gameSettingsManager: GameSettingsManager = DIContainer.shared.ui.gameSettingsManager,
     ) {
         self.dataSource = dataSource ?? gameSettingsManager.defaultAPISource
     }

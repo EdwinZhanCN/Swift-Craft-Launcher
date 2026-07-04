@@ -15,20 +15,19 @@ extension SwiftCraftLauncherApp {
             if let windowID {
                 AuxiliaryWindowScene(
                     windowID: windowID,
-                    generalSettingsManager: generalSettingsManager,
-                    themeManager: themeManager,
                     playerListViewModel: playerListViewModel,
                     gameRepository: gameRepository,
                 )
+                .environmentObject(container)
             }
         }
     }
 }
 
 private struct AuxiliaryWindowScene: View {
+    @EnvironmentObject private var container: DIContainer
+
     let windowID: AuxiliaryWindowID
-    @ObservedObject var generalSettingsManager: GeneralSettingsManager
-    @ObservedObject var themeManager: ThemeManager
     @ObservedObject var playerListViewModel: PlayerListViewModel
     @ObservedObject var gameRepository: GameRepository
 
@@ -37,22 +36,19 @@ private struct AuxiliaryWindowScene: View {
             switch windowID {
             case .contributors:
                 AboutView(showingAcknowledgements: false)
-                    .environmentObject(generalSettingsManager)
             case .acknowledgements:
                 AboutView(showingAcknowledgements: true)
-                    .environmentObject(generalSettingsManager)
             case .aiChat:
                 AIChatWindowContent()
                     .environmentObject(playerListViewModel)
                     .environmentObject(gameRepository)
-                    .environmentObject(generalSettingsManager)
             case .javaDownload:
                 JavaDownloadWindowContent()
             case .skinPreview:
                 SkinPreviewWindowContent()
             }
         }
-        .preferredColorScheme(themeManager.preferredColorScheme)
+        .preferredColorScheme(container.ui.themeManager.preferredColorScheme)
         .frame(
             minWidth: windowID.defaultSize.width,
             idealWidth: windowID.defaultSize.width,
@@ -60,35 +56,24 @@ private struct AuxiliaryWindowScene: View {
             idealHeight: windowID.defaultSize.height,
         )
         .windowStyleConfig(for: windowID)
-        .windowCleanup(for: windowID)
+        .windowCleanup(for: windowID, windowDataStore: container.ui.windowDataStore)
     }
 }
 
 private struct JavaDownloadWindowContent: View {
-    @ObservedObject private var javaDownloadManager: JavaDownloadManager
-
-    init(javaDownloadManager: JavaDownloadManager = AppServices.javaDownloadManager) {
-        _javaDownloadManager = ObservedObject(wrappedValue: javaDownloadManager)
-    }
+    @EnvironmentObject private var container: DIContainer
 
     var body: some View {
-        JavaDownloadProgressWindow(downloadState: javaDownloadManager.downloadState)
+        JavaDownloadProgressWindow(downloadState: container.system.javaDownloadManager.downloadState)
     }
 }
 
 private struct AIChatWindowContent: View {
-    @ObservedObject private var windowDataStore: WindowDataStore
-    @EnvironmentObject private var playerListViewModel: PlayerListViewModel
-    @EnvironmentObject private var gameRepository: GameRepository
-    @EnvironmentObject private var generalSettingsManager: GeneralSettingsManager
-
-    init(windowDataStore: WindowDataStore = AppServices.windowDataStore) {
-        _windowDataStore = ObservedObject(wrappedValue: windowDataStore)
-    }
+    @EnvironmentObject private var container: DIContainer
 
     var body: some View {
         Group {
-            if let chatState = windowDataStore.aiChatState {
+            if let chatState = container.ui.windowDataStore.aiChatState {
                 AIChatWindowView(chatState: chatState)
             }
         }
@@ -96,15 +81,11 @@ private struct AIChatWindowContent: View {
 }
 
 private struct SkinPreviewWindowContent: View {
-    @ObservedObject private var windowDataStore: WindowDataStore
-
-    init(windowDataStore: WindowDataStore = AppServices.windowDataStore) {
-        _windowDataStore = ObservedObject(wrappedValue: windowDataStore)
-    }
+    @EnvironmentObject private var container: DIContainer
 
     var body: some View {
         Group {
-            if let data = windowDataStore.skinPreviewData {
+            if let data = container.ui.windowDataStore.skinPreviewData {
                 SkinPreviewWindowView(
                     skinImage: data.skinImage,
                     skinPath: data.skinPath,

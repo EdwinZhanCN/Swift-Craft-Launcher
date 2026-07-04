@@ -53,7 +53,7 @@ extension CurseForgeService {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.common.error("Failed to search CurseForge projects: \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return CurseForgeSearchResult(data: [], pagination: nil)
         }
     }
@@ -137,7 +137,7 @@ extension CurseForgeService {
 
         if let rawSearchFilter = searchFilter?
             .trimmingCharacters(in: .whitespacesAndNewlines),
-           !rawSearchFilter.isEmpty {
+            !rawSearchFilter.isEmpty {
             let components = rawSearchFilter
                 .split { $0.isWhitespace }
                 .map(String.init)

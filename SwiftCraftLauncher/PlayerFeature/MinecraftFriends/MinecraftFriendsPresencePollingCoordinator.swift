@@ -29,25 +29,22 @@ final class MinecraftFriendsPresencePollingCoordinator {
     private var pollingTask: Task<Void, Never>?
     private var pollingGeneration = 0
     private var lastPresenceNotificationsEnabled =
-        AppServices.playerSettingsManager.enableMinecraftFriendsPresenceNotifications
+        DIContainer.shared.ui.playerSettingsManager.enableMinecraftFriendsPresenceNotifications
 
-    init(
-        friendsService: MinecraftFriendsService = AppServices.minecraftFriendsService,
-    ) {
+    init() {
         hostAdapter = MinecraftFriendsPresenceMonitorHostAdapter()
         credentialSideEffects = MinecraftFriendsMicrosoftPlayerSideEffects(
-            dataManager: AppServices.playerDataManager,
-            errorHandler: AppServices.errorHandler,
+            dataManager: DIContainer.shared.ui.playerDataManager,
         )
         let localize = Self.makeLocalize()
         presenceMonitor = MinecraftFriendsPresenceMonitor(
-            friendsService: friendsService,
+            friendsService: DIContainer.shared.ui.minecraftFriendsService,
             host: hostAdapter,
             preferencesDidChangeNotification: .minecraftFriendsAccountPreferencesDidChange,
             localize: localize,
         )
         friendListMonitor = MinecraftFriendsFriendListMonitor(
-            friendsService: friendsService,
+            friendsService: DIContainer.shared.ui.minecraftFriendsService,
             host: hostAdapter,
             preferencesDidChangeNotification: .minecraftFriendsAccountPreferencesDidChange,
             localize: localize,
@@ -71,7 +68,7 @@ final class MinecraftFriendsPresencePollingCoordinator {
                 self?.syncPollingToCurrentPlayer()
             }
 
-        let playerSettings = AppServices.playerSettingsManager
+        let playerSettings = DIContainer.shared.ui.playerSettingsManager
         presenceNotificationsSettingObservation = playerSettings.objectWillChange
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
@@ -97,7 +94,7 @@ final class MinecraftFriendsPresencePollingCoordinator {
 
     /// Starts or stops the polling loop based on the current player and settings.
     private func syncPollingToCurrentPlayer() {
-        guard AppServices.playerSettingsManager.enableMinecraftFriendsPresenceNotifications else {
+        guard DIContainer.shared.ui.playerSettingsManager.enableMinecraftFriendsPresenceNotifications else {
             stopPollingLoop()
             return
         }
@@ -178,7 +175,7 @@ final class MinecraftFriendsPresencePollingCoordinator {
 
     private static func makeLocalize() -> (String) -> String {
         MinecraftFriendsSheetLocalize.resolver(
-            localeIdentifier: { AppServices.languageManager.selectedLanguage },
+            localeIdentifier: { DIContainer.shared.ui.languageManager.selectedLanguage },
             fallback: { $0.localized() },
         )
     }

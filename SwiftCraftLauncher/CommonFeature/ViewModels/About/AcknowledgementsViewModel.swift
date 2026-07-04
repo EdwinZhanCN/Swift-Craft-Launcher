@@ -15,15 +15,8 @@ final class AcknowledgementsViewModel: ObservableObject {
     @Published var loadFailed: Bool = false
 
     private var loadTask: Task<Void, Never>?
-    private let gitHubService: GitHubService
 
-    init(gitHubService: GitHubService) {
-        self.gitHubService = gitHubService
-    }
-
-    convenience init() {
-        self.init(gitHubService: AppServices.gitHubService)
-    }
+    init() { }
 
     /// Loads acknowledgement data from the GitHub service.
     func load() {
@@ -36,7 +29,7 @@ final class AcknowledgementsViewModel: ObservableObject {
             guard let self else { return }
             do {
                 try Task.checkCancellation()
-                let decodedLibraries: [OpenSourceLibrary] = try await gitHubService.fetchAcknowledgements()
+                let decodedLibraries: [OpenSourceLibrary] = try await DIContainer.shared.system.gitHubService.fetchAcknowledgements()
                 try Task.checkCancellation()
                 guard !Task.isCancelled else { return }
 

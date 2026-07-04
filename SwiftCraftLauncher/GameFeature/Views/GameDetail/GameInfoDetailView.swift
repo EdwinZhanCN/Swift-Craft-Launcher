@@ -10,6 +10,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct GameInfoDetailView: View {
+    @EnvironmentObject private var container: DIContainer
     let game: GameVersionInfo
 
     @Binding var query: String
@@ -26,17 +27,12 @@ struct GameInfoDetailView: View {
     @Binding var selectedItem: SidebarItem
     @Binding var searchText: String
     @Binding var localResourceFilter: LocalResourceFilter
-    @StateObject private var cacheInfoManager: CacheInfoManager
     @State private var localRefreshToken = UUID()
     @StateObject private var ioViewModel = GameInfoDetailIOViewModel()
 
     @State private var scannedResources: Set<String> = []
-
     @State private var header: AnyView?
-
     @State private var showIconFilePicker = false
-    private let errorHandler: GlobalErrorHandler
-    private let iconRefreshNotifier: IconRefreshNotifier
 
     init(
         game: GameVersionInfo,
@@ -53,12 +49,8 @@ struct GameInfoDetailView: View {
         selectedItem: Binding<SidebarItem>,
         searchText: Binding<String>,
         localResourceFilter: Binding<LocalResourceFilter>,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
-        iconRefreshNotifier: IconRefreshNotifier = AppServices.iconRefreshNotifier,
-        cacheInfoManager: CacheInfoManager = AppServices.cacheInfoManager,
     ) {
         self.game = game
-        _cacheInfoManager = StateObject(wrappedValue: cacheInfoManager)
         _query = query
         _dataSource = dataSource
         _selectedVersions = selectedVersions
@@ -72,8 +64,6 @@ struct GameInfoDetailView: View {
         _selectedItem = selectedItem
         _searchText = searchText
         _localResourceFilter = localResourceFilter
-        self.errorHandler = errorHandler
-        self.iconRefreshNotifier = iconRefreshNotifier
     }
 
     var body: some View {
@@ -127,9 +117,9 @@ struct GameInfoDetailView: View {
         }
         .onAppear {
             updateHeaders()
-            cacheInfoManager.calculateGameCacheInfo(game.gameName)
+            container.core.cacheInfoManager.calculateGameCacheInfo(game.gameName)
         }
-        .onChange(of: cacheInfoManager.cacheInfo) { _, _ in
+        .onChange(of: container.core.cacheInfoManager.cacheInfo) { _, _ in
             updateHeaders()
         }
         .onDisappear {
@@ -146,7 +136,7 @@ struct GameInfoDetailView: View {
 
     private func performRefresh() {
         updateHeaders()
-        cacheInfoManager.calculateGameCacheInfo(game.gameName)
+        container.core.cacheInfoManager.calculateGameCacheInfo(game.gameName)
         if !gameType {
             triggerLocalRefresh()
         }
@@ -165,7 +155,7 @@ struct GameInfoDetailView: View {
         header = AnyView(
             GameHeaderListRow(
                 game: currentGame,
-                cacheInfo: cacheInfoManager.cacheInfo,
+                cacheInfo: container.core.cacheInfoManager.cacheInfo,
                 query: query,
             ) {
                 showIconFilePicker = true
@@ -174,7 +164,7 @@ struct GameInfoDetailView: View {
     }
 
     private func clearAllData() {
-        cacheInfoManager.cacheInfo = CacheInfo(fileCount: 0, totalSize: 0)
+        container.core.cacheInfoManager.cacheInfo = CacheInfo(fileCount: 0, totalSize: 0)
         if !gameType {
             localRefreshToken = UUID()
         }
@@ -205,10 +195,10 @@ struct GameInfoDetailView: View {
                     do {
                         try await gameRepository.updateGame(updatedGame)
                     } catch {
-                        errorHandler.handle(error)
+                        container.core.errorHandler.handle(error)
                     }
                 }
-                iconRefreshNotifier.notifyRefresh(for: gameName)
+                container.ui.iconRefreshNotifier.notifyRefresh(for: gameName)
                 updateHeaders()
             }
         }

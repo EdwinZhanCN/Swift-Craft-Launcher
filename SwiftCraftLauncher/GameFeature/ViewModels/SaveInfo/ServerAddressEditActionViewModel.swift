@@ -15,11 +15,8 @@ final class ServerAddressEditActionViewModel: ObservableObject {
     @Published var isDeleting: Bool = false
     @Published var showError: Bool = false
     @Published var errorMessage: String = ""
-    private let serverAddressService: ServerAddressService
 
-    init(serverAddressService: ServerAddressService = AppServices.serverAddressService) {
-        self.serverAddressService = serverAddressService
-    }
+    init() { }
 
     struct SaveRequest {
         let existing: ServerAddress?
@@ -47,7 +44,7 @@ final class ServerAddressEditActionViewModel: ObservableObject {
         Task { [weak self] in
             guard let self else { return }
             do {
-                var currentServers = try await serverAddressService.loadServerAddresses(for: request.gameName)
+                var currentServers = try await DIContainer.shared.system.serverAddressService.loadServerAddresses(for: request.gameName)
 
                 if let existingServer = request.existing {
                     let updatedServer = ServerAddress(
@@ -77,7 +74,7 @@ final class ServerAddressEditActionViewModel: ObservableObject {
                     currentServers.append(newServer)
                 }
 
-                try await serverAddressService.saveServerAddresses(currentServers, for: request.gameName)
+                try await DIContainer.shared.system.serverAddressService.saveServerAddresses(currentServers, for: request.gameName)
 
                 isSaving = false
                 dismiss()
@@ -103,9 +100,9 @@ final class ServerAddressEditActionViewModel: ObservableObject {
         Task { [weak self] in
             guard let self else { return }
             do {
-                var currentServers = try await serverAddressService.loadServerAddresses(for: gameName)
+                var currentServers = try await DIContainer.shared.system.serverAddressService.loadServerAddresses(for: gameName)
                 currentServers.removeAll { $0.id == serverToDelete.id }
-                try await serverAddressService.saveServerAddresses(currentServers, for: gameName)
+                try await DIContainer.shared.system.serverAddressService.saveServerAddresses(currentServers, for: gameName)
 
                 isDeleting = false
                 dismiss()

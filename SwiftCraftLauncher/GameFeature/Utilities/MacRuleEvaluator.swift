@@ -46,9 +46,9 @@ enum MacRuleEvaluator {
     /// - Returns: A Java architecture identifier (e.g., "aarch64", "x86_64").
     static func getCurrentJavaArch() -> String {
         #if os(macOS)
-        return Architecture.current.javaArch
+            return Architecture.current.javaArch
         #else
-        return "x86_64"
+            return "x86_64"
         #endif
     }
 
@@ -71,15 +71,15 @@ enum MacRuleEvaluator {
     /// - Returns: An array of platform identifier strings.
     static func getSupportedMacOSIdentifiers(minecraftVersion: String? = nil) -> [String] {
         #if os(macOS)
-        let isLowVersion = minecraftVersion.map { Self.isLowVersion($0) } ?? false
+            let isLowVersion = minecraftVersion.map { Self.isLowVersion($0) } ?? false
 
-        return Architecture.current.macOSIdentifiers(isLowVersion: isLowVersion)
+            return Architecture.current.macOSIdentifiers(isLowVersion: isLowVersion)
         #elseif os(Linux)
-        return ["linux"]
+            return ["linux"]
         #elseif os(Windows)
-        return ["windows"]
+            return ["windows"]
         #else
-        return []
+            return []
         #endif
     }
 

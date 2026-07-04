@@ -10,25 +10,19 @@
 import SwiftUI
 
 struct SwiftCraftLauncherAppCommands: Commands {
-    @ObservedObject private var sparkleUpdateService: SparkleUpdateService
-
-    init(sparkleUpdateService: SparkleUpdateService = AppServices.sparkleUpdateService) {
-        _sparkleUpdateService = ObservedObject(wrappedValue: sparkleUpdateService)
-    }
-
     @CommandsBuilder var body: some Commands {
-        if sparkleUpdateService.updateAvailable {
-            CommandMenu(String(format: "menu.update.released.title".localized(), sparkleUpdateService.versionString)) {
+        if DIContainer.shared.system.sparkleUpdateService.updateAvailable {
+            CommandMenu(String(format: "menu.update.released.title".localized(), DIContainer.shared.system.sparkleUpdateService.versionString)) {
                 Link(
                     "menu.view.release.details".localized(),
-                    destination: URLConfig.API.GitHub.releaseTag(version: sparkleUpdateService.versionString),
+                    destination: URLConfig.API.GitHub.releaseTag(version: DIContainer.shared.system.sparkleUpdateService.versionString),
                 )
             }
         }
 
         CommandGroup(after: .appInfo) {
             Button("menu.check.updates".localized()) {
-                sparkleUpdateService.checkForUpdatesWithUI()
+                DIContainer.shared.system.sparkleUpdateService.checkForUpdatesWithUI()
             }
             .keyboardShortcut("u", modifiers: [.command, .shift])
         }
@@ -48,12 +42,12 @@ struct SwiftCraftLauncherAppCommands: Commands {
             Link("menu.community.report.issue".localized(), destination: URLConfig.API.Community.issues())
 
             Button("about.contributors".localized()) {
-                AppServices.windowManager.openWindow(id: .contributors)
+                DIContainer.shared.ui.windowManager.openWindow(id: .contributors)
             }
             .keyboardShortcut("c", modifiers: [.command, .shift])
 
             Button("about.acknowledgements".localized()) {
-                AppServices.windowManager.openWindow(id: .acknowledgements)
+                DIContainer.shared.ui.windowManager.openWindow(id: .acknowledgements)
             }
             .keyboardShortcut("a", modifiers: [.command, .shift])
 
@@ -65,7 +59,7 @@ struct SwiftCraftLauncherAppCommands: Commands {
             Link("menu.ai.documentation".localized(), destination: URLConfig.API.Community.aiDocumentation())
 
             Button("ai.assistant.title".localized()) {
-                AppServices.aiChatManager.openChatWindow()
+                DIContainer.shared.ui.aiChatManager.openChatWindow()
             }
             .keyboardShortcut("i", modifiers: [.command, .shift])
         }

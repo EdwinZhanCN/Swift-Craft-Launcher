@@ -30,7 +30,6 @@ class ModPackExportViewModel: ObservableObject {
     @Published var currentExportFormat: ModPackExportFormat = .modrinth
 
     private var exportTask: Task<Void, Never>?
-    private let gameSettingsManager: GameSettingsManager
     private var hasShownSaveDialog = false
 
     var isExporting: Bool {
@@ -140,7 +139,7 @@ class ModPackExportViewModel: ObservableObject {
         modPackName = ""
         modPackVersion = "1.0.0"
         summary = ""
-        currentExportFormat = gameSettingsManager.defaultModPackExportFormat
+        currentExportFormat = DIContainer.shared.ui.gameSettingsManager.defaultModPackExportFormat
     }
 
     /// Resets the view model back to its initial state for the given game.
@@ -189,8 +188,7 @@ class ModPackExportViewModel: ObservableObject {
         }
     }
 
-    init(gameSettingsManager: GameSettingsManager = AppServices.gameSettingsManager) {
-        self.gameSettingsManager = gameSettingsManager
-        currentExportFormat = gameSettingsManager.defaultModPackExportFormat
+    init() {
+        currentExportFormat = DIContainer.shared.ui.gameSettingsManager.defaultModPackExportFormat
     }
 }

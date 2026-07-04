@@ -23,7 +23,7 @@ extension AddOrDeleteResourceButtonViewModel {
                 message: "Cannot delete: query=\(query) is modpack or not a valid resource type",
             )
             AppLog.game.error("Failed to delete file: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return
         }
 
@@ -36,7 +36,7 @@ extension AddOrDeleteResourceButtonViewModel {
                 message: "Cannot delete: resource directory missing for query=\(query), gameName=\(gameInfo?.gameName ?? "nil")",
             )
             AppLog.game.error("Failed to delete file: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return
         }
 
@@ -47,7 +47,7 @@ extension AddOrDeleteResourceButtonViewModel {
                 message: "Cannot delete: fileName is nil for query=\(query)",
             )
             AppLog.game.error("Failed to delete file: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return
         }
 
@@ -147,7 +147,7 @@ extension AddOrDeleteResourceButtonViewModel {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.game.error("Failed to delete file: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
         }
     }
 
@@ -164,13 +164,13 @@ extension AddOrDeleteResourceButtonViewModel {
         var gameName: String?
         if fileURL.deletingLastPathComponent().lastPathComponent.lowercased() == "mods" {
             gameName = fileURL.deletingLastPathComponent().deletingLastPathComponent().lastPathComponent
-            hash = AppServices.modScanner.sha1Hash(of: fileURL)
+            hash = DIContainer.shared.core.modScanner.sha1Hash(of: fileURL)
         }
 
         do {
             try FileManager.default.removeItem(at: fileURL)
             if let hash, let gameName {
-                modScanner.removeModHash(hash, from: gameName)
+                DIContainer.shared.core.modScanner.removeModHash(hash, from: gameName)
             }
         } catch {
             throw GlobalError.fileSystem(

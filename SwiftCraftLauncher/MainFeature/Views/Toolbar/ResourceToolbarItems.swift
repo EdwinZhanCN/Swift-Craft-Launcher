@@ -139,7 +139,7 @@ struct ResourceToolbarItems: View {
                 .help("resource.add".localized())
                 .sheet(isPresented: detailState.showInstallSheetBinding) {
                     if let project = detailState.currentProject,
-                        let detail = detailState.loadedProjectDetail {
+                       let detail = detailState.loadedProjectDetail {
                         if detailState.gameResourcesType == ResourceType.modpack.rawValue {
                             ModPackDownloadSheet(
                                 projectId: project.projectId,

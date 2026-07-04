@@ -90,21 +90,22 @@ struct ModrinthProjectTitleView: View {
 
         case let .asyncImage(url):
             if let url {
-                AsyncImage(url: url) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                } placeholder: {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.secondary.opacity(0.2))
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case let .success(image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                    default:
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.secondary.opacity(0.2))
+                    }
+                }
+                .onDisappear {
+                    URLCache.shared.removeCachedResponse(for: URLRequest(url: url))
                 }
                 .frame(width: 64, height: 64)
                 .cornerRadius(8)
-                .onDisappear {
-                    URLCache.shared.removeCachedResponse(
-                        for: URLRequest(url: url),
-                    )
-                }
             } else {
                 defaultIcon(systemName: "server.rack")
             }

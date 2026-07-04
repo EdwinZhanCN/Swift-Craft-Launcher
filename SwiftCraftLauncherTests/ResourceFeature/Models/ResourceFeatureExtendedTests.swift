@@ -87,7 +87,7 @@ final class ResourceFeatureExtendedTests: XCTestCase {
 
     @MainActor
     func testBuildEnvironmentFacets_bothClientAndServer() {
-        let vm = ModrinthSearchViewModel(errorHandler: AppServices.errorHandler)
+        let vm = ModrinthSearchViewModel()
         let (client, server) = vm.buildEnvironmentFacets(features: ["client", "server"])
         XCTAssertEqual(client, ["client_side:required"])
         XCTAssertEqual(server, ["server_side:required"])
@@ -95,7 +95,7 @@ final class ResourceFeatureExtendedTests: XCTestCase {
 
     @MainActor
     func testBuildEnvironmentFacets_clientOnly() {
-        let vm = ModrinthSearchViewModel(errorHandler: AppServices.errorHandler)
+        let vm = ModrinthSearchViewModel()
         let (client, server) = vm.buildEnvironmentFacets(features: ["client"])
         XCTAssertEqual(client, ["client_side:required"])
         XCTAssertEqual(server, ["server_side:optional"])
@@ -103,7 +103,7 @@ final class ResourceFeatureExtendedTests: XCTestCase {
 
     @MainActor
     func testBuildEnvironmentFacets_serverOnly() {
-        let vm = ModrinthSearchViewModel(errorHandler: AppServices.errorHandler)
+        let vm = ModrinthSearchViewModel()
         let (client, server) = vm.buildEnvironmentFacets(features: ["server"])
         XCTAssertEqual(client, ["client_side:optional"])
         XCTAssertEqual(server, ["server_side:required"])
@@ -111,7 +111,7 @@ final class ResourceFeatureExtendedTests: XCTestCase {
 
     @MainActor
     func testBuildEnvironmentFacets_empty() {
-        let vm = ModrinthSearchViewModel(errorHandler: AppServices.errorHandler)
+        let vm = ModrinthSearchViewModel()
         let (client, server) = vm.buildEnvironmentFacets(features: [])
         XCTAssertTrue(client.isEmpty)
         XCTAssertTrue(server.isEmpty)
@@ -119,7 +119,7 @@ final class ResourceFeatureExtendedTests: XCTestCase {
 
     @MainActor
     func testBuildFacets_projectTypeOnly() {
-        let vm = ModrinthSearchViewModel(errorHandler: AppServices.errorHandler)
+        let vm = ModrinthSearchViewModel()
         let options = FilterOptions(versions: [], categories: [], features: [], resolutions: [], performanceImpact: [], loaders: [])
         let facets = vm.buildFacets(
             projectType: "mod",
@@ -131,7 +131,7 @@ final class ResourceFeatureExtendedTests: XCTestCase {
 
     @MainActor
     func testBuildFacets_withVersions() {
-        let vm = ModrinthSearchViewModel(errorHandler: AppServices.errorHandler)
+        let vm = ModrinthSearchViewModel()
         let options = FilterOptions(versions: ["1.20.1", "1.19.4"], categories: [], features: [], resolutions: [], performanceImpact: [], loaders: [])
         let facets = vm.buildFacets(
             projectType: "mod",
@@ -144,7 +144,7 @@ final class ResourceFeatureExtendedTests: XCTestCase {
 
     @MainActor
     func testBuildFacets_withCategories() {
-        let vm = ModrinthSearchViewModel(errorHandler: AppServices.errorHandler)
+        let vm = ModrinthSearchViewModel()
         let options = FilterOptions(versions: [], categories: ["technology"], features: [], resolutions: [], performanceImpact: [], loaders: [])
         let facets = vm.buildFacets(
             projectType: "mod",
@@ -156,7 +156,7 @@ final class ResourceFeatureExtendedTests: XCTestCase {
 
     @MainActor
     func testBuildFacets_resourcepack_excludesLoaders() {
-        let vm = ModrinthSearchViewModel(errorHandler: AppServices.errorHandler)
+        let vm = ModrinthSearchViewModel()
         let options = FilterOptions(versions: [], categories: [], features: [], resolutions: [], performanceImpact: [], loaders: ["fabric"])
         let facets = vm.buildFacets(
             projectType: "resourcepack",
@@ -170,7 +170,7 @@ final class ResourceFeatureExtendedTests: XCTestCase {
 
     @MainActor
     func testBuildFacets_vanillaLoader_mappedToMinecraft() {
-        let vm = ModrinthSearchViewModel(errorHandler: AppServices.errorHandler)
+        let vm = ModrinthSearchViewModel()
         let options = FilterOptions(versions: [], categories: [], features: [], resolutions: [], performanceImpact: [], loaders: ["vanilla"])
         let facets = vm.buildFacets(
             projectType: "mod",

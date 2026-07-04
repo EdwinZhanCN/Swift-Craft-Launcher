@@ -12,18 +12,10 @@ import SwiftUI
 /// This view provides toggles for ephemeral login, offline login, skin library,
 /// Minecraft friend presence notifications, and authlib-injector management.
 public struct PlayerSettingsView: View {
-    @StateObject private var playerSettings: PlayerSettingsManager
+    @EnvironmentObject private var playerSettingsManager: PlayerSettingsManager
     @StateObject private var viewModel = PlayerSettingsViewModel()
     @EnvironmentObject private var playerListViewModel: PlayerListViewModel
     private let yggdrasilServers = YggdrasilServerPresets.servers
-
-    public init() {
-        _playerSettings = StateObject(wrappedValue: AppServices.playerSettingsManager)
-    }
-
-    init(playerSettings: PlayerSettingsManager) {
-        _playerSettings = StateObject(wrappedValue: playerSettings)
-    }
 
     private var currentPlayer: Player? {
         playerListViewModel.currentPlayer
@@ -48,7 +40,7 @@ public struct PlayerSettingsView: View {
                 LabeledContent("settings.player.ephemeral_login".localized()) {
                     Toggle(
                         "settings.player.ephemeral_login.toggle".localized(),
-                        isOn: $playerSettings.enableEphemeralWebLogin,
+                        isOn: $playerSettingsManager.enableEphemeralWebLogin,
                     )
                 }
                 .labeledContentStyle(.custom)
@@ -57,13 +49,13 @@ public struct PlayerSettingsView: View {
             LabeledContent("settings.player.offline_login".localized()) {
                 Toggle(
                     "settings.player.offline_login.toggle".localized(),
-                    isOn: $playerSettings.enableOfflineLogin,
+                    isOn: $playerSettingsManager.enableOfflineLogin,
                 )
             }.labeledContentStyle(.custom)
             LabeledContent("settings.player.default_skin_server".localized()) {
                 Picker(
                     "",
-                    selection: $playerSettings.defaultYggdrasilServerBaseURL,
+                    selection: $playerSettingsManager.defaultYggdrasilServerBaseURL,
                 ) {
                     Text("yggdrasil.server.please_select".localized())
                         .tag("")
@@ -75,7 +67,7 @@ public struct PlayerSettingsView: View {
                 }
                 .labelsHidden()
                 .fixedSize()
-                .disabled(!playerSettings.enableOfflineLogin)
+                .disabled(!playerSettingsManager.enableOfflineLogin)
             }
             .labeledContentStyle(.custom)
             if isMinecraftAccount {
@@ -83,7 +75,7 @@ public struct PlayerSettingsView: View {
                     LabeledContent("settings.player.history_skin_library".localized()) {
                         Toggle(
                             "settings.player.history_skin_library.toggle".localized(),
-                            isOn: $playerSettings.enableHistorySkinLibrary,
+                            isOn: $playerSettingsManager.enableHistorySkinLibrary,
                         )
                     }
                     .labeledContentStyle(.custom)
@@ -93,7 +85,7 @@ public struct PlayerSettingsView: View {
                     LabeledContent("settings.player.minecraft_friends_presence_notifications".localized()) {
                         Toggle(
                             "settings.player.minecraft_friends_presence_notifications.toggle".localized(),
-                            isOn: $playerSettings.enableMinecraftFriendsPresenceNotifications,
+                            isOn: $playerSettingsManager.enableMinecraftFriendsPresenceNotifications,
                         )
                     }
                     .labeledContentStyle(.custom)

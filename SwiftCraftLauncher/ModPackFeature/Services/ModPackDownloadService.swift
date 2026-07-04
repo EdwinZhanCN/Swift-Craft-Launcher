@@ -13,11 +13,6 @@ import ZIPFoundation
 final class ModPackDownloadService {
     var progressHandler: ((Int64, Int64) -> Void)?
     var onError: ((String, String) -> Void)?
-    private let errorHandler: GlobalErrorHandler
-
-    init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
-        self.errorHandler = errorHandler
-    }
 
     /// Cleans up temporary download and extraction directories.
     func cleanupTempFiles() {
@@ -75,7 +70,7 @@ final class ModPackDownloadService {
             }
         } catch {
             let globalError = GlobalError.from(error)
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return nil
         }
     }

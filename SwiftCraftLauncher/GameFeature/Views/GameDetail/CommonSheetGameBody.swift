@@ -32,11 +32,11 @@ struct CommonSheetGameBody: View {
 extension GameVersionInfo {
     var displayText: Text {
         Text(gameName)
-        + Text("-")
-        + Text(gameVersion).foregroundStyle(.secondary)
-        + Text("-")
-        + Text(modLoader)
-        + Text("-")
-        + Text(modVersion).foregroundStyle(.secondary)
+            + Text("-")
+            + Text(gameVersion).foregroundStyle(.secondary)
+            + Text("-")
+            + Text(modLoader)
+            + Text("-")
+            + Text(modVersion).foregroundStyle(.secondary)
     }
 }

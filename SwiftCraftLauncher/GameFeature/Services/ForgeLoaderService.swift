@@ -23,7 +23,7 @@ enum ForgeLoaderService {
     static func fetchSpecificForgeProfile(for minecraftVersion: String, loaderVersion: String) async throws -> ModrinthLoader {
         let cacheKey = "\(minecraftVersion)-\(loaderVersion)"
 
-        if let cached = AppServices.appCacheManager.get(namespace: GameLoader.forge.displayName, key: cacheKey, as: ModrinthLoader.self) {
+        if let cached = DIContainer.shared.core.appCacheManager.get(namespace: GameLoader.forge.displayName, key: cacheKey, as: ModrinthLoader.self) {
             return cached
         }
 
@@ -33,7 +33,7 @@ enum ForgeLoaderService {
         var result = try JSONDecoder().decode(ModrinthLoader.self, from: data)
         result = CommonService.processGameVersionPlaceholders(loader: result, gameVersion: minecraftVersion)
         result.version = loaderVersion
-        AppServices.appCacheManager.setSilently(namespace: GameLoader.forge.displayName, key: cacheKey, value: result)
+        DIContainer.shared.core.appCacheManager.setSilently(namespace: GameLoader.forge.displayName, key: cacheKey, value: result)
 
         return result
     }
@@ -54,7 +54,7 @@ enum ForgeLoaderService {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.game.error("Failed to set Forge specified version: \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return nil
         }
     }

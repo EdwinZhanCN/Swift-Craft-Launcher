@@ -73,7 +73,7 @@ final class QuiltLoaderModelTests: XCTestCase {
 
         let filtered = responses.filter {
             !$0.loader.version.lowercased().contains("beta") &&
-            !$0.loader.version.lowercased().contains("pre")
+                !$0.loader.version.lowercased().contains("pre")
         }
 
         XCTAssertEqual(filtered.count, 2)
@@ -90,7 +90,7 @@ final class QuiltLoaderModelTests: XCTestCase {
 
         let filtered = responses.filter {
             !$0.loader.version.lowercased().contains("beta") &&
-            !$0.loader.version.lowercased().contains("pre")
+                !$0.loader.version.lowercased().contains("pre")
         }
 
         XCTAssertEqual(filtered.count, 2)
@@ -104,7 +104,7 @@ final class QuiltLoaderModelTests: XCTestCase {
 
         let filtered = responses.filter {
             !$0.loader.version.lowercased().contains("beta") &&
-            !$0.loader.version.lowercased().contains("pre")
+                !$0.loader.version.lowercased().contains("pre")
         }
 
         XCTAssertEqual(filtered.count, 2)
@@ -118,7 +118,7 @@ final class QuiltLoaderModelTests: XCTestCase {
 
         let filtered = responses.filter {
             !$0.loader.version.lowercased().contains("beta") &&
-            !$0.loader.version.lowercased().contains("pre")
+                !$0.loader.version.lowercased().contains("pre")
         }
 
         XCTAssertEqual(filtered.count, 0)
@@ -129,7 +129,7 @@ final class QuiltLoaderModelTests: XCTestCase {
 
         let filtered = responses.filter {
             !$0.loader.version.lowercased().contains("beta") &&
-            !$0.loader.version.lowercased().contains("pre")
+                !$0.loader.version.lowercased().contains("pre")
         }
 
         XCTAssertTrue(filtered.isEmpty)
@@ -143,7 +143,7 @@ final class QuiltLoaderModelTests: XCTestCase {
 
         let filtered = responses.filter {
             !$0.loader.version.lowercased().contains("beta") &&
-            !$0.loader.version.lowercased().contains("pre")
+                !$0.loader.version.lowercased().contains("pre")
         }
 
         XCTAssertEqual(filtered.count, 0)
