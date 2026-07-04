@@ -9,7 +9,6 @@ import SwiftUI
 
 /// Footer with action buttons for downloading or adding a project resource.
 struct GlobalResourceFooter: View {
-    @EnvironmentObject private var container: DIContainer
     let project: ModrinthProject
     let resourceType: String
     @Binding var isPresented: Bool

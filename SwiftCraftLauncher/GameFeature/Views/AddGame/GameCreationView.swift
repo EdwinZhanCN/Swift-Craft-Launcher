@@ -23,7 +23,6 @@ private enum Constants {
 }
 
 struct GameCreationView: View {
-    @EnvironmentObject private var container: DIContainer
     @StateObject private var viewModel: GameCreationViewModel
     @EnvironmentObject private var gameRepository: GameRepository
     @EnvironmentObject private var playerListViewModel: PlayerListViewModel
