@@ -134,8 +134,11 @@ struct MinecraftLaunchCommand {
         }
 
         let accessToken: String
+        let updatedProfile: YggdrasilProfile
         do {
-            accessToken = try await DIContainer.shared.system.yggdrasilAuthService.getMinecraftToken(profile: profile, server: server)
+            let result = try await DIContainer.shared.system.yggdrasilAuthService.getMinecraftToken(profile: profile, server: server)
+            accessToken = result.minecraftToken
+            updatedProfile = result.updatedProfile
         } catch {
             throw GlobalError.authentication(
                 i18nKey: "error.authentication.token_fetch_failed",
@@ -143,6 +146,9 @@ struct MinecraftLaunchCommand {
                 message: "Failed to fetch Minecraft token for profile=\(profile.serverBaseURL): \(error.localizedDescription)",
             )
         }
+
+        // Update the stored profile with refreshed tokens
+        OfflineUserServerMap.setServer(updatedProfile, for: player.id)
 
         let jarPath = AppConstants.AuthlibInjector.jarPath
         if !FileManager.default.fileExists(atPath: jarPath) {
