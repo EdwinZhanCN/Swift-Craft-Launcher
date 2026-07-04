@@ -234,6 +234,7 @@ final class SaveInfoManager: ObservableObject {
         isLoading = false
     }
 
+    @MainActor
     private func loadWorlds() async {
         isLoadingWorlds = true
         defer { isLoadingWorlds = false }
