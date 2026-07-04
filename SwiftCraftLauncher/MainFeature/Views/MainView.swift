@@ -9,42 +9,26 @@ import SwiftUI
 
 /// Root navigation view that orchestrates the sidebar, content, and detail columns.
 struct MainView: View {
-    @StateObject private var general: GeneralSettingsManager
+    @EnvironmentObject private var container: DIContainer
     @State private var columnVisibility = NavigationSplitViewVisibility.all
     @StateObject private var filterState = ResourceFilterState()
     @StateObject private var detailState = ResourceDetailState()
-    @ObservedObject private var openURLModPackImportPresenter: OpenURLModPackImportPresenter
-    @ObservedObject private var selectedGameManager: SelectedGameManager
     @EnvironmentObject private var gameRepository: GameRepository
-    @EnvironmentObject private var playerListViewModel: PlayerListViewModel
 
-    /// Creates the main view with the required managers.
-    /// - Parameters:
-    ///   - general: Manages general application settings.
-    ///   - openURLModPackImportPresenter: Handles mod pack import from URLs.
-    ///   - selectedGameManager: Tracks the currently selected game.
-    init(
-        general: GeneralSettingsManager = AppServices.generalSettingsManager,
-        openURLModPackImportPresenter: OpenURLModPackImportPresenter = AppServices.openURLModPackImportPresenter,
-        selectedGameManager: SelectedGameManager = AppServices.selectedGameManager,
-    ) {
-        _general = StateObject(wrappedValue: general)
-        _openURLModPackImportPresenter = ObservedObject(wrappedValue: openURLModPackImportPresenter)
-        _selectedGameManager = ObservedObject(wrappedValue: selectedGameManager)
-    }
+    @EnvironmentObject private var playerListViewModel: PlayerListViewModel
 
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             SidebarView()
                 .navigationSplitViewColumnWidth(min: 168, ideal: 200, max: 260)
         } content: {
-            if general.interfaceLayoutStyle == .classic {
+            if container.ui.generalSettingsManager.interfaceLayoutStyle == .classic {
                 middleColumnContentView
             } else {
                 middleColumnDetailView
             }
         } detail: {
-            if general.interfaceLayoutStyle == .classic {
+            if container.ui.generalSettingsManager.interfaceLayoutStyle == .classic {
                 middleColumnDetailView
             } else {
                 middleColumnContentView
@@ -53,10 +37,13 @@ struct MainView: View {
         .environmentObject(filterState)
         .environmentObject(detailState)
         .sheet(
-            isPresented: $openURLModPackImportPresenter.showImportSheet,
-            onDismiss: { openURLModPackImportPresenter.clear() },
+            isPresented: Binding(
+                get: { container.ui.openURLModPackImportPresenter.showImportSheet },
+                set: { container.ui.openURLModPackImportPresenter.showImportSheet = $0 },
+            ),
+            onDismiss: { container.ui.openURLModPackImportPresenter.clear() },
             content: {
-                if let file = openURLModPackImportPresenter.preselectedTempFile {
+                if let file = container.ui.openURLModPackImportPresenter.preselectedTempFile {
                     GameFormView(initialMode: GameFormMode.modPackImport(file: file, shouldProcess: true))
                         .environmentObject(gameRepository)
                         .environmentObject(playerListViewModel)
@@ -67,7 +54,7 @@ struct MainView: View {
         .onChange(of: detailState.selectedItem) { oldValue, newValue in
             handleSidebarItemChange(from: oldValue, to: newValue)
         }
-        .onChange(of: selectedGameManager.selectedGameId) { _, newId in
+        .onChange(of: container.core.selectedGameManager.selectedGameId) { _, newId in
             guard let gameId = newId else { return }
             if case .game(gameId) = detailState.selectedItem { return }
             detailState.selectedItem = .game(gameId)
@@ -79,7 +66,7 @@ struct MainView: View {
         .task {
             await loadInitialAppData()
         }
-        .mainViewPresentations(detailState: detailState)
+        .mainViewPresentations(container: container, detailState: detailState)
         .frame(minWidth: 900, minHeight: 500)
     }
 
@@ -150,7 +137,7 @@ struct MainView: View {
 
         detailState.gameId = gameId
         detailState.selectedProjectId = nil
-        selectedGameManager.setSelectedGame(gameId)
+        container.core.selectedGameManager.setSelectedGame(gameId)
     }
 
     private func handleGameToGameTransition(
@@ -165,7 +152,7 @@ struct MainView: View {
             detailState.gameResourcesType = (loader == GameLoader.vanilla.displayName) ? ResourceType.datapack.rawValue : ResourceType.mod.rawValue
         }
         detailState.gameId = newId
-        selectedGameManager.setSelectedGame(newId)
+        container.core.selectedGameManager.setSelectedGame(newId)
     }
 
     private func resetToResourceDefaults() {
@@ -174,7 +161,7 @@ struct MainView: View {
                 filterState.clearSearchText()
             }
         }
-        selectedGameManager.clearSelection()
+        container.core.selectedGameManager.clearSelection()
 
         if !detailState.gameType, detailState.selectedProjectId == nil {
             detailState.gameType = true

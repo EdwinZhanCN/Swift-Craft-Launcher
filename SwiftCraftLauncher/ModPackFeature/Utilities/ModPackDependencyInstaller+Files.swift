@@ -139,12 +139,12 @@ extension ModPackDependencyInstaller {
                 expectedSha1: fileDetail.hash?.value,
             )
 
-            if let hash = AppServices.modScanner.sha1Hash(of: downloadedFile) {
+            if let hash = DIContainer.shared.core.modScanner.sha1Hash(of: downloadedFile) {
                 if let cfAsModrinth = CFToModrinthAdapter.convertProjectDetail(effectiveModDetail) {
                     var detailWithFile = cfAsModrinth
                     detailWithFile.fileName = fileDetail.fileName
                     detailWithFile.type = detailWithFile.projectType
-                    AppServices.modScanner.saveToCache(hash: hash, detail: detailWithFile)
+                    DIContainer.shared.core.modScanner.saveToCache(hash: hash, detail: detailWithFile)
                 }
             }
 
@@ -240,12 +240,12 @@ extension ModPackDependencyInstaller {
             return false
         }
 
-        if let hash = AppServices.modScanner.sha1Hash(of: downloadedFile),
+        if let hash = DIContainer.shared.core.modScanner.sha1Hash(of: downloadedFile),
            var detailWithFile = try? await ModrinthService.fetchModrinthDetailThrowing(by: hash) {
             let fileUrl = URL(fileURLWithPath: file.path)
             detailWithFile.fileName = fileUrl.lastPathComponent
             detailWithFile.type = AppPaths.resourceType(for: fileUrl)
-            AppServices.modScanner.saveToCache(hash: hash, detail: detailWithFile)
+            DIContainer.shared.core.modScanner.saveToCache(hash: hash, detail: detailWithFile)
         }
         return true
     }

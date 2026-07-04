@@ -14,7 +14,7 @@ extension ModScanner {
         hash: String,
         gameName: String,
     ) async -> Bool {
-        let cachedMods = await AppServices.modInstallationCache.getAllModsInstalled(for: gameName)
+        let cachedMods = await DIContainer.shared.core.modInstallationCache.getAllModsInstalled(for: gameName)
         return cachedMods.contains(hash)
     }
 
@@ -33,7 +33,7 @@ extension ModScanner {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.game.error("Failed to check resource installation status: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return false
         }
     }
@@ -47,7 +47,7 @@ extension ModScanner {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.game.error("Failed to get local mod details: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return []
         }
     }
@@ -69,7 +69,7 @@ extension ModScanner {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.game.error("Failed to check mod installation status: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return false
         }
     }
@@ -113,7 +113,7 @@ extension ModScanner {
                 AppLog.game.error(
                     "Failed to check mod installation status: \(globalError.localizedDescription)",
                 )
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
                 completion(false)
             }
         }

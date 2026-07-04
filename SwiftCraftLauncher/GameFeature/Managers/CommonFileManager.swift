@@ -12,17 +12,9 @@ import Foundation
 class CommonFileManager {
     let librariesDir: URL
     var onProgressUpdate: ((String, Int, Int) -> Void)?
-    private let errorHandler: GlobalErrorHandler
-    private let javaManager: JavaManager
 
-    init(
-        librariesDir: URL,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
-        javaManager: JavaManager = AppServices.javaManager,
-    ) {
+    init(librariesDir: URL) {
         self.librariesDir = librariesDir
-        self.errorHandler = errorHandler
-        self.javaManager = javaManager
     }
 
     actor Counter {
@@ -42,7 +34,7 @@ class CommonFileManager {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.game.error("Failed to download Forge JAR file: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
         }
     }
 
@@ -96,7 +88,7 @@ class CommonFileManager {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.game.error("Failed to download JAR file: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
         }
     }
 
@@ -178,7 +170,7 @@ class CommonFileManager {
         }
 
         let versionInfo = try await ModrinthService.fetchVersionInfo(from: gameVersion)
-        let javaPath = javaManager.findJavaExecutable(version: versionInfo.javaVersion.component)
+        let javaPath = await DIContainer.shared.system.javaManager.findJavaExecutable(version: versionInfo.javaVersion.component)
 
         for (index, processor) in clientProcessors.enumerated() {
             let processorName = String(describing: processor.jar)

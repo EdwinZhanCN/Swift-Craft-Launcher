@@ -14,7 +14,7 @@ struct NukeManager {
     init() {
         var config = ImagePipeline.Configuration()
         let cache = try? DataCache(
-            path: AppPaths.imageCachae
+            path: AppPaths.imageCachae,
         )
         cache?.sizeLimit = 200 << 20
         config.dataCache = cache
@@ -24,11 +24,11 @@ struct NukeManager {
             session.requestCachePolicy = .reloadIgnoringLocalCacheData
             return DataLoader(configuration: session)
         }()
-        self.pipeline = ImagePipeline(configuration: config)
+        pipeline = ImagePipeline(configuration: config)
     }
 }
 
-// Represents the loading state of an image request
+/// Represents the loading state of an image request
 enum NukeImagePhase {
     case empty
     case loading

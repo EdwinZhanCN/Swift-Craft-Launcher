@@ -24,12 +24,10 @@ final class CategoryContentViewModel: ObservableObject {
     @Published private(set) var communitys: [Category] = []
 
     private let project: String
-    private let errorHandler: GlobalErrorHandler
     private var loadTask: Task<Void, Never>?
 
-    init(project: String, errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
+    init(project: String) {
         self.project = project
-        self.errorHandler = errorHandler
     }
 
     deinit {
@@ -183,7 +181,7 @@ final class CategoryContentViewModel: ObservableObject {
     private func handleError(_ error: Error) {
         let globalError = GlobalError.from(error)
         AppLog.resource.error("Error loading category data: \(globalError.localizedDescription)")
-        errorHandler.handle(globalError)
+        DIContainer.shared.core.errorHandler.handle(globalError)
         Task { @MainActor in
             self.error = globalError
         }

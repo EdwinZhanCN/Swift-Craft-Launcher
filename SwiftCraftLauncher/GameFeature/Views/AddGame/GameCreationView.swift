@@ -23,6 +23,7 @@ private enum Constants {
 }
 
 struct GameCreationView: View {
+    @EnvironmentObject private var container: DIContainer
     @StateObject private var viewModel: GameCreationViewModel
     @EnvironmentObject private var gameRepository: GameRepository
     @EnvironmentObject private var playerListViewModel: PlayerListViewModel
@@ -148,8 +149,8 @@ struct GameCreationView: View {
                 NukeImageView(url: url) { phase in
                     switch phase {
                     case .empty, .loading:
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.secondary.opacity(0.2))
+                        ProgressView()
+                            .controlSize(.small)
                     case let .success(image):
                         image
                             .resizable()

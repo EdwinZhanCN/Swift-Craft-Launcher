@@ -15,16 +15,13 @@ final class DependencySheetActionViewModel: ObservableObject {
 
     private let isDownloadingAllDependencies: Binding<Bool>
     private let isDownloadingMainResourceOnly: Binding<Bool>
-    private let errorHandler: GlobalErrorHandler
 
     init(
         isDownloadingAllDependencies: Binding<Bool>,
         isDownloadingMainResourceOnly: Binding<Bool>,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
     ) {
         self.isDownloadingAllDependencies = isDownloadingAllDependencies
         self.isDownloadingMainResourceOnly = isDownloadingMainResourceOnly
-        self.errorHandler = errorHandler
     }
 
     /// Downloads only the main resource, excluding dependencies.

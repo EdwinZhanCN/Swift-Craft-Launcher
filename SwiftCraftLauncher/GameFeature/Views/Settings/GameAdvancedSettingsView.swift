@@ -11,14 +11,10 @@ import UniformTypeIdentifiers
 
 struct GameAdvancedSettingsView: View {
     @EnvironmentObject private var gameRepository: GameRepository
-    @StateObject private var selectedGameManager: SelectedGameManager
+    @EnvironmentObject private var container: DIContainer
     @StateObject private var viewModel = GameAdvancedSettingsViewModel()
 
     @State private var showJavaPathPicker = false
-
-    init(selectedGameManager: SelectedGameManager = AppServices.selectedGameManager) {
-        _selectedGameManager = StateObject(wrappedValue: selectedGameManager)
-    }
 
     var body: some View {
         Form {
@@ -88,7 +84,7 @@ struct GameAdvancedSettingsView: View {
                 HStack {
                     MiniRangeSlider(
                         range: $viewModel.memoryRange,
-                        bounds: 512 ... Double(viewModel.gameSettingsManager.maximumMemoryAllocation),
+                        bounds: 512 ... Double(container.ui.gameSettingsManager.maximumMemoryAllocation),
                     )
                     .frame(width: 200)
                     .controlSize(.mini)
@@ -134,14 +130,14 @@ struct GameAdvancedSettingsView: View {
             viewModel.setRepository(gameRepository)
             viewModel.onAppearOrGameChanged()
         }
-        .onChange(of: selectedGameManager.selectedGameId) { _, _ in
+        .onChange(of: container.ui.selectedGameManager.selectedGameId) { _, _ in
             viewModel.setRepository(gameRepository)
             viewModel.onAppearOrGameChanged()
         }
         .onChange(of: viewModel.javaPath) { _, _ in
             viewModel.onJavaPathChanged()
         }
-        .errorHandler()
+        .errorHandler(container.core.errorHandler)
         .alert(
             "error.notification.validation.title".localized(),
             isPresented: .constant(viewModel.error != nil && viewModel.error?.level == .popup),

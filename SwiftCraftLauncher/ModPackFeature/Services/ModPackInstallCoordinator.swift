@@ -33,15 +33,8 @@ final class ModPackInstallCoordinator {
     }
 
     private let downloadService: ModPackDownloadService
-    private let errorHandler: GlobalErrorHandler
 
-    init(
-        downloadService: ModPackDownloadService,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
-    ) {
-        self.downloadService = downloadService
-        self.errorHandler = errorHandler
-    }
+    init(downloadService: ModPackDownloadService) { self.downloadService = downloadService }
 
     /// Prepares the modpack by extracting and parsing the index.
     /// - Parameters:
@@ -57,7 +50,7 @@ final class ModPackInstallCoordinator {
         }
 
         guard let indexInfo = await ModPackIndexParser.parseIndex(extractedPath: extractedPath) else {
-            errorHandler.handle(
+            DIContainer.shared.core.errorHandler.handle(
                 GlobalError.resource(
                     i18nKey: "error.resource.unsupported_modpack_format",
                     level: .notification,
@@ -301,7 +294,7 @@ final class ModPackInstallCoordinator {
                     onError: { error, message in
                         Task { @MainActor in
                             AppLog.modPack.error("Game setup failed: \(message)")
-                            self.errorHandler.handle(error)
+                            DIContainer.shared.core.errorHandler.handle(error)
                         }
                         continuation.resume(returning: false)
                     },
@@ -370,7 +363,7 @@ final class ModPackInstallCoordinator {
                 AppLog.modPack.error(
                     "Failed to create directory: \(dir.path), error: \(error.localizedDescription)",
                 )
-                errorHandler.handle(
+                DIContainer.shared.core.errorHandler.handle(
                     GlobalError.fileSystem(
                         i18nKey: "error.filesystem.directory_creation_failed",
                         level: .notification,
@@ -448,7 +441,7 @@ final class ModPackInstallCoordinator {
         } else {
             AppLog.modPack.error("Modpack dependency installation failed: \(gameName)")
             await cleanupGameDirectories(gameName: gameName)
-            errorHandler.handle(
+            DIContainer.shared.core.errorHandler.handle(
                 GlobalError.resource(
                     i18nKey: "error.resource.modpack_dependencies_failed",
                     level: .notification,

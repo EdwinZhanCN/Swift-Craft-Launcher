@@ -26,7 +26,7 @@ extension ModPackImportViewModel {
                 )
             } catch {
                 AppLog.modPack.error("Failed to create directory: \(dir.path), error: \(error.localizedDescription)")
-                errorHandler.handle(
+                DIContainer.shared.core.errorHandler.handle(
                     GlobalError.fileSystem(
                         i18nKey: "error.filesystem.directory_creation_failed",
                         level: .notification,

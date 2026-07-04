@@ -9,24 +9,8 @@ import Foundation
 import SwiftUI
 
 /// Collects game crash logs and presents them in an AI chat window.
-@MainActor
 class GameLogCollector {
-    private let errorHandler: GlobalErrorHandler
-    private let windowManager: WindowManager
-    private let aiChatManager: AIChatManager
-    private let windowDataStore: WindowDataStore
-
-    init(
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
-        windowManager: WindowManager = AppServices.windowManager,
-        aiChatManager: AIChatManager = AppServices.aiChatManager,
-        windowDataStore: WindowDataStore = AppServices.windowDataStore,
-    ) {
-        self.errorHandler = errorHandler
-        self.windowManager = windowManager
-        self.aiChatManager = aiChatManager
-        self.windowDataStore = windowDataStore
-    }
+    init() { }
 
     /// Collects log files for the specified game and opens the AI chat window.
     /// - Parameter gameName: The name of the game instance.
@@ -38,7 +22,7 @@ class GameLogCollector {
                 i18nKey: "error.filesystem.logs_not_found",
                 level: .notification,
             )
-            errorHandler.handle(error)
+            DIContainer.shared.core.errorHandler.handle(error)
             return
         }
 
@@ -94,6 +78,7 @@ class GameLogCollector {
     /// - Parameters:
     ///   - logFiles: The log file URLs to attach.
     ///   - gameName: The name of the game instance.
+    @MainActor
     private func openAIWindowWithLogs(logFiles: [URL], gameName _: String) async {
         let chatState = ChatState()
 
@@ -102,11 +87,11 @@ class GameLogCollector {
             attachments.append(.file(logFile, logFile.lastPathComponent))
         }
 
-        windowDataStore.aiChatState = chatState
-        windowManager.openWindow(id: .aiChat)
+        DIContainer.shared.ui.windowDataStore.aiChatState = chatState
+        DIContainer.shared.ui.windowManager.openWindow(id: .aiChat)
 
         try? await Task.sleep(nanoseconds: 100_000_000)
 
-        await aiChatManager.sendMessage("", attachments: attachments, chatState: chatState)
+        await DIContainer.shared.ui.aiChatManager.sendMessage("", attachments: attachments, chatState: chatState)
     }
 }

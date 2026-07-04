@@ -10,39 +10,22 @@ import Foundation
 import SwiftUI
 
 public struct GameSettingsView: View {
-    @StateObject private var gameSettings: GameSettingsManager
-    @ObservedObject private var javaDownloadManager: JavaDownloadManager
+    @EnvironmentObject private var gameSettingsManager: GameSettingsManager
+    @EnvironmentObject private var container: DIContainer
+
     @StateObject private var viewModel: GameSettingsJavaRuntimeViewModel
-    private let modCacheManager: ModCacheManager
 
     @State private var globalMemoryRange: ClosedRange<Double> = 512 ... 4096
 
-    @MainActor
     public init() {
-        _gameSettings = StateObject(wrappedValue: AppServices.gameSettingsManager)
-        _javaDownloadManager = ObservedObject(wrappedValue: AppServices.javaDownloadManager)
         _viewModel = StateObject(wrappedValue: GameSettingsJavaRuntimeViewModel())
-        modCacheManager = AppServices.modCacheManager
-    }
-
-    @MainActor
-    init(
-        gameSettings: GameSettingsManager,
-        javaDownloadManager: JavaDownloadManager,
-        viewModel: GameSettingsJavaRuntimeViewModel,
-        modCacheManager: ModCacheManager = AppServices.modCacheManager,
-    ) {
-        _gameSettings = StateObject(wrappedValue: gameSettings)
-        _javaDownloadManager = ObservedObject(wrappedValue: javaDownloadManager)
-        _viewModel = StateObject(wrappedValue: viewModel)
-        self.modCacheManager = modCacheManager
     }
 
     public var body: some View {
         VStack {
             Form {
                 LabeledContent("settings.default_api_source.label".localized()) {
-                    Picker("", selection: $gameSettings.defaultAPISource) {
+                    Picker("", selection: $gameSettingsManager.defaultAPISource) {
                         ForEach(DataSource.allCases, id: \.self) { source in
                             Text(source.localizedName).tag(source)
                         }
@@ -55,7 +38,7 @@ public struct GameSettingsView: View {
                 .padding(.bottom, 10)
 
                 LabeledContent("settings.modpack.export.format.label".localized()) {
-                    Picker("", selection: $gameSettings.defaultModPackExportFormat) {
+                    Picker("", selection: $gameSettingsManager.defaultModPackExportFormat) {
                         ForEach(ModPackExportFormat.allCases, id: \.self) { format in
                             Text(format.displayName).tag(format)
                         }
@@ -70,7 +53,7 @@ public struct GameSettingsView: View {
                     HStack {
                         Toggle(
                             "",
-                            isOn: $gameSettings.includeSnapshotsForGameVersions,
+                            isOn: $gameSettingsManager.includeSnapshotsForGameVersions,
                         )
                         .labelsHidden()
                         Text("settings.game_versions.include_snapshots.label".localized())
@@ -83,7 +66,7 @@ public struct GameSettingsView: View {
                     HStack {
                         Toggle(
                             "",
-                            isOn: $gameSettings.enableAICrashAnalysis,
+                            isOn: $gameSettingsManager.enableAICrashAnalysis,
                         ).labelsHidden()
                         Text("settings.ai_crash_analysis.description".localized())
                     }
@@ -95,7 +78,7 @@ public struct GameSettingsView: View {
                     HStack {
                         Toggle(
                             "",
-                            isOn: $gameSettings.syncLanguageForNewGames,
+                            isOn: $gameSettingsManager.syncLanguageForNewGames,
                         )
                         .labelsHidden()
                         Text("settings.game.language.sync_with_launcher".localized())
@@ -110,19 +93,19 @@ public struct GameSettingsView: View {
                             MiniRangeSlider(
                                 range: $globalMemoryRange,
                                 bounds:
-                                    512 ... Double(gameSettings.maximumMemoryAllocation),
+                                    512 ... Double(gameSettingsManager.maximumMemoryAllocation),
                             )
                             .frame(width: 200)
                             .controlSize(.mini)
                             .onChange(of: globalMemoryRange) { _, newValue in
-                                gameSettings.globalXms = Int(newValue.lowerBound)
-                                gameSettings.globalXmx = Int(newValue.upperBound)
+                                gameSettingsManager.globalXms = Int(newValue.lowerBound)
+                                gameSettingsManager.globalXmx = Int(newValue.upperBound)
                             }
                             .onAppear {
                                 globalMemoryRange =
                                 Double(
-                                    gameSettings.globalXms,
-                                ) ... Double(gameSettings.globalXmx)
+                                    gameSettingsManager.globalXms,
+                                ) ... Double(gameSettingsManager.globalXmx)
                             }
                             Text(
                                 "\(Int(globalMemoryRange.lowerBound)) MB-\(Int(globalMemoryRange.upperBound)) MB",
@@ -157,14 +140,14 @@ public struct GameSettingsView: View {
 
                         Button("settings.game.java.runtime.reinstall".localized()) {
                             Task {
-                                await javaDownloadManager.downloadJavaRuntime(
+                                await container.system.javaDownloadManager.downloadJavaRuntime(
                                     version: viewModel.selectedRuntimeComponent,
                                 )
                             }
                         }
                         .disabled(
                             viewModel.selectedRuntimeComponent.isEmpty
-                                || javaDownloadManager.downloadState.isDownloading
+                                || container.system.javaDownloadManager.downloadState.isDownloading
                                 || (viewModel.installedRuntimeComponents ?? []).isEmpty,
                         )
 
@@ -180,7 +163,7 @@ public struct GameSettingsView: View {
                 Button {
                     Task {
                         await Task.detached(priority: .utility) {
-                            await modCacheManager.clearSilently()
+                            await container.core.modCacheManager.clearSilently()
                         }.value
                     }
                 } label: {
@@ -192,7 +175,7 @@ public struct GameSettingsView: View {
         .onAppear {
             viewModel.refreshInstalledRuntimes(showScanningIndicator: true)
         }
-        .onChange(of: javaDownloadManager.isWindowVisible) { _, isVisible in
+        .onChange(of: container.system.javaDownloadManager.isWindowVisible) { _, isVisible in
             if !isVisible {
                 viewModel.refreshInstalledRuntimes(showScanningIndicator: false)
             }
@@ -200,7 +183,7 @@ public struct GameSettingsView: View {
         .onChange(of: viewModel.selectedRuntimeComponent) { _, newValue in
             viewModel.loadDetails(forRuntimeComponent: newValue)
         }
-        .onChange(of: javaDownloadManager.downloadState.isDownloading) { _, isDownloading in
+        .onChange(of: container.system.javaDownloadManager.downloadState.isDownloading) { _, isDownloading in
             if !isDownloading, !viewModel.selectedRuntimeComponent.isEmpty {
                 viewModel.loadDetails(forRuntimeComponent: viewModel.selectedRuntimeComponent)
             }

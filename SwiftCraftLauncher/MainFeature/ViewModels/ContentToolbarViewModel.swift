@@ -14,11 +14,8 @@ final class ContentToolbarViewModel: ObservableObject {
     @Published var isLoadingSkin: Bool = false
     @Published var preloadedSkinInfo: PlayerSkinService.PublicSkinInfo?
     @Published var preloadedProfile: MinecraftProfileResponse?
-    private let authService: MinecraftAuthService
 
-    init(authService: MinecraftAuthService = AppServices.minecraftAuthService) {
-        self.authService = authService
-    }
+    init() { }
 
     /// Preloads skin and profile data for the given player before opening the skin manager.
     ///
@@ -43,7 +40,7 @@ final class ContentToolbarViewModel: ObservableObject {
 
         var playerWithCredential = player
         if playerWithCredential.credential == nil {
-            let dataManager = AppServices.playerDataManager
+            let dataManager = DIContainer.shared.ui.playerDataManager
             if let credential = dataManager.loadCredential(userId: playerWithCredential.id) {
                 playerWithCredential.credential = credential
             }
@@ -51,11 +48,11 @@ final class ContentToolbarViewModel: ObservableObject {
 
         let validatedPlayer: Player
         do {
-            validatedPlayer = try await authService.validateAndRefreshPlayerTokenThrowing(for: playerWithCredential)
+            validatedPlayer = try await DIContainer.shared.system.minecraftAuthService.validateAndRefreshPlayerTokenThrowing(for: playerWithCredential)
 
             if validatedPlayer.authAccessToken != player.authAccessToken {
                 AppLog.main.info("Token updated for player \(player.name), saving to data manager")
-                let dataManager = AppServices.playerDataManager
+                let dataManager = DIContainer.shared.ui.playerDataManager
                 let success = dataManager.updatePlayerSilently(validatedPlayer)
                 if success {
                     AppLog.main.debug("Token info updated in player data manager")

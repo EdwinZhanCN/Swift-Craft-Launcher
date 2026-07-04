@@ -10,12 +10,11 @@ import UniformTypeIdentifiers
 
 /// Provides the main AI chat window interface.
 struct AIChatWindowView: View {
+    @EnvironmentObject private var container: DIContainer
+
     @ObservedObject var chatState: ChatState
     @EnvironmentObject private var playerListViewModel: PlayerListViewModel
     @EnvironmentObject private var gameRepository: GameRepository
-    @StateObject private var aiSettings: AISettingsManager
-    private let aiChatManager: AIChatManager
-    private let errorHandler: GlobalErrorHandler
     @StateObject private var attachmentManager = AIChatAttachmentManager()
     @StateObject private var viewModel = AIChatWindowViewModel()
     @State private var inputText = ""
@@ -24,14 +23,8 @@ struct AIChatWindowView: View {
 
     init(
         chatState: ChatState,
-        aiSettings: AISettingsManager = AppServices.aiSettingsManager,
-        aiChatManager: AIChatManager = AppServices.aiChatManager,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
     ) {
         self.chatState = chatState
-        _aiSettings = StateObject(wrappedValue: aiSettings)
-        self.aiChatManager = aiChatManager
-        self.errorHandler = errorHandler
     }
 
     var body: some View {
@@ -41,7 +34,7 @@ struct AIChatWindowView: View {
                 currentPlayer: playerListViewModel.currentPlayer,
                 cachedAIAvatar: viewModel.cachedAIAvatar,
                 cachedUserAvatar: viewModel.cachedUserAvatar,
-                aiAvatarURL: aiSettings.aiAvatarURL,
+                aiAvatarURL: container.ui.aiSettingsManager.aiAvatarURL,
             )
 
             Divider()
@@ -82,7 +75,7 @@ struct AIChatWindowView: View {
             viewModel.onAppear(
                 games: gameRepository.games,
                 currentPlayer: playerListViewModel.currentPlayer,
-                aiAvatarURL: aiSettings.aiAvatarURL,
+                aiAvatarURL: container.ui.aiSettingsManager.aiAvatarURL,
             )
         }
         .onChange(of: chatState.isSending) { wasSending, isSendingNow in
@@ -96,7 +89,7 @@ struct AIChatWindowView: View {
         .onChange(of: playerListViewModel.currentPlayer?.id) { _, _ in
             viewModel.onPlayerChanged(playerListViewModel.currentPlayer)
         }
-        .onChange(of: aiSettings.aiAvatarURL) { oldValue, newValue in
+        .onChange(of: container.ui.aiSettingsManager.aiAvatarURL) { oldValue, newValue in
             if oldValue != newValue {
                 viewModel.onAIAvatarURLChanged(newValue)
             }
@@ -131,7 +124,7 @@ struct AIChatWindowView: View {
         attachmentManager.clearAll()
 
         Task {
-            await aiChatManager.sendMessage(text, attachments: attachments, chatState: chatState)
+            await container.ui.aiChatManager.sendMessage(text, attachments: attachments, chatState: chatState)
         }
     }
 
@@ -141,7 +134,7 @@ struct AIChatWindowView: View {
             attachmentManager.handleFileSelection(urls)
         case let .failure(error):
             let globalError = GlobalError.from(error)
-            errorHandler.handle(globalError)
+            container.core.errorHandler.handle(globalError)
         }
     }
 }

@@ -15,20 +15,14 @@ import MinecraftFriendsKit
 @MainActor
 final class MinecraftFriendsSheetHostAdapter: MinecraftFriendsSheetHost {
     private var player: Player
-    private let authService: MinecraftAuthService
     private let sideEffects: MinecraftFriendsMicrosoftPlayerSideEffects
 
     init(
         player: Player,
-        authService: MinecraftAuthService = AppServices.minecraftAuthService,
-        dataManager: PlayerDataManager = AppServices.playerDataManager,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
     ) {
         self.player = player
-        self.authService = authService
         sideEffects = MinecraftFriendsMicrosoftPlayerSideEffects(
-            dataManager: dataManager,
-            errorHandler: errorHandler,
+            dataManager: DIContainer.shared.ui.playerDataManager,
         )
     }
 
@@ -48,7 +42,7 @@ final class MinecraftFriendsSheetHostAdapter: MinecraftFriendsSheetHost {
                 self.sideEffects.loadCredentialFromDiskIfMissing(into: &p)
             },
             minecraftAccessToken: { $0.authAccessToken },
-            refreshPlayerToken: { try await self.authService.validateAndRefreshPlayerTokenThrowing(for: $0) },
+            refreshPlayerToken: { try await DIContainer.shared.system.minecraftAuthService.validateAndRefreshPlayerTokenThrowing(for: $0) },
             persistIfMinecraftAccessTokenChanged: { _, after in
                 self.sideEffects.persistPlayerIfNeeded(after)
             },
@@ -70,6 +64,6 @@ final class MinecraftFriendsSheetHostAdapter: MinecraftFriendsSheetHost {
     /// - Parameter uuidNoHyphens: The player's UUID without hyphens.
     /// - Returns: The skin texture URL, or `nil` if resolution fails.
     func skinTextureURL(uuidNoHyphens: String) async -> String? {
-        await AppServices.minecraftFriendsService.resolveSessionProfileSkinTextureURL(uuidNoHyphens: uuidNoHyphens)
+        await DIContainer.shared.ui.minecraftFriendsService.resolveSessionProfileSkinTextureURL(uuidNoHyphens: uuidNoHyphens)
     }
 }

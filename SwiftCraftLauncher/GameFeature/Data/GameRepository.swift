@@ -35,13 +35,10 @@ class GameRepository: ObservableObject {
     }
 
     private var currentWorkingPath: String {
-        workingPathProvider.currentWorkingPath
+        DIContainer.shared.ui.generalSettingsManager.currentWorkingPath
     }
 
-    private let workingPathProvider: WorkingPathProviding
     private let database: GameVersionDatabase
-    private let errorHandler: GlobalErrorHandler
-    private let modScanner: ModScanner
     private var workingPathCancellable: AnyCancellable?
     private var lastWorkingPath: String = ""
     private var initialLoadTask: Task<Void, Never>?
@@ -51,19 +48,7 @@ class GameRepository: ObservableObject {
     @Published var workingPathChanged: Bool = false
 
     /// Creates a game repository.
-    ///
-    /// - Parameters:
-    ///   - workingPathProvider: The provider for the current working path.
-    ///   - errorHandler: The handler for global errors.
-    ///   - modScanner: The scanner for mod directories.
-    init(
-        workingPathProvider: WorkingPathProviding = AppServices.generalSettingsManager,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
-        modScanner: ModScanner = AppServices.modScanner,
-    ) {
-        self.workingPathProvider = workingPathProvider
-        self.errorHandler = errorHandler
-        self.modScanner = modScanner
+    init() {
         database = GameVersionDatabase(dbPath: AppPaths.gameVersionDatabase.path)
 
         lastWorkingPath = currentWorkingPath
@@ -87,7 +72,7 @@ class GameRepository: ObservableObject {
     private func setupWorkingPathObserver() {
         lastWorkingPath = currentWorkingPath
 
-        workingPathCancellable = workingPathProvider.workingPathWillChange
+        workingPathCancellable = DIContainer.shared.ui.generalSettingsManager.workingPathWillChange
             .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self else { return }
@@ -105,7 +90,7 @@ class GameRepository: ObservableObject {
                             self.workingPathChanged = false
                         } catch {
                             if !(error is CancellationError) {
-                                self.errorHandler.handle(error)
+                                DIContainer.shared.core.errorHandler.handle(error)
                             }
                             self.workingPathChanged = false
                         }
@@ -134,7 +119,7 @@ class GameRepository: ObservableObject {
                 await refreshWorkingPathOptions()
                 hasLoadedInitialData = true
             } catch {
-                errorHandler.handle(error)
+                DIContainer.shared.core.errorHandler.handle(error)
                 await MainActor.run {
                     self.gamesByWorkingPath = [:]
                 }
@@ -182,7 +167,7 @@ class GameRepository: ObservableObject {
             do {
                 try await addGame(game)
             } catch {
-                self.errorHandler.handle(error)
+                DIContainer.shared.core.errorHandler.handle(error)
             }
         }
     }
@@ -213,7 +198,7 @@ class GameRepository: ObservableObject {
             do {
                 try await deleteGame(id: id)
             } catch {
-                self.errorHandler.handle(error)
+                DIContainer.shared.core.errorHandler.handle(error)
             }
         }
     }
@@ -272,7 +257,7 @@ class GameRepository: ObservableObject {
             do {
                 try await updateGame(game)
             } catch {
-                self.errorHandler.handle(error)
+                DIContainer.shared.core.errorHandler.handle(error)
             }
         }
         return true
@@ -308,7 +293,7 @@ class GameRepository: ObservableObject {
             do {
                 try await updateGameLastPlayed(id: id, lastPlayed: lastPlayed)
             } catch {
-                self.errorHandler.handle(error)
+                DIContainer.shared.core.errorHandler.handle(error)
             }
         }
         return true
@@ -333,7 +318,7 @@ class GameRepository: ObservableObject {
             do {
                 try await updateJavaPath(id: id, javaPath: javaPath)
             } catch {
-                self.errorHandler.handle(error)
+                DIContainer.shared.core.errorHandler.handle(error)
             }
         }
         return true
@@ -358,7 +343,7 @@ class GameRepository: ObservableObject {
             do {
                 try await updateJvmArguments(id: id, jvmArguments: jvmArguments)
             } catch {
-                self.errorHandler.handle(error)
+                DIContainer.shared.core.errorHandler.handle(error)
             }
         }
         return true
@@ -392,7 +377,7 @@ class GameRepository: ObservableObject {
             do {
                 try await updateMemorySize(id: id, xms: xms, xmx: xmx)
             } catch {
-                self.errorHandler.handle(error)
+                DIContainer.shared.core.errorHandler.handle(error)
             }
         }
         return true
@@ -409,7 +394,7 @@ class GameRepository: ObservableObject {
 
                 await scanAllGamesModsDirectory()
             } catch {
-                self.errorHandler.handle(error)
+                DIContainer.shared.core.errorHandler.handle(error)
                 await MainActor.run {
                     gamesByWorkingPath = [:]
                 }
@@ -424,7 +409,7 @@ class GameRepository: ObservableObject {
         await withTaskGroup(of: Void.self) { group in
             for game in games {
                 group.addTask {
-                    await self.modScanner.scanGameModsDirectory(game: game)
+                    await DIContainer.shared.core.modScanner.scanGameModsDirectory(game: game)
                 }
             }
         }

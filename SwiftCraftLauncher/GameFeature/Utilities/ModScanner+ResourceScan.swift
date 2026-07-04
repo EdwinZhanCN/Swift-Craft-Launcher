@@ -21,7 +21,7 @@ extension ModScanner {
             } catch {
                 let globalError = GlobalError.from(error)
                 AppLog.game.error("Failed to scan resource directory: \(globalError.localizedDescription)")
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
                 completion([])
             }
         }
@@ -118,7 +118,7 @@ extension ModScanner {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.game.error("Failed to get resource file list: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return []
         }
     }
@@ -150,7 +150,7 @@ extension ModScanner {
             } catch {
                 let globalError = GlobalError.from(error)
                 AppLog.game.error("Failed to scan resource directory (paged): \(globalError.localizedDescription)")
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
                 completion([], false)
             }
         }
@@ -174,7 +174,7 @@ extension ModScanner {
             } catch {
                 let globalError = GlobalError.from(error)
                 AppLog.game.error("Failed to scan resource files (paged): \(globalError.localizedDescription)")
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
                 completion([], false)
             }
         }
@@ -195,7 +195,7 @@ extension ModScanner {
         }
 
         let pageFiles = Array(fileURLs[pageRange.startIndex ..< pageRange.endIndex])
-        let concurrentCount = AppServices.generalSettingsManager.concurrentDownloads
+        let concurrentCount = DIContainer.shared.ui.generalSettingsManager.concurrentDownloads
         let semaphore = AsyncSemaphore(value: concurrentCount)
         let results = await scanFilesConcurrently(fileURLs: pageFiles, semaphore: semaphore)
 

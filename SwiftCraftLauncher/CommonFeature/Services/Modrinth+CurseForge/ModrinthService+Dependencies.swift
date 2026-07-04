@@ -27,7 +27,7 @@ extension ModrinthService {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.common.error("Failed to fetch project dependencies (ID: \(id)): \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return ModrinthProjectDependency(projects: [])
         }
     }
@@ -173,11 +173,11 @@ extension ModrinthService {
                 let lowercasedType = type.lowercased()
 
                 if lowercasedType == ResourceType.mod.rawValue {
-                    if (try? await AppServices.modScanner.isModInstalledThrowing(hash: hash, in: modsDir)) == true {
+                    if (try? await DIContainer.shared.core.modScanner.isModInstalledThrowing(hash: hash, in: modsDir)) == true {
                         return true
                     }
                 } else {
-                    let isInstalled = await AppServices.modScanner.isResourceInstalledByHash(
+                    let isInstalled = await DIContainer.shared.core.modScanner.isResourceInstalledByHash(
                         hash,
                         in: modsDir,
                     )
@@ -189,7 +189,7 @@ extension ModrinthService {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.common.error("Failed to check project installation status (ID: \(projectId)): \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
         }
 
         return false

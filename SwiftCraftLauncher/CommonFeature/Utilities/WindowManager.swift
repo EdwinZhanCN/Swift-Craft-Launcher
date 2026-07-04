@@ -93,7 +93,7 @@ struct WindowOpener: ViewModifier {
     private var openWindow
     private let windowManager: WindowManager
 
-    init(windowManager: WindowManager = AppServices.windowManager) {
+    init(windowManager: WindowManager) {
         self.windowManager = windowManager
     }
 
@@ -114,7 +114,11 @@ struct WindowOpener: ViewModifier {
 }
 
 extension View {
-    func windowOpener() -> some View {
-        modifier(WindowOpener())
+    func windowOpener(
+        _ windowManager: WindowManager,
+    ) -> some View {
+        modifier(
+            WindowOpener(windowManager: windowManager),
+        )
     }
 }

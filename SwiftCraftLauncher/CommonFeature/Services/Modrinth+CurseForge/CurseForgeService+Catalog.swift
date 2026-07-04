@@ -17,7 +17,7 @@ extension CurseForgeService {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.common.error("Failed to fetch CurseForge category list: \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return []
         }
     }
@@ -40,7 +40,7 @@ extension CurseForgeService {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.common.error("Failed to fetch CurseForge game version list: \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return []
         }
     }

@@ -9,6 +9,7 @@ import SwiftUI
 
 /// Provides the UI for adding a new player via Microsoft, Yggdrasil, or offline authentication.
 struct AddPlayerSheetView: View {
+    @EnvironmentObject private var container: DIContainer
     @Binding var playerName: String
     @Binding var isPlayerNameValid: Bool
     var onAdd: () -> Void
@@ -24,9 +25,6 @@ struct AddPlayerSheetView: View {
 
     @State private var isPremium: Bool = false
     @State private var authenticatedProfile: MinecraftProfileResponse?
-    @StateObject private var authService: MinecraftAuthService
-    @StateObject private var yggdrasilAuthService: YggdrasilAuthService
-    @StateObject private var playerSettings: PlayerSettingsManager
     @StateObject private var viewModel = AddPlayerSheetViewModel()
 
     @Environment(\.openURL)
@@ -42,9 +40,6 @@ struct AddPlayerSheetView: View {
         onLogin: @escaping (MinecraftProfileResponse) -> Void,
         onYggdrasilLogin: ((YggdrasilProfile) -> Void)? = nil,
         playerListViewModel: PlayerListViewModel,
-        authService: MinecraftAuthService = AppServices.minecraftAuthService,
-        yggdrasilAuthService: YggdrasilAuthService = AppServices.yggdrasilAuthService,
-        playerSettings: PlayerSettingsManager = AppServices.playerSettingsManager,
     ) {
         _playerName = playerName
         _isPlayerNameValid = isPlayerNameValid
@@ -53,9 +48,6 @@ struct AddPlayerSheetView: View {
         self.onLogin = onLogin
         self.onYggdrasilLogin = onYggdrasilLogin
         self.playerListViewModel = playerListViewModel
-        _authService = StateObject(wrappedValue: authService)
-        _yggdrasilAuthService = StateObject(wrappedValue: yggdrasilAuthService)
-        _playerSettings = StateObject(wrappedValue: playerSettings)
     }
 
     var body: some View {
@@ -70,7 +62,7 @@ struct AddPlayerSheetView: View {
                         .symbolRenderingMode(viewModel.selectedAuthType.symbol.mode)
                         .symbolVariant(.none)
                     if viewModel.selectedAuthType == .yggdrasil,
-                       let serverName = yggdrasilAuthService.currentServer?.name {
+                       let serverName = container.system.yggdrasilAuthService.currentServer?.name {
                         Text(serverName)
                             .font(.headline)
                             .foregroundStyle(.secondary)
@@ -106,17 +98,17 @@ struct AddPlayerSheetView: View {
                     Button(
                         "common.cancel".localized(),
                     ) {
-                        authService.isLoading = false
-                        yggdrasilAuthService.logout()
+                        container.system.minecraftAuthService.isLoading = false
+                        container.system.yggdrasilAuthService.logout()
                         onCancel()
                     }
                     Spacer()
                     if viewModel.selectedAuthType == .premium {
-                        switch authService.authState {
+                        switch container.system.minecraftAuthService.authState {
                         case .notAuthenticated:
                             Button("addplayer.auth.start_login".localized()) {
                                 Task {
-                                    await viewModel.startPremiumAuthentication(authService: authService)
+                                    await viewModel.startPremiumAuthentication(authService: container.system.minecraftAuthService)
                                 }
                             }
                             .keyboardShortcut(.defaultAction)
@@ -130,7 +122,7 @@ struct AddPlayerSheetView: View {
                         case .error:
                             Button("addplayer.auth.retry".localized()) {
                                 Task {
-                                    await viewModel.startPremiumAuthentication(authService: authService)
+                                    await viewModel.startPremiumAuthentication(authService: container.system.minecraftAuthService)
                                 }
                             }
                             .keyboardShortcut(.defaultAction)
@@ -139,17 +131,17 @@ struct AddPlayerSheetView: View {
                             ProgressView().controlSize(.small)
                         }
                     } else if viewModel.selectedAuthType == .yggdrasil {
-                        switch yggdrasilAuthService.authState {
+                        switch container.system.yggdrasilAuthService.authState {
                         case .idle, .failed:
                             Button("addplayer.auth.start_login".localized()) {
                                 Task {
                                     await viewModel.startYggdrasilAuthentication(
-                                        yggdrasilAuthService: yggdrasilAuthService,
+                                        yggdrasilAuthService: container.system.yggdrasilAuthService,
                                     )
                                 }
                             }
                             .keyboardShortcut(.defaultAction)
-                            .disabled(yggdrasilAuthService.currentServer == nil)
+                            .disabled(container.system.yggdrasilAuthService.currentServer == nil)
                         case let .authenticated(profile):
                             Button("addplayer.auth.add".localized()) {
                                 onYggdrasilLogin?(profile)
@@ -170,7 +162,7 @@ struct AddPlayerSheetView: View {
                         Button(
                             "addplayer.create".localized(),
                         ) {
-                            authService.isLoading = false
+                            container.system.minecraftAuthService.isLoading = false
                             onAdd()
                         }
                         .disabled(!isPlayerNameValid)
@@ -206,10 +198,10 @@ struct AddPlayerSheetView: View {
         isPlayerNameValid = false
         authenticatedProfile = nil
         isPremium = false
-        authService.isLoading = false
+        container.system.minecraftAuthService.isLoading = false
         isTextFieldFocused = false
         showErrorPopover = false
-        yggdrasilAuthService.logout()
+        container.system.yggdrasilAuthService.logout()
         viewModel.reset()
     }
 

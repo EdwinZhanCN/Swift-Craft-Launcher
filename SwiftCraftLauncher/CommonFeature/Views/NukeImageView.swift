@@ -9,6 +9,7 @@ import Nuke
 import SwiftUI
 
 struct NukeImageView<Content: View>: View {
+    @EnvironmentObject private var container: DIContainer
 
     let url: URL?
     let content: (NukeImagePhase) -> Content
@@ -18,7 +19,7 @@ struct NukeImageView<Content: View>: View {
 
     init(
         url: URL?,
-        @ViewBuilder content: @escaping (NukeImagePhase) -> Content
+        @ViewBuilder content: @escaping (NukeImagePhase) -> Content,
     ) {
         self.url = url
         self.content = content
@@ -43,7 +44,7 @@ struct NukeImageView<Content: View>: View {
         phase = .loading
 
         // Start image request using shared pipeline
-        task = AppServices.nukeManager.pipeline.loadImage(with: url) { result in
+        task = container.system.nukeManager.pipeline.loadImage(with: url) { result in
             Task { @MainActor in
                 switch result {
                 case let .success(response):

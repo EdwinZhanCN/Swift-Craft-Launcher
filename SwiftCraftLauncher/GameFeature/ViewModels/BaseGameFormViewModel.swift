@@ -22,14 +22,9 @@ class BaseGameFormViewModel: ObservableObject, GameFormStateProtocol {
     var downloadTask: Task<Void, Error>?
     private var cancellables = Set<AnyCancellable>()
     let configuration: GameFormConfiguration
-    let errorHandler: GlobalErrorHandler
 
-    init(
-        configuration: GameFormConfiguration,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
-    ) {
+    init(configuration: GameFormConfiguration) {
         self.configuration = configuration
-        self.errorHandler = errorHandler
         gameNameValidator = GameNameValidator(gameSetupService: gameSetupService)
 
         setupObservers()
@@ -131,6 +126,6 @@ class BaseGameFormViewModel: ObservableObject, GameFormStateProtocol {
 
     func handleNonCriticalError(_ error: GlobalError, message: String) {
         AppLog.game.error("\(message): \(error.localizedDescription)")
-        errorHandler.handle(error)
+        DIContainer.shared.core.errorHandler.handle(error)
     }
 }

@@ -14,13 +14,8 @@ final class SidebarViewModel: ObservableObject {
     @Published private(set) var iconRefreshTriggers: [String: UUID] = [:]
 
     private var cancellable: AnyCancellable?
-    private let iconRefreshNotifier: IconRefreshNotifier
 
-    /// Creates a view model with an optional icon refresh notifier.
-    /// - Parameter iconRefreshNotifier: The notifier used to observe icon refresh events.
-    init(iconRefreshNotifier: IconRefreshNotifier = AppServices.iconRefreshNotifier) {
-        self.iconRefreshNotifier = iconRefreshNotifier
-    }
+    init() { }
 
     /// Returns the current refresh trigger UUID for a game, or a new one if none exists.
     /// - Parameter gameName: The name of the game to query.
@@ -34,7 +29,7 @@ final class SidebarViewModel: ObservableObject {
     func onAppear(games: [GameVersionInfo]) {
         ensureTriggers(for: games)
 
-        cancellable = iconRefreshNotifier.refreshPublisher
+        cancellable = DIContainer.shared.ui.iconRefreshNotifier.refreshPublisher
             .sink { [weak self] refreshedGameName in
                 guard let self else { return }
                 if let gameName = refreshedGameName {

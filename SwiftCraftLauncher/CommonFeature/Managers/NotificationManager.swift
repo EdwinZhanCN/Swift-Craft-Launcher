@@ -60,7 +60,7 @@ enum NotificationManager {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.common.error("Failed to send notification: \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
         }
     }
 
@@ -100,7 +100,7 @@ enum NotificationManager {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.common.error("Failed to request notification permission: \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
         }
     }
 

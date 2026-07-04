@@ -49,7 +49,7 @@ struct WindowCleanup: ViewModifier {
     let windowID: AuxiliaryWindowID
     private let windowDataStore: WindowDataStore
 
-    init(windowID: AuxiliaryWindowID, windowDataStore: WindowDataStore = AppServices.windowDataStore) {
+    init(windowID: AuxiliaryWindowID, windowDataStore: WindowDataStore) {
         self.windowID = windowID
         self.windowDataStore = windowDataStore
     }
@@ -63,7 +63,7 @@ struct WindowCleanup: ViewModifier {
 }
 
 extension View {
-    func windowCleanup(for windowID: AuxiliaryWindowID) -> some View {
-        modifier(WindowCleanup(windowID: windowID))
+    func windowCleanup(for windowID: AuxiliaryWindowID, windowDataStore: WindowDataStore) -> some View {
+        modifier(WindowCleanup(windowID: windowID, windowDataStore: windowDataStore))
     }
 }

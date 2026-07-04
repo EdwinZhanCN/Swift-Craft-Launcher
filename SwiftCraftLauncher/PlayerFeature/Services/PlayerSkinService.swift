@@ -23,7 +23,7 @@ enum PlayerSkinService {
     private static func handleError(_ error: Error, operation: String) {
         let globalError = GlobalError.from(error)
         AppLog.player.error("\(operation) failed: \(globalError.localizedDescription)")
-        AppServices.errorHandler.handle(globalError)
+        DIContainer.shared.core.errorHandler.handle(globalError)
     }
 
     private static func validateAccessToken(_ player: Player) throws {
@@ -89,7 +89,7 @@ enum PlayerSkinService {
     /// - Returns: `true` if the update was successful.
     private static func updatePlayerSkinInfo(uuid: String, skinInfo: PublicSkinInfo) async -> Bool {
         do {
-            let dataManager = AppServices.playerDataManager
+            let dataManager = DIContainer.shared.ui.playerDataManager
             let players = try dataManager.loadPlayersThrowing()
 
             guard let player = players.first(where: { $0.id == uuid }) else {

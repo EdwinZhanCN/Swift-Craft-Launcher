@@ -165,6 +165,6 @@ extension MinecraftAuthService {
             message: "Re-authentication required",
         )
 
-        AppServices.errorHandler.handle(notification)
+        DIContainer.shared.core.errorHandler.handle(notification)
     }
 }

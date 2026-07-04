@@ -183,7 +183,7 @@ extension SkinToolDetailViewModel {
 
     /// Persists the selected skin to the skin library when history is enabled.
     private func persistSelectedSkinToLibrary() {
-        guard AppServices.playerSettingsManager.enableHistorySkinLibrary else { return }
+        guard DIContainer.shared.ui.playerSettingsManager.enableHistorySkinLibrary else { return }
         guard let selectedSkinData else { return }
         let originalFileName = selectedSkinPath.map { URL(fileURLWithPath: $0).lastPathComponent }
         if let item = try? skinLibraryStore.saveSkin(

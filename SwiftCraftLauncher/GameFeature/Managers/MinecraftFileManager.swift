@@ -15,8 +15,6 @@ class MinecraftFileManager {
     let resourceFilesCount = NSLockingCounter()
     var coreTotalFiles = 0
     var resourceTotalFiles = 0
-    private let errorHandler: GlobalErrorHandler
-
     var onProgressUpdate: ((String, Int, Int, DownloadType) -> Void)?
 
     enum DownloadType {
@@ -24,9 +22,7 @@ class MinecraftFileManager {
         case resources
     }
 
-    init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
-        self.errorHandler = errorHandler
-    }
+    init() { }
 
     func cleanupGameDirectories(gameName: String) throws {
         let profileDirectory = AppPaths.profileDirectory(gameName: gameName)
@@ -61,7 +57,7 @@ class MinecraftFileManager {
             AppLog.game.error(
                 "Failed to download Minecraft version files: \(globalError.localizedDescription)",
             )
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return false
         }
     }

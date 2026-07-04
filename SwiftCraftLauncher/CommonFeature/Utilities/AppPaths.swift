@@ -48,7 +48,7 @@ enum AppPaths {
     }
 
     static var profileRootDirectory: URL {
-        let customPath = AppServices.generalSettingsManager.launcherWorkingDirectory
+        let customPath = DIContainer.shared.ui.generalSettingsManager.launcherWorkingDirectory
         let workingDirectory = customPath.isEmpty ? launcherSupportDirectory.path : customPath
 
         let baseURL = URL(fileURLWithPath: workingDirectory, isDirectory: true)
@@ -144,7 +144,7 @@ extension AppPaths {
 
     /// mod picture cache
     static var imageCachae: URL {
-        return launcherSupportDirectory.appendingPathComponent("imagecache", isDirectory: true)
+        launcherSupportDirectory.appendingPathComponent("imagecache", isDirectory: true)
     }
 
     /// The data directory for application-specific storage.

@@ -13,20 +13,18 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ResourceImportButton: View {
+    @EnvironmentObject private var container: DIContainer
     let game: GameVersionInfo
     let gameResourcesType: String
 
     @State private var showImporter = false
-    @StateObject private var errorHandler: GlobalErrorHandler
 
     init(
         game: GameVersionInfo,
         gameResourcesType: String,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
     ) {
         self.game = game
         self.gameResourcesType = gameResourcesType
-        _errorHandler = StateObject(wrappedValue: errorHandler)
     }
 
     var body: some View {
@@ -53,7 +51,7 @@ struct ResourceImportButton: View {
                 guard !urls.isEmpty else { return }
                 importSelectedFiles(urls)
             case let .failure(error):
-                errorHandler.handle(GlobalError.fileSystem(
+                container.core.errorHandler.handle(GlobalError.fileSystem(
                     i18nKey: "error.filesystem.file_selection_failed",
                     level: .notification,
                     message: "File picker failed: \(error.localizedDescription)",
@@ -68,7 +66,7 @@ struct ResourceImportButton: View {
 
         if queryLowercased == ResourceType.modpack.rawValue
             || !AppConstants.validResourceTypes.contains(queryLowercased) {
-            errorHandler.handle(GlobalError.configuration(
+            container.core.errorHandler.handle(GlobalError.configuration(
                 i18nKey: "error.configuration.resource_directory_not_found",
                 level: .notification,
                 message: "Resource type '\(gameResourcesType)' is modpack or not in validResourceTypes",
@@ -77,7 +75,7 @@ struct ResourceImportButton: View {
         }
 
         guard let gameRoot = AppPaths.resourceDirectory(for: gameResourcesType, gameName: game.gameName) else {
-            errorHandler.handle(GlobalError.fileSystem(
+            container.core.errorHandler.handle(GlobalError.fileSystem(
                 i18nKey: "error.filesystem.game_directory_not_found",
                 level: .notification,
                 message: "Game root not found for type=\(gameResourcesType), game=\(game.gameName)",
@@ -114,7 +112,7 @@ struct ResourceImportButton: View {
                 )
                 importedCount += 1
             } catch {
-                errorHandler.handle(error)
+                container.core.errorHandler.handle(error)
             }
         }
 

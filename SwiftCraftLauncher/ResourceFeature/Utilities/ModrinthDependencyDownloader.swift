@@ -53,7 +53,7 @@ enum ModrinthDependencyDownloader {
             }
 
             let semaphore = AsyncSemaphore(
-                value: AppServices.generalSettingsManager.concurrentDownloads,
+                value: DIContainer.shared.ui.generalSettingsManager.concurrentDownloads,
             )
 
             let allDownloaded: [ModrinthProjectDetail] = await withTaskGroup(
@@ -91,13 +91,13 @@ enum ModrinthDependencyDownloader {
                             detailWithFile.fileName = file.filename
                             detailWithFile.type = query
                             if let fileURL,
-                                let hash = AppServices.modScanner.sha1Hash(of: fileURL) {
-                                AppServices.modScanner.saveToCache(
+                                let hash = DIContainer.shared.core.modScanner.sha1Hash(of: fileURL) {
+                                DIContainer.shared.core.modScanner.saveToCache(
                                     hash: hash,
                                     detail: detailWithFile,
                                 )
                                 if query.lowercased() == ResourceType.mod.rawValue {
-                                    AppServices.modScanner.addModHash(
+                                    DIContainer.shared.core.modScanner.addModHash(
                                         hash,
                                         to: gameInfo.gameName,
                                     )
@@ -144,13 +144,13 @@ enum ModrinthDependencyDownloader {
                             mainProjectDetail.fileName = file.filename
                             mainProjectDetail.type = query
                             if let fileURL,
-                                let hash = AppServices.modScanner.sha1Hash(of: fileURL) {
-                                AppServices.modScanner.saveToCache(
+                                let hash = DIContainer.shared.core.modScanner.sha1Hash(of: fileURL) {
+                                DIContainer.shared.core.modScanner.saveToCache(
                                     hash: hash,
                                     detail: mainProjectDetail,
                                 )
                                 if query.lowercased() == ResourceType.mod.rawValue {
-                                    AppServices.modScanner.addModHash(
+                                    DIContainer.shared.core.modScanner.addModHash(
                                         hash,
                                         to: gameInfo.gameName,
                                     )
@@ -164,7 +164,7 @@ enum ModrinthDependencyDownloader {
                         AppLog.resource.error(
                             "Failed to download main resource \(projectId): \(globalError.localizedDescription)",
                         )
-                        AppServices.errorHandler.handle(globalError)
+                        DIContainer.shared.core.errorHandler.handle(globalError)
                         return nil
                     }
                 }
@@ -301,7 +301,7 @@ enum ModrinthDependencyDownloader {
         var resourcesToAdd: [ModrinthProjectDetail] = []
         var allSuccess = true
         let semaphore = AsyncSemaphore(
-            value: AppServices.generalSettingsManager.concurrentDownloads,
+            value: DIContainer.shared.ui.generalSettingsManager.concurrentDownloads,
         )
 
         await withTaskGroup(of: (String, Bool, ModrinthProjectDetail?).self) { group in
@@ -339,13 +339,13 @@ enum ModrinthDependencyDownloader {
                         depCopy.fileName = primaryFile.filename
                         depCopy.type = input.resourceType
                         success = true
-                        if let hash = AppServices.modScanner.sha1Hash(of: fileURL) {
-                            AppServices.modScanner.saveToCache(
+                        if let hash = DIContainer.shared.core.modScanner.sha1Hash(of: fileURL) {
+                            DIContainer.shared.core.modScanner.saveToCache(
                                 hash: hash,
                                 detail: depCopy,
                             )
                             if input.resourceType.lowercased() == ResourceType.mod.rawValue {
-                                AppServices.modScanner.addModHash(
+                                DIContainer.shared.core.modScanner.addModHash(
                                     hash,
                                     to: input.gameInfo.gameName,
                                 )
@@ -356,7 +356,7 @@ enum ModrinthDependencyDownloader {
                         AppLog.resource.error(
                             "Failed to download dependency \(depId): \(globalError.localizedDescription)",
                         )
-                        AppServices.errorHandler.handle(globalError)
+                        DIContainer.shared.core.errorHandler.handle(globalError)
                         success = false
                     }
                     let depCopyFinal = depCopy
@@ -429,13 +429,13 @@ enum ModrinthDependencyDownloader {
             )
             mainProjectDetail.fileName = primaryFile.filename
             mainProjectDetail.type = input.resourceType
-            if let hash = AppServices.modScanner.sha1Hash(of: fileURL) {
-                AppServices.modScanner.saveToCache(
+            if let hash = DIContainer.shared.core.modScanner.sha1Hash(of: fileURL) {
+                DIContainer.shared.core.modScanner.saveToCache(
                     hash: hash,
                     detail: mainProjectDetail,
                 )
                 if input.resourceType.lowercased() == ResourceType.mod.rawValue {
-                    AppServices.modScanner.addModHash(
+                    DIContainer.shared.core.modScanner.addModHash(
                         hash,
                         to: input.gameInfo.gameName,
                     )
@@ -447,7 +447,7 @@ enum ModrinthDependencyDownloader {
             AppLog.resource.error(
                 "Failed to download main resource \(input.mainProjectId): \(globalError.localizedDescription)",
             )
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return false
         }
     }
@@ -495,14 +495,14 @@ enum ModrinthDependencyDownloader {
             mainProjectDetail.type = query
 
             var hash: String?
-            if let h = AppServices.modScanner.sha1Hash(of: fileURL) {
+            if let h = DIContainer.shared.core.modScanner.sha1Hash(of: fileURL) {
                 hash = h
-                AppServices.modScanner.saveToCache(
+                DIContainer.shared.core.modScanner.saveToCache(
                     hash: h,
                     detail: mainProjectDetail,
                 )
                 if query.lowercased() == ResourceType.mod.rawValue {
-                    AppServices.modScanner.addModHash(
+                    DIContainer.shared.core.modScanner.addModHash(
                         h,
                         to: gameInfo.gameName,
                     )
@@ -514,7 +514,7 @@ enum ModrinthDependencyDownloader {
             AppLog.resource.error(
                 "Failed to download only main resource \(mainProjectId): \(globalError.localizedDescription)",
             )
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return (false, nil, nil)
         }
     }

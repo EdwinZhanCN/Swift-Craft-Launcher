@@ -93,7 +93,7 @@ extension ModPackDependencyInstaller {
             if let versionId = dep.versionId {
                 if let version = try? await ModrinthService.fetchProjectVersionThrowing(id: versionId),
                    let primaryFile = ModrinthService.filterPrimaryFiles(from: version.files) {
-                    if AppServices.modScanner.isModInstalledSync(hash: primaryFile.hashes.sha1, in: resourceDir) {
+                    if DIContainer.shared.core.modScanner.isModInstalledSync(hash: primaryFile.hashes.sha1, in: resourceDir) {
                         return true
                     }
                 }
@@ -106,7 +106,7 @@ extension ModPackDependencyInstaller {
                 )
                 if let version = versions?.first,
                    let primaryFile = ModrinthService.filterPrimaryFiles(from: version.files) {
-                    if AppServices.modScanner.isModInstalledSync(hash: primaryFile.hashes.sha1, in: resourceDir) {
+                    if DIContainer.shared.core.modScanner.isModInstalledSync(hash: primaryFile.hashes.sha1, in: resourceDir) {
                         return true
                     }
                 }
@@ -219,11 +219,11 @@ extension ModPackDependencyInstaller {
                 expectedSha1: primaryFile.hashes.sha1,
             )
 
-            if let hash = AppServices.modScanner.sha1Hash(of: downloadedFile) {
+            if let hash = DIContainer.shared.core.modScanner.sha1Hash(of: downloadedFile) {
                 var detailWithFile = projectDetail
                 detailWithFile.fileName = primaryFile.filename
                 detailWithFile.type = ResourceType.mod.rawValue
-                AppServices.modScanner.saveToCache(hash: hash, detail: detailWithFile)
+                DIContainer.shared.core.modScanner.saveToCache(hash: hash, detail: detailWithFile)
             }
 
             return true

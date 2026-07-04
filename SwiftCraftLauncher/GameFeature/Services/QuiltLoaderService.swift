@@ -15,7 +15,7 @@ enum QuiltLoaderService {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.game.error("Failed to get Quilt loader version: \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return []
         }
     }
@@ -31,7 +31,7 @@ enum QuiltLoaderService {
     static func fetchSpecificLoaderVersion(for minecraftVersion: String, loaderVersion: String) async throws -> ModrinthLoader {
         let cacheKey = "\(minecraftVersion)-\(loaderVersion)"
 
-        if let cached = AppServices.appCacheManager.get(namespace: GameLoader.quilt.rawValue, key: cacheKey, as: ModrinthLoader.self) {
+        if let cached = DIContainer.shared.core.appCacheManager.get(namespace: GameLoader.quilt.rawValue, key: cacheKey, as: ModrinthLoader.self) {
             return cached
         }
 
@@ -41,7 +41,7 @@ enum QuiltLoaderService {
         var result = try JSONDecoder().decode(ModrinthLoader.self, from: data)
         result.version = loaderVersion
         result = CommonService.processGameVersionPlaceholders(loader: result, gameVersion: minecraftVersion)
-        AppServices.appCacheManager.setSilently(namespace: GameLoader.quilt.rawValue, key: cacheKey, value: result)
+        DIContainer.shared.core.appCacheManager.setSilently(namespace: GameLoader.quilt.rawValue, key: cacheKey, value: result)
 
         return result
     }
@@ -62,7 +62,7 @@ enum QuiltLoaderService {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.game.error("Failed to set Quilt specified version: \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return nil
         }
     }

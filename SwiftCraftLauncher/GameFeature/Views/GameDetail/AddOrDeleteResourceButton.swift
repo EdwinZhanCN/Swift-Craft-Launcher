@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 
 struct AddOrDeleteResourceButton: View {
+    @EnvironmentObject private var container: DIContainer
     var project: ModrinthProject
     let selectedVersions: [String]
     let selectedLoaders: [String]

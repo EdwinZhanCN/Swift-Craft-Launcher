@@ -27,7 +27,6 @@ class ModPackDownloadSheetViewModel: ObservableObject {
     private var downloadTask: Task<Void, Never>?
     private let downloadService = ModPackDownloadService()
     private lazy var installCoordinator = ModPackInstallCoordinator(downloadService: downloadService)
-    private let errorHandler: GlobalErrorHandler
 
     func clearParsedIndexInfo() {
         lastParsedIndexInfo = nil
@@ -57,8 +56,7 @@ class ModPackDownloadSheetViewModel: ObservableObject {
         gameRepository = repository
     }
 
-    init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
-        self.errorHandler = errorHandler
+    init() {
         downloadService.progressHandler = { [weak self] downloaded, total in
             guard let self else { return }
             Task { @MainActor in
@@ -140,7 +138,7 @@ class ModPackDownloadSheetViewModel: ObservableObject {
 
         guard let fileToDownload = primaryFile else {
             isProcessing = false
-            errorHandler.handle(
+            DIContainer.shared.core.errorHandler.handle(
                 GlobalError.resource(
                     i18nKey: "error.resource.no_downloadable_file",
                     level: .notification,
@@ -202,7 +200,7 @@ class ModPackDownloadSheetViewModel: ObservableObject {
             availableGameVersions = projectDetail?.gameVersions ?? []
         } catch {
             let globalError = GlobalError.from(error)
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
         }
 
         isLoadingProjectDetails = false
@@ -227,7 +225,7 @@ class ModPackDownloadSheetViewModel: ObservableObject {
                 }
         } catch {
             let globalError = GlobalError.from(error)
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
         }
 
         isLoadingModPackVersions = false
@@ -258,6 +256,6 @@ class ModPackDownloadSheetViewModel: ObservableObject {
             i18nKey: i18nKey,
             level: .notification,
         )
-        errorHandler.handle(globalError)
+        DIContainer.shared.core.errorHandler.handle(globalError)
     }
 }

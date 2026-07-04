@@ -9,23 +9,21 @@ import SwiftUI
 
 /// Loads and displays the project detail content including compatibility, links, and details.
 struct ModrinthProjectContentView: View {
+    @EnvironmentObject private var container: DIContainer
     @State private var isLoading = false
     @State private var error: GlobalError?
     @Binding var projectDetail: ModrinthProjectDetail?
     let projectId: String
     let resourceType: String
-    private let errorHandler: GlobalErrorHandler
 
     init(
         projectDetail: Binding<ModrinthProjectDetail?>,
         projectId: String,
         resourceType: String,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
     ) {
         _projectDetail = projectDetail
         self.projectId = projectId
         self.resourceType = resourceType
-        self.errorHandler = errorHandler
     }
 
     var body: some View {
@@ -58,7 +56,7 @@ struct ModrinthProjectContentView: View {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.resource.error("Failed to load project details: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            container.core.errorHandler.handle(globalError)
             await MainActor.run {
                 self.error = globalError
             }

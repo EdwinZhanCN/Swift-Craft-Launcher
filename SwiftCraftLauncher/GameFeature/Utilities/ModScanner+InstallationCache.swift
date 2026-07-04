@@ -68,21 +68,21 @@ extension ModScanner {
 
     func addModHash(_ hash: String, to gameName: String) {
         Task {
-            await AppServices.modInstallationCache.addHash(hash, to: gameName)
+            await DIContainer.shared.core.modInstallationCache.addHash(hash, to: gameName)
         }
     }
 
     func removeModHash(_ hash: String, from gameName: String) {
         Task {
-            await AppServices.modInstallationCache.removeHash(hash, from: gameName)
+            await DIContainer.shared.core.modInstallationCache.removeHash(hash, from: gameName)
         }
     }
 
     func getAllModsInstalled(for gameName: String) async -> Set<String> {
-        await AppServices.modInstallationCache.getAllModsInstalled(for: gameName)
+        await DIContainer.shared.core.modInstallationCache.getAllModsInstalled(for: gameName)
     }
 
     func clearModCache(for gameName: String) async {
-        await AppServices.modInstallationCache.removeGame(gameName: gameName)
+        await DIContainer.shared.core.modInstallationCache.removeGame(gameName: gameName)
     }
 }

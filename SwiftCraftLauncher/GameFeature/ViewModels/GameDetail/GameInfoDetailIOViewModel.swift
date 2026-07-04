@@ -11,16 +11,7 @@ import UniformTypeIdentifiers
 /// View model for game info detail I/O operations, including local resource scanning and game icon management.
 @MainActor
 final class GameInfoDetailIOViewModel: ObservableObject {
-    private let errorHandler: GlobalErrorHandler
-    private let modScanner: ModScanner
-
-    init(
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
-        modScanner: ModScanner = AppServices.modScanner,
-    ) {
-        self.errorHandler = errorHandler
-        self.modScanner = modScanner
-    }
+    init() { }
 
     /// Scans the local resource directory and returns a set of detail IDs.
     func scanAllDetailIds(query: String, gameName: String) async -> Set<String> {
@@ -37,11 +28,11 @@ final class GameInfoDetailIOViewModel: ObservableObject {
         }
 
         do {
-            return try await modScanner.scanAllDetailIdsThrowing(in: resourceDir)
+            return try await DIContainer.shared.core.modScanner.scanAllDetailIdsThrowing(in: resourceDir)
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.game.error("Failed to scan all resources: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return []
         }
     }
@@ -55,7 +46,7 @@ final class GameInfoDetailIOViewModel: ObservableObject {
                     i18nKey: "error.validation.no_file_selected",
                     level: .notification,
                 )
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
                 return false
             }
 
@@ -64,7 +55,7 @@ final class GameInfoDetailIOViewModel: ObservableObject {
                     i18nKey: "error.filesystem.file_access_failed",
                     level: .notification,
                 )
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
                 return false
             }
             defer { url.stopAccessingSecurityScopedResource() }
@@ -88,13 +79,13 @@ final class GameInfoDetailIOViewModel: ObservableObject {
             } catch {
                 let globalError = GlobalError.from(error)
                 AppLog.game.error("Failed to update game icon: \(globalError.localizedDescription)")
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
                 return false
             }
 
         case let .failure(error):
             let globalError = GlobalError.from(error)
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return false
         }
     }

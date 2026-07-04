@@ -9,7 +9,6 @@ import CryptoKit
 import Foundation
 
 /// Reads and manages Minecraft server addresses from `servers.dat` files.
-@MainActor
 class ServerAddressService {
     init() { }
 

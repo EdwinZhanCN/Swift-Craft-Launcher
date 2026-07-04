@@ -10,7 +10,6 @@ import Foundation
 
 /// Loads and manages save information including worlds, screenshots, servers,
 /// litematica files, and logs for a specific game instance.
-@MainActor
 final class SaveInfoManager: ObservableObject {
     private struct WorldParseResult {
         let lastPlayed: Date?
@@ -40,17 +39,11 @@ final class SaveInfoManager: ObservableObject {
     @Published private(set) var hasLogsType: Bool = false
 
     private var loadTask: Task<Void, Never>?
-    private let serverAddressService: ServerAddressService
-    private let litematicaService: LitematicaService
 
     init(
         gameName: String,
-        serverAddressService: ServerAddressService = AppServices.serverAddressService,
-        litematicaService: LitematicaService = AppServices.litematicaService,
     ) {
         self.gameName = gameName
-        self.serverAddressService = serverAddressService
-        self.litematicaService = litematicaService
     }
 
     deinit {
@@ -274,7 +267,7 @@ final class SaveInfoManager: ObservableObject {
         defer { isLoadingServers = false }
 
         do {
-            servers = try await serverAddressService.loadServerAddresses(for: gameName)
+            servers = try await DIContainer.shared.system.serverAddressService.loadServerAddresses(for: gameName)
         } catch {
             AppLog.game.error("Failed to load server address info: \(error.localizedDescription)")
             servers = []
@@ -286,7 +279,7 @@ final class SaveInfoManager: ObservableObject {
         defer { isLoadingLitematica = false }
 
         do {
-            litematicaFiles = try await litematicaService.loadLitematicaFiles(for: gameName)
+            litematicaFiles = try await DIContainer.shared.system.litematicaService.loadLitematicaFiles(for: gameName)
         } catch {
             AppLog.game.error("Failed to load Litematica file info: \(error.localizedDescription)")
             litematicaFiles = []

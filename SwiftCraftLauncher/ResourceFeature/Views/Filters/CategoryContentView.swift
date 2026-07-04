@@ -9,6 +9,7 @@ import SwiftUI
 
 /// Displays category filter sections for a given project type.
 struct CategoryContentView: View {
+    @EnvironmentObject private var container: DIContainer
     let project: String
     @StateObject private var viewModel: CategoryContentViewModel
     @Binding var selectedCategories: [String]
@@ -21,7 +22,6 @@ struct CategoryContentView: View {
     let gameVersion: String?
     let gameLoader: String?
     let dataSource: DataSource
-    private let errorHandler: GlobalErrorHandler
 
     init(
         project: String,
@@ -35,7 +35,6 @@ struct CategoryContentView: View {
         gameVersion: String? = nil,
         gameLoader: String? = nil,
         dataSource: DataSource,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
     ) {
         self.project = project
         self.type = type
@@ -48,7 +47,6 @@ struct CategoryContentView: View {
         self.gameVersion = gameVersion
         self.gameLoader = gameLoader
         self.dataSource = dataSource
-        self.errorHandler = errorHandler
         _viewModel = StateObject(
             wrappedValue: CategoryContentViewModel(project: project),
         )
@@ -96,7 +94,7 @@ struct CategoryContentView: View {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.resource.error("Failed to load category data: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            container.core.errorHandler.handle(globalError)
             await MainActor.run {
                 viewModel.setError(globalError)
             }

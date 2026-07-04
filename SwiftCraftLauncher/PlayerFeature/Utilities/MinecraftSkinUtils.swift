@@ -172,7 +172,7 @@ struct MinecraftSkinUtils: View {
                     isLoading = false
                 }
                 AppLog.player.error("Skin loading failed: \(globalError.localizedDescription)")
-                AppServices.errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
             }
         }
     }

@@ -11,9 +11,6 @@ import UniformTypeIdentifiers
 /// View model for the game advanced settings view, managing JVM arguments, memory, garbage collector, and Java path configuration.
 @MainActor
 final class GameAdvancedSettingsViewModel: ObservableObject {
-    let selectedGameManager: SelectedGameManager
-    let gameSettingsManager: GameSettingsManager
-    let javaManager: JavaManager
     var gameRepository: GameRepository?
 
     @Published var memoryRange: ClosedRange<Double>
@@ -34,15 +31,8 @@ final class GameAdvancedSettingsViewModel: ObservableObject {
 
     var saveTask: Task<Void, Never>?
 
-    init(
-        selectedGameManager: SelectedGameManager = AppServices.selectedGameManager,
-        gameSettingsManager: GameSettingsManager = AppServices.gameSettingsManager,
-        javaManager: JavaManager = AppServices.javaManager,
-    ) {
-        self.selectedGameManager = selectedGameManager
-        self.gameSettingsManager = gameSettingsManager
-        self.javaManager = javaManager
-        memoryRange = Double(gameSettingsManager.globalXms) ... Double(gameSettingsManager.globalXmx)
+    init() {
+        memoryRange = Double(DIContainer.shared.ui.gameSettingsManager.globalXms) ... Double(DIContainer.shared.ui.gameSettingsManager.globalXmx)
         selectedGarbageCollector = .g1gc
         optimizationPreset = .balanced
         customJvmArguments = ""
@@ -54,7 +44,7 @@ final class GameAdvancedSettingsViewModel: ObservableObject {
     }
 
     var currentGame: GameVersionInfo? {
-        guard let gameId = selectedGameManager.selectedGameId else { return nil }
+        guard let gameId = DIContainer.shared.core.selectedGameManager.selectedGameId else { return nil }
         return gameRepository?.getGame(by: gameId)
     }
 
@@ -147,7 +137,7 @@ final class GameAdvancedSettingsViewModel: ObservableObject {
         isLoadingSettings = true
         defer { isLoadingSettings = false }
 
-        memoryRange = Double(gameSettingsManager.globalXms) ... Double(gameSettingsManager.globalXmx)
+        memoryRange = Double(DIContainer.shared.ui.gameSettingsManager.globalXms) ... Double(DIContainer.shared.ui.gameSettingsManager.globalXmx)
         selectedGarbageCollector = availableGarbageCollectors.first ?? .g1gc
         optimizationPreset = .balanced
         applyOptimizationPreset(.balanced)
@@ -161,7 +151,7 @@ final class GameAdvancedSettingsViewModel: ObservableObject {
         guard let game = currentGame else { return }
 
         Task {
-            let defaultPath = await javaManager.findDefaultJavaPath(for: game.gameVersion)
+            let defaultPath = await DIContainer.shared.system.javaManager.findDefaultJavaPath(for: game.gameVersion)
             await MainActor.run {
                 self.javaPath = defaultPath
                 self.autoSave()
@@ -183,7 +173,7 @@ final class GameAdvancedSettingsViewModel: ObservableObject {
                 return
             }
 
-            if javaManager.canJavaRun(at: url.path) {
+            if DIContainer.shared.system.javaManager.canJavaRun(at: url.path) {
                 javaPath = url.path
                 autoSave()
                 AppLog.game.info("Java path set to: \(url.path)")

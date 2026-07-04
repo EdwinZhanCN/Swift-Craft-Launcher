@@ -9,17 +9,15 @@
 import SwiftUI
 
 struct JavaDownloadProgressWindow: View {
+    @EnvironmentObject private var container: DIContainer
     @ObservedObject var downloadState: JavaDownloadState
     @Environment(\.dismiss)
     private var dismiss
-    private let javaDownloadManager: JavaDownloadManager
 
     init(
         downloadState: JavaDownloadState,
-        javaDownloadManager: JavaDownloadManager = AppServices.javaDownloadManager,
     ) {
         self.downloadState = downloadState
-        self.javaDownloadManager = javaDownloadManager
     }
 
     var body: some View {
@@ -31,7 +29,7 @@ struct JavaDownloadProgressWindow: View {
                     subtitle: downloadState.errorMessage,
                     status: .error,
                     onCancel: {
-                        javaDownloadManager.retryDownload()
+                        container.system.javaDownloadManager.retryDownload()
                     },
                     downloadState: downloadState,
                 )
@@ -42,7 +40,7 @@ struct JavaDownloadProgressWindow: View {
                     subtitle: downloadState.currentFile.isEmpty ? "Preparing..." : downloadState.currentFile,
                     status: .downloading(progress: downloadState.progress),
                     onCancel: {
-                        javaDownloadManager.cancelDownload()
+                        container.system.javaDownloadManager.cancelDownload()
                     },
                     downloadState: downloadState,
                 )
@@ -61,7 +59,7 @@ struct JavaDownloadProgressWindow: View {
         .padding()
         .frame(width: AuxiliaryWindowID.javaDownload.defaultSize.width, height: AuxiliaryWindowID.javaDownload.defaultSize.height)
         .onAppear {
-            javaDownloadManager.setDismissCallback {
+            container.system.javaDownloadManager.setDismissCallback {
                 dismiss()
             }
         }

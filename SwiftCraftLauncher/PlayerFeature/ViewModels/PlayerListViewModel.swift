@@ -13,17 +13,10 @@ class PlayerListViewModel: ObservableObject {
     @Published var players: [Player] = []
     @Published var currentPlayer: Player?
 
-    private let dataManager: PlayerDataManager
-    private let errorHandler: GlobalErrorHandler
     private var notificationObserver: NSObjectProtocol?
     private var hasLoadedPlayers = false
 
-    init(
-        dataManager: PlayerDataManager = AppServices.playerDataManager,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
-    ) {
-        self.dataManager = dataManager
-        self.errorHandler = errorHandler
+    init() {
         setupNotifications()
     }
 
@@ -60,7 +53,7 @@ class PlayerListViewModel: ObservableObject {
     ///
     /// - Throws: A `GlobalError` if loading fails.
     func loadPlayersThrowing() throws {
-        players = try dataManager.loadPlayersThrowing()
+        players = try DIContainer.shared.ui.playerDataManager.loadPlayersThrowing()
         currentPlayer = players.first { $0.isCurrent }
         let count = players.count
         let playerName = currentPlayer?.name ?? "none"
@@ -75,7 +68,7 @@ class PlayerListViewModel: ObservableObject {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.player.error("Failed to load player list: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
         }
     }
 
@@ -90,7 +83,7 @@ class PlayerListViewModel: ObservableObject {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.player.error("Failed to add player: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return false
         }
     }
@@ -100,7 +93,7 @@ class PlayerListViewModel: ObservableObject {
     /// - Parameter name: The player's display name.
     /// - Throws: A `GlobalError` if adding the player fails.
     func addPlayerThrowing(name: String) throws {
-        try dataManager.addPlayer(name: name, isOnline: false, avatarName: "")
+        try DIContainer.shared.ui.playerDataManager.addPlayer(name: name, isOnline: false, avatarName: "")
         try loadPlayersThrowing()
         AppLog.player.debug("Player \(name) added successfully, list updated.")
         let playerName = currentPlayer?.name ?? "none"
@@ -118,7 +111,7 @@ class PlayerListViewModel: ObservableObject {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.player.error("Failed to add online player: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return false
         }
     }
@@ -130,7 +123,7 @@ class PlayerListViewModel: ObservableObject {
     func addOnlinePlayerThrowing(profile: MinecraftProfileResponse) throws {
         let avatarUrl =
             profile.skins.isEmpty ? "" : profile.skins[0].url.httpToHttps()
-        try dataManager.addPlayer(
+        try DIContainer.shared.ui.playerDataManager.addPlayer(
             name: profile.name,
             uuid: profile.id,
             isOnline: true,
@@ -156,7 +149,7 @@ class PlayerListViewModel: ObservableObject {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.player.error("Failed to add Yggdrasil player: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return false
         }
     }
@@ -167,7 +160,7 @@ class PlayerListViewModel: ObservableObject {
     /// - Throws: A `GlobalError` if adding the player fails.
     func addOnlinePlayerThrowing(profile: YggdrasilProfile) throws {
         let avatarUrl = profile.skins.isEmpty ? "" : profile.skins[0].url.httpToHttps()
-        try dataManager.addPlayer(
+        try DIContainer.shared.ui.playerDataManager.addPlayer(
             name: profile.name,
             uuid: profile.id,
             isOnline: false,
@@ -191,7 +184,7 @@ class PlayerListViewModel: ObservableObject {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.player.error("Failed to delete player: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return false
         }
     }
@@ -201,7 +194,7 @@ class PlayerListViewModel: ObservableObject {
     /// - Parameter id: The identifier of the player to delete.
     /// - Throws: A `GlobalError` if deletion fails.
     func deletePlayerThrowing(byID id: String) throws {
-        try dataManager.deletePlayer(byID: id)
+        try DIContainer.shared.ui.playerDataManager.deletePlayer(byID: id)
         try loadPlayersThrowing()
         AppLog.player.debug("Player (ID: \(id)) deleted successfully, list updated.")
         let playerName = currentPlayer?.name ?? "none"
@@ -218,7 +211,7 @@ class PlayerListViewModel: ObservableObject {
             } catch {
                 let globalError = GlobalError.from(error)
                 AppLog.player.error("Failed to set current player: \(globalError.localizedDescription)")
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
             }
         }
     }
@@ -242,7 +235,7 @@ class PlayerListViewModel: ObservableObject {
         }
         currentPlayer = players[index]
 
-        try dataManager.savePlayersThrowing(players)
+        try DIContainer.shared.ui.playerDataManager.savePlayersThrowing(players)
         let playerName = currentPlayer?.name ?? "unknown"
         AppLog.player.debug(
             "Set player (ID: \(playerId), name: \(playerName)) as current player, data saved.",
@@ -254,7 +247,7 @@ class PlayerListViewModel: ObservableObject {
     /// - Parameter name: The name to check.
     /// - Returns: `true` if a matching player exists.
     func playerExists(name: String) -> Bool {
-        dataManager.playerExists(name: name)
+        DIContainer.shared.ui.playerDataManager.playerExists(name: name)
     }
 
     /// Updates a player in the local list from an external update notification.
@@ -266,7 +259,7 @@ class PlayerListViewModel: ObservableObject {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.player.error("Failed to update player list: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
         }
     }
 

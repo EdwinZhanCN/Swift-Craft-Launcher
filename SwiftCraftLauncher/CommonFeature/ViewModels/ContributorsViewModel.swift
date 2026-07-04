@@ -13,11 +13,7 @@ public class ContributorsViewModel: ObservableObject {
     @Published public var contributors: [GitHubContributor] = []
     @Published public var isLoading: Bool = false
 
-    private let gitHubService: GitHubService
-
-    init(gitHubService: GitHubService = AppServices.gitHubService) {
-        self.gitHubService = gitHubService
-    }
+    init() { }
 
     /// Fetches contributors from GitHub.
     public func fetchContributors() async {
@@ -25,7 +21,7 @@ public class ContributorsViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
-            contributors = try await gitHubService.fetchContributors(
+            contributors = try await DIContainer.shared.system.gitHubService.fetchContributors(
                 perPage: 50,
             )
         } catch { }

@@ -19,21 +19,11 @@ final class PlayerSettingsViewModel: ObservableObject {
     @Published private(set) var isLoadingMinecraftFriendAccountPreferences = false
     @Published private(set) var isSavingMinecraftFriendAccountPreferences = false
 
-    private let friendsService: MinecraftFriendsService
-    private let authService: MinecraftAuthService
     private let sideEffects: MinecraftFriendsMicrosoftPlayerSideEffects
 
-    init(
-        friendsService: MinecraftFriendsService = AppServices.minecraftFriendsService,
-        authService: MinecraftAuthService = AppServices.minecraftAuthService,
-        dataManager: PlayerDataManager = AppServices.playerDataManager,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
-    ) {
-        self.friendsService = friendsService
-        self.authService = authService
+    init() {
         sideEffects = MinecraftFriendsMicrosoftPlayerSideEffects(
-            dataManager: dataManager,
-            errorHandler: errorHandler,
+            dataManager: DIContainer.shared.ui.playerDataManager,
         )
     }
 
@@ -97,7 +87,7 @@ final class PlayerSettingsViewModel: ObservableObject {
         }
 
         do {
-            minecraftFriendAccountPreferences = try await friendsService.fetchFriendAccountPreferences(
+            minecraftFriendAccountPreferences = try await DIContainer.shared.ui.minecraftFriendsService.fetchFriendAccountPreferences(
                 accessToken: tokenPlayer.authAccessToken,
             )
             NotificationCenter.default.post(name: .minecraftFriendsAccountPreferencesDidChange, object: nil)
@@ -139,12 +129,12 @@ final class PlayerSettingsViewModel: ObservableObject {
         defer { isSavingMinecraftFriendAccountPreferences = false }
 
         do {
-            try await friendsService.updateFriendSettings(
+            try await DIContainer.shared.ui.minecraftFriendsService.updateFriendSettings(
                 accessToken: tokenPlayer.authAccessToken,
                 enableFriendlist: enableFriendlist,
                 enableFriendInvites: enableFriendInvites,
             )
-            minecraftFriendAccountPreferences = try await friendsService.fetchFriendAccountPreferences(
+            minecraftFriendAccountPreferences = try await DIContainer.shared.ui.minecraftFriendsService.fetchFriendAccountPreferences(
                 accessToken: tokenPlayer.authAccessToken,
             )
             NotificationCenter.default.post(name: .minecraftFriendsAccountPreferencesDidChange, object: nil)
@@ -164,7 +154,7 @@ final class PlayerSettingsViewModel: ObservableObject {
         }
 
         do {
-            let tokenPlayer = try await authService.validateAndRefreshPlayerTokenThrowing(for: resolved)
+            let tokenPlayer = try await DIContainer.shared.system.minecraftAuthService.validateAndRefreshPlayerTokenThrowing(for: resolved)
             if tokenPlayer.authAccessToken != resolved.authAccessToken {
                 sideEffects.persistPlayerIfNeeded(tokenPlayer)
             }

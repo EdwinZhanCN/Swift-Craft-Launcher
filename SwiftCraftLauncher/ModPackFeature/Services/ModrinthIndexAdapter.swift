@@ -10,11 +10,6 @@ import Foundation
 /// Parses mod packs that contain a `modrinth.index.json` file.
 struct ModrinthIndexAdapter: ModPackIndexAdapter {
     let id: String = "modrinth"
-    private let errorHandler: GlobalErrorHandler
-
-    init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
-        self.errorHandler = errorHandler
-    }
 
     private enum ModrinthIndexError: Error {
         case emptyIndex
@@ -60,7 +55,7 @@ struct ModrinthIndexAdapter: ModPackIndexAdapter {
                 source: .modrinth,
             )
         } catch ModrinthIndexError.emptyIndex {
-            errorHandler.handle(
+            DIContainer.shared.core.errorHandler.handle(
                 GlobalError.resource(
                     i18nKey: "error.resource.modrinth_index_empty",
                     level: .notification,

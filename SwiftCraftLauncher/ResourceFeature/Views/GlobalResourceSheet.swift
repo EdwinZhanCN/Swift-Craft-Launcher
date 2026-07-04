@@ -9,6 +9,7 @@ import SwiftUI
 
 /// A sheet for adding or downloading a project resource with version and dependency selection.
 struct GlobalResourceSheet: View {
+    @EnvironmentObject private var container: DIContainer
     let project: ModrinthProject
     let resourceType: String
     @Binding var isPresented: Bool
@@ -22,7 +23,6 @@ struct GlobalResourceSheet: View {
     @State private var isDownloadingAll = false
     @State private var isDownloadingMainOnly = false
     @State private var mainVersionId = ""
-    private let errorHandler: GlobalErrorHandler
 
     init(
         project: ModrinthProject,
@@ -30,14 +30,12 @@ struct GlobalResourceSheet: View {
         isPresented: Binding<Bool>,
         preloadedDetail: ModrinthProjectDetail?,
         preloadedCompatibleGames: [GameVersionInfo],
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
     ) {
         self.project = project
         self.resourceType = resourceType
         _isPresented = isPresented
         self.preloadedDetail = preloadedDetail
         self.preloadedCompatibleGames = preloadedCompatibleGames
-        self.errorHandler = errorHandler
     }
 
     /// Sheet title that changes based on resource type and game selection.
@@ -145,7 +143,7 @@ struct GlobalResourceSheet: View {
             } catch {
                 let globalError = GlobalError.from(error)
                 AppLog.resource.error("Failed to load dependencies: \(globalError.localizedDescription)")
-                errorHandler.handle(globalError)
+                container.core.errorHandler.handle(globalError)
                 _ = await MainActor.run {
                     dependencyState = DependencyState()
                 }

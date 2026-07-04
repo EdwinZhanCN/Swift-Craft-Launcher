@@ -13,7 +13,7 @@ extension GameCreationViewModel {
         isLoadingLoaderVersions = true
         updateParentState()
 
-        let includeSnapshots = gameSettingsManager.includeSnapshotsForGameVersions
+        let includeSnapshots = DIContainer.shared.ui.gameSettingsManager.includeSnapshotsForGameVersions
         let compatibleVersions = await CommonService.compatibleVersions(
             for: selectedModLoader,
             includeSnapshots: includeSnapshots,
@@ -49,7 +49,7 @@ extension GameCreationViewModel {
             isLoadingLoaderVersions = true
             updateParentState()
 
-            let includeSnapshots = gameSettingsManager.includeSnapshotsForGameVersions
+            let includeSnapshots = DIContainer.shared.ui.gameSettingsManager.includeSnapshotsForGameVersions
             let compatibleVersions = await CommonService.compatibleVersions(
                 for: newLoader,
                 includeSnapshots: includeSnapshots,

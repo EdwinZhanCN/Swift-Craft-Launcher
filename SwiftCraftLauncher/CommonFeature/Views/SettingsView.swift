@@ -19,23 +19,9 @@ enum SettingsTab: Int {
 
 /// The main settings view with tabbed navigation.
 public struct SettingsView: View {
-    @StateObject private var general: GeneralSettingsManager
-    @StateObject private var selectedGameManager: SelectedGameManager
+    @EnvironmentObject private var container: DIContainer
     @EnvironmentObject private var gameRepository: GameRepository
     @State private var selectedTab: SettingsTab = .general
-
-    public init() {
-        _general = StateObject(wrappedValue: AppServices.generalSettingsManager)
-        _selectedGameManager = StateObject(wrappedValue: AppServices.selectedGameManager)
-    }
-
-    init(
-        general: GeneralSettingsManager,
-        selectedGameManager: SelectedGameManager,
-    ) {
-        _general = StateObject(wrappedValue: general)
-        _selectedGameManager = StateObject(wrappedValue: selectedGameManager)
-    }
 
     public var body: some View {
         TabView(selection: $selectedTab) {
@@ -45,16 +31,19 @@ public struct SettingsView: View {
                 }
                 .tag(SettingsTab.general)
             PlayerSettingsView()
+                .environmentObject(container.ui.playerSettingsManager)
                 .tabItem {
                     Label("settings.player.tab".localized(), systemImage: "person")
                 }
                 .tag(SettingsTab.player)
             GameSettingsView()
+                .environmentObject(container.ui.gameSettingsManager)
                 .tabItem {
                     Label("settings.game.tab".localized(), systemImage: "gamecontroller")
                 }
                 .tag(SettingsTab.game)
             AISettingsView()
+                .environmentObject(container.ui.aiSettingsManager)
                 .tabItem {
                     Label("settings.ai.tab".localized(), systemImage: "brain")
                 }
@@ -67,11 +56,11 @@ public struct SettingsView: View {
                     )
                 }
                 .tag(SettingsTab.advanced)
-                .disabled(selectedGameManager.selectedGameId == nil)
+                .disabled(container.core.selectedGameManager.selectedGameId == nil)
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .onChange(of: selectedGameManager.shouldOpenAdvancedSettings) { _, shouldOpen in
+        .onChange(of: container.core.selectedGameManager.shouldOpenAdvancedSettings) { _, shouldOpen in
             if shouldOpen {
                 checkAndOpenAdvancedSettings()
             }
@@ -82,9 +71,9 @@ public struct SettingsView: View {
     }
 
     private func checkAndOpenAdvancedSettings() {
-        if selectedGameManager.shouldOpenAdvancedSettings, selectedGameManager.selectedGameId != nil {
+        if container.core.selectedGameManager.shouldOpenAdvancedSettings, container.core.selectedGameManager.selectedGameId != nil {
             selectedTab = .advanced
-            selectedGameManager.shouldOpenAdvancedSettings = false
+            container.core.selectedGameManager.shouldOpenAdvancedSettings = false
         }
     }
 }

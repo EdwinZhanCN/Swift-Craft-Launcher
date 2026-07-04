@@ -17,25 +17,6 @@ class GameSetupUtil: ObservableObject {
     @Published var neoForgeDownloadState = DownloadState()
 
     private var downloadTask: Task<Void, Never>?
-    private let errorHandler: GlobalErrorHandler
-    private let javaManager: JavaManager
-    private let gameSettingsManager: GameSettingsManager
-    private let modScanner: ModScanner
-    private let languageManager: LanguageManager
-
-    init(
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
-        javaManager: JavaManager = AppServices.javaManager,
-        gameSettingsManager: GameSettingsManager = AppServices.gameSettingsManager,
-        modScanner: ModScanner = AppServices.modScanner,
-        languageManager: LanguageManager = AppServices.languageManager,
-    ) {
-        self.errorHandler = errorHandler
-        self.javaManager = javaManager
-        self.gameSettingsManager = gameSettingsManager
-        self.modScanner = modScanner
-        self.languageManager = languageManager
-    }
 
     struct GameSaveInput {
         let gameName: String
@@ -99,7 +80,7 @@ class GameSetupUtil: ObservableObject {
         do {
             let downloadedManifest = try await ModrinthService.fetchVersionInfo(from: input.selectedGameVersion)
 
-            let javaPath = await javaManager.ensureJavaExists(
+            let javaPath = await DIContainer.shared.system.javaManager.ensureJavaExists(
                 version: downloadedManifest.javaVersion.component,
             )
 
@@ -133,12 +114,12 @@ class GameSetupUtil: ObservableObject {
             gameInfo.javaPath = javaPath
             gameRepository.addGameSilently(gameInfo)
 
-            if gameSettingsManager.syncLanguageForNewGames {
+            if DIContainer.shared.ui.gameSettingsManager.syncLanguageForNewGames {
                 configureGameLanguage(for: gameInfo.gameName)
             }
 
             Task.detached(priority: .utility) {
-                await self.modScanner.scanGameModsDirectory(game: gameInfo)
+                await DIContainer.shared.core.modScanner.scanGameModsDirectory(game: gameInfo)
             }
 
             await NotificationManager.sendSilently(
@@ -157,7 +138,7 @@ class GameSetupUtil: ObservableObject {
                 return
             }
             await cleanupGameDirectories(gameName: input.gameName)
-            errorHandler.handle(error)
+            DIContainer.shared.core.errorHandler.handle(error)
         }
     }
 
@@ -208,7 +189,7 @@ class GameSetupUtil: ObservableObject {
             AppLog.game.error(
                 "Game icon save failed, continuing installation: \(error.localizedDescription)",
             )
-            errorHandler.handle(
+            DIContainer.shared.core.errorHandler.handle(
                 GlobalError.fileSystem(
                     i18nKey: "error.filesystem.image_save_failed",
                     level: .silent,
@@ -472,7 +453,7 @@ class GameSetupUtil: ObservableObject {
     /// Writes or updates the Minecraft `options.txt` language setting for a game instance.
     /// - Parameter gameName: The name of the game instance.
     private func configureGameLanguage(for gameName: String) {
-        let mcLang = CommonUtil.minecraftLanguageCode(from: languageManager.selectedLanguage)
+        let mcLang = CommonUtil.minecraftLanguageCode(from: DIContainer.shared.ui.languageManager.selectedLanguage)
         CommonUtil.upsertOptionsEntry(gameName: gameName, key: "lang", value: mcLang)
     }
 }

@@ -9,20 +9,20 @@ import SwiftUI
 
 /// Presents an alert when the authlib-injector is missing before game launch.
 struct AuthlibInjectorMissingAlertModifier: ViewModifier {
-    @ObservedObject private var presenter: AuthlibInjectorMissingPresenter
+    @StateObject private var authlibInjectorMissingPresenter: AuthlibInjectorMissingPresenter
 
     init(
-        presenter: AuthlibInjectorMissingPresenter = AppServices.authlibInjectorMissingPresenter,
+        authlibInjectorMissingPresenter: AuthlibInjectorMissingPresenter,
     ) {
-        _presenter = ObservedObject(wrappedValue: presenter)
+        _authlibInjectorMissingPresenter = StateObject(wrappedValue: authlibInjectorMissingPresenter)
     }
 
     private var alertBinding: Binding<Bool> {
         Binding(
-            get: { presenter.isPresented },
+            get: { authlibInjectorMissingPresenter.isPresented },
             set: { newValue in
                 if !newValue {
-                    presenter.dismissIfNeeded(as: .cancel)
+                    authlibInjectorMissingPresenter.dismissIfNeeded(as: .cancel)
                 }
             },
         )
@@ -35,10 +35,10 @@ struct AuthlibInjectorMissingAlertModifier: ViewModifier {
                 isPresented: alertBinding,
             ) {
                 Button("common.continue".localized()) {
-                    presenter.resolve(.continueWithoutInjector)
+                    authlibInjectorMissingPresenter.resolve(.continueWithoutInjector)
                 }
                 Button("common.close".localized(), role: .cancel) {
-                    presenter.resolve(.cancel)
+                    authlibInjectorMissingPresenter.resolve(.cancel)
                 }
             } message: {
                 Text("game_launch.authlib_injector_missing.message".localized())
@@ -47,7 +47,11 @@ struct AuthlibInjectorMissingAlertModifier: ViewModifier {
 }
 
 extension View {
-    func authlibInjectorMissingAlert() -> some View {
-        modifier(AuthlibInjectorMissingAlertModifier())
+    func authlibInjectorMissingAlert(
+        _ container: DIContainer,
+    ) -> some View {
+        modifier(AuthlibInjectorMissingAlertModifier(
+            authlibInjectorMissingPresenter: container.ui.authlibInjectorMissingPresenter,
+        ))
     }
 }

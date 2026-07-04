@@ -25,7 +25,7 @@ enum MinecraftLaunchCommandBuilder {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.game.error("Failed to build launch command: \(globalError.localizedDescription)")
-            AppServices.errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             return []
         }
     }

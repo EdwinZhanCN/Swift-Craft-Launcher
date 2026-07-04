@@ -18,11 +18,8 @@ final class GameProcessManager: ObservableObject, @unchecked Sendable {
     private var manuallyStoppedGames: Set<String> = []
     private let queue = DispatchQueue(label: "com.swiftcraftlauncher.gameprocessmanager")
     private let gameDatabase = GameVersionDatabase(dbPath: AppPaths.gameVersionDatabase.path)
-    private let gameSettingsManager: GameSettingsManager
 
-    init(gameSettingsManager: GameSettingsManager = AppServices.gameSettingsManager) {
-        self.gameSettingsManager = gameSettingsManager
-    }
+    init() { }
 
     func storeProcess(gameId: String, userId: String, process: Process) {
         let key = Self.processKey(gameId: gameId, userId: userId)
@@ -48,7 +45,7 @@ final class GameProcessManager: ObservableObject, @unchecked Sendable {
             let isCrash = await checkIfCrash(gameId: gameId, process: process)
 
             if isCrash {
-                let gameSettings = gameSettingsManager
+                let gameSettings = DIContainer.shared.ui.gameSettingsManager
                 if gameSettings.enableAICrashAnalysis {
                     AppLog.game.info("Detected game crash, enabling AI analysis: \(gameId)")
                     await collectLogsForGameImmediately(gameId: gameId)
@@ -68,7 +65,7 @@ final class GameProcessManager: ObservableObject, @unchecked Sendable {
         }
 
         await MainActor.run {
-            AppServices.gameStatusManager.setGameRunning(gameId: gameId, userId: userId, isRunning: false)
+            DIContainer.shared.core.gameStatusManager.setGameRunning(gameId: gameId, userId: userId, isRunning: false)
         }
         queue.async { [weak self] in
             self?.gameProcesses.removeValue(forKey: key)
@@ -140,7 +137,7 @@ final class GameProcessManager: ObservableObject, @unchecked Sendable {
                 return
             }
 
-            await AppServices.gameLogCollector.collectAndOpenAIWindow(gameName: game.gameName)
+            await DIContainer.shared.core.gameLogCollector.collectAndOpenAIWindow(gameName: game.gameName)
         } catch {
             AppLog.game.error("Failed to query game from database: \(error.localizedDescription)")
         }
@@ -215,7 +212,7 @@ final class GameProcessManager: ObservableObject, @unchecked Sendable {
                 if let idx = key.firstIndex(of: "_") {
                     let gameId = String(key[..<idx])
                     let userId = String(key[key.index(after: idx)...])
-                    AppServices.gameStatusManager.setGameRunning(gameId: gameId, userId: userId, isRunning: false)
+                    DIContainer.shared.core.gameStatusManager.setGameRunning(gameId: gameId, userId: userId, isRunning: false)
                 }
             }
         }
@@ -255,7 +252,7 @@ final class GameProcessManager: ObservableObject, @unchecked Sendable {
                 if let idx = key.firstIndex(of: "_") {
                     let gameId = String(key[..<idx])
                     let userId = String(key[key.index(after: idx)...])
-                    AppServices.gameStatusManager.setGameRunning(gameId: gameId, userId: userId, isRunning: false)
+                    DIContainer.shared.core.gameStatusManager.setGameRunning(gameId: gameId, userId: userId, isRunning: false)
                 }
             }
         }

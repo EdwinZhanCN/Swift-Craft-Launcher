@@ -15,20 +15,14 @@ import MinecraftFriendsKit
 @MainActor
 final class MinecraftFriendsPresenceMonitorHostAdapter: MinecraftFriendsPresenceMonitorHost {
     private var player: Player?
-    private let authService: MinecraftAuthService
     private let sideEffects: MinecraftFriendsMicrosoftPlayerSideEffects
 
     init(
         player: Player? = nil,
-        authService: MinecraftAuthService = AppServices.minecraftAuthService,
-        dataManager: PlayerDataManager = AppServices.playerDataManager,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
     ) {
         self.player = player
-        self.authService = authService
         sideEffects = MinecraftFriendsMicrosoftPlayerSideEffects(
-            dataManager: dataManager,
-            errorHandler: errorHandler,
+            dataManager: DIContainer.shared.ui.playerDataManager,
         )
     }
 
@@ -55,7 +49,7 @@ final class MinecraftFriendsPresenceMonitorHostAdapter: MinecraftFriendsPresence
                 self.sideEffects.loadCredentialFromDiskIfMissing(into: &p)
             },
             minecraftAccessToken: { $0.authAccessToken },
-            refreshPlayerToken: { try await self.authService.validateAndRefreshPlayerTokenThrowing(for: $0) },
+            refreshPlayerToken: { try await DIContainer.shared.system.minecraftAuthService.validateAndRefreshPlayerTokenThrowing(for: $0) },
             persistIfMinecraftAccessTokenChanged: { _, after in
                 self.sideEffects.persistPlayerIfNeeded(after)
             },

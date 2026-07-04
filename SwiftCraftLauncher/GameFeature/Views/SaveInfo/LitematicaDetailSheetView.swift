@@ -9,6 +9,7 @@
 import SwiftUI
 
 struct LitematicaDetailSheetView: View {
+    @EnvironmentObject private var container: DIContainer
     let filePath: URL
     let gameName: String
     @Environment(\.dismiss)
@@ -18,16 +19,13 @@ struct LitematicaDetailSheetView: View {
     @State private var isLoading = true
     @State private var errorMessage: String?
     @State private var showError = false
-    private let litematicaService: LitematicaService
 
     init(
         filePath: URL,
         gameName: String,
-        litematicaService: LitematicaService = AppServices.litematicaService,
     ) {
         self.filePath = filePath
         self.gameName = gameName
-        self.litematicaService = litematicaService
     }
 
     var body: some View {
@@ -210,7 +208,7 @@ struct LitematicaDetailSheetView: View {
 
         do {
             AppLog.game.debug("Starting to load litematica details: \(filePath.lastPathComponent)")
-            let loadedMetadata = try await litematicaService.loadFullMetadata(filePath: filePath)
+            let loadedMetadata = try await container.system.litematicaService.loadFullMetadata(filePath: filePath)
             await MainActor.run {
                 if let metadata = loadedMetadata {
                     AppLog.game.debug("Successfully loaded litematica metadata: \(metadata.name)")

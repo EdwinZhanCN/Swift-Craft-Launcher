@@ -33,8 +33,7 @@ struct SwiftCraftLauncherApp: App {
     @StateObject var playerListViewModel = PlayerListViewModel()
     @StateObject var gameRepository = GameRepository()
     @StateObject var gameLaunchUseCase = GameLaunchUseCase()
-    @StateObject var generalSettingsManager: GeneralSettingsManager
-    @StateObject var themeManager: ThemeManager
+    @StateObject var container = DIContainer.shared
 
     @Environment(\.openSettings)
     private var openSettings
@@ -43,9 +42,6 @@ struct SwiftCraftLauncherApp: App {
 
     /// Configures global services and applies app‑level settings.
     init() {
-        _generalSettingsManager = StateObject(wrappedValue: AppServices.generalSettingsManager)
-        _themeManager = StateObject(wrappedValue: AppServices.themeManager)
-
         Self.configureURLCache()
         Self.configureNotifications(delegate: notificationCenterDelegate)
     }
@@ -57,17 +53,16 @@ struct SwiftCraftLauncherApp: App {
                 .environmentObject(playerListViewModel)
                 .environmentObject(gameRepository)
                 .environmentObject(gameLaunchUseCase)
-                .environmentObject(AppServices.gameActionManager)
-                .environmentObject(AppServices.gameStatusManager)
-                .preferredColorScheme(themeManager.preferredColorScheme)
-                .errorAlert()
-                .windowOpener()
+                .environmentObject(container)
+                .preferredColorScheme(container.ui.themeManager.preferredColorScheme)
+                .errorAlert(container.core.errorHandler)
+                .windowOpener(container.ui.windowManager)
                 .onOpenURL { url in
-                    AppServices.openURLModPackImportPresenter.handle(url: url)
+                    container.ui.openURLModPackImportPresenter.handle(url: url)
                 }
                 .task {
-                    AppServices.sparkleUpdateService.scheduleStartupCheckIfNeeded()
-                    AppServices.minecraftFriendsPresencePollingCoordinator.start(
+                    container.system.sparkleUpdateService.scheduleStartupCheckIfNeeded()
+                    container.ui.minecraftFriendsPresencePollingCoordinator.start(
                         playerListViewModel: playerListViewModel,
                     )
                 }
@@ -88,8 +83,9 @@ struct SwiftCraftLauncherApp: App {
             SettingsView()
                 .environmentObject(playerListViewModel)
                 .environmentObject(gameRepository)
-                .preferredColorScheme(themeManager.preferredColorScheme)
-                .errorAlert()
+                .environmentObject(container)
+                .preferredColorScheme(container.ui.themeManager.preferredColorScheme)
+                .errorAlert(container.core.errorHandler)
         }
 
         auxiliaryWindowGroup()
@@ -105,8 +101,7 @@ struct SwiftCraftLauncherApp: App {
                 .environmentObject(playerListViewModel)
                 .environmentObject(gameRepository)
                 .environmentObject(gameLaunchUseCase)
-                .environmentObject(AppServices.gameActionManager)
-                .environmentObject(AppServices.gameStatusManager)
+                .environmentObject(container)
             },
             label: {
                 HStack {
@@ -141,7 +136,7 @@ struct SwiftCraftLauncherApp: App {
 
     /// Cleans up window‑specific persisted data that should not survive a launch.
     private func cleanupWindowDataOnLaunch() {
-        AppServices.windowDataStore.cleanup(for: .aiChat)
-        AppServices.windowDataStore.cleanup(for: .skinPreview)
+        container.ui.windowDataStore.cleanup(for: .aiChat)
+        container.ui.windowDataStore.cleanup(for: .skinPreview)
     }
 }

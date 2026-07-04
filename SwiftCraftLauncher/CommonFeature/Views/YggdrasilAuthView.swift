@@ -9,27 +9,22 @@ import SwiftUI
 
 /// A view for authenticating with Yggdrasil-compatible Minecraft servers.
 struct YggdrasilAuthView: View {
-    @StateObject private var authService: YggdrasilAuthService
+    @EnvironmentObject private var container: DIContainer
     @StateObject private var viewModel = YggdrasilAuthViewModel()
-    @StateObject private var playerSettings: PlayerSettingsManager
     var onLoginSuccess: ((YggdrasilProfile) -> Void)?
 
     private let servers = YggdrasilServerPresets.servers
 
     init(
-        authService: YggdrasilAuthService = AppServices.yggdrasilAuthService,
-        playerSettings: PlayerSettingsManager = AppServices.playerSettingsManager,
         onLoginSuccess: ((YggdrasilProfile) -> Void)? = nil,
     ) {
         CommonYggdrasilProfileParsersConfigurator.bootstrap()
-        _authService = StateObject(wrappedValue: authService)
-        _playerSettings = StateObject(wrappedValue: playerSettings)
         self.onLoginSuccess = onLoginSuccess
     }
 
     var body: some View {
         VStack {
-            if authService.currentServer == nil {
+            if container.system.yggdrasilAuthService.currentServer == nil {
                 serverPickerSection
             } else {
                 authStateSection
@@ -37,18 +32,18 @@ struct YggdrasilAuthView: View {
         }
         .padding(.vertical, 20)
         .onChange(of: viewModel.selectedOption) { _, newValue in
-            viewModel.onSelectedOptionChanged(newValue, authService: authService)
+            viewModel.onSelectedOptionChanged(newValue, authService: container.system.yggdrasilAuthService)
         }
         .onAppear {
             guard viewModel.selectedOption == nil else { return }
-            let presetBaseURL = playerSettings.defaultYggdrasilServerBaseURL
+            let presetBaseURL = container.ui.playerSettingsManager.defaultYggdrasilServerBaseURL
             guard !presetBaseURL.isEmpty else { return }
             if let preset = servers.first(where: { $0.baseURL.absoluteString == presetBaseURL }) {
                 viewModel.selectedOption = preset
             }
         }
         .onDisappear {
-            viewModel.onDisappear(authService: authService)
+            viewModel.onDisappear(authService: container.system.yggdrasilAuthService)
         }
     }
 
@@ -69,7 +64,7 @@ struct YggdrasilAuthView: View {
     }
 
     @ViewBuilder private var authStateSection: some View {
-        switch authService.authState {
+        switch container.system.yggdrasilAuthService.authState {
         case .idle:
             notAuthenticatedView
         case .waitingForBrowser:
@@ -112,11 +107,11 @@ struct YggdrasilAuthView: View {
     }
 
     private func authenticatedView(profile: YggdrasilProfile) -> some View {
-        let profiles = authService.authenticatedProfiles.isEmpty ? [profile] : authService.authenticatedProfiles
+        let profiles = container.system.yggdrasilAuthService.authenticatedProfiles.isEmpty ? [profile] : container.system.yggdrasilAuthService.authenticatedProfiles
         let selection = Binding<String>(
             get: { profile.id },
             set: { newId in
-                viewModel.selectAuthenticatedProfile(id: newId, authService: authService)
+                viewModel.selectAuthenticatedProfile(id: newId, authService: container.system.yggdrasilAuthService)
             },
         )
 

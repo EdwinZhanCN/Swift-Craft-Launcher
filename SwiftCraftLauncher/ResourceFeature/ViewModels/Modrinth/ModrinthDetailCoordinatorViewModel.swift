@@ -46,11 +46,8 @@ final class ModrinthDetailCoordinatorViewModel: ObservableObject {
     private var currentPage: Int = 1
     private var lastSearchParams: String = ""
     private var debounceTask: Task<Void, Never>?
-    private let errorHandler: GlobalErrorHandler
 
-    init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
-        self.errorHandler = errorHandler
-    }
+    init() { }
 
     /// Whether more pages of results are available.
     var hasMoreResults: Bool {
@@ -185,7 +182,7 @@ final class ModrinthDetailCoordinatorViewModel: ObservableObject {
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.resource.error("Search failed: \(globalError.localizedDescription)")
-            errorHandler.handle(globalError)
+            DIContainer.shared.core.errorHandler.handle(globalError)
             self.error = globalError
         }
     }

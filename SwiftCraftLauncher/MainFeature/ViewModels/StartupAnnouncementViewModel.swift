@@ -15,24 +15,8 @@ final class StartupAnnouncementViewModel: ObservableObject {
     @Published var announcementData: AnnouncementData?
 
     private var hasCheckedAnnouncement = false
-    private let announcementStateManager: AnnouncementStateManager
-    private let languageManager: LanguageManager
-    private let gitHubService: GitHubService
 
-    /// Creates a view model with the required services.
-    /// - Parameters:
-    ///   - announcementStateManager: Manages announcement acknowledgment state.
-    ///   - languageManager: Provides the selected language.
-    ///   - gitHubService: Fetches announcement data from GitHub.
-    init(
-        announcementStateManager: AnnouncementStateManager = AppServices.announcementStateManager,
-        languageManager: LanguageManager = AppServices.languageManager,
-        gitHubService: GitHubService = AppServices.gitHubService,
-    ) {
-        self.announcementStateManager = announcementStateManager
-        self.languageManager = languageManager
-        self.gitHubService = gitHubService
-    }
+    init() { }
 
     /// Checks for a new announcement if one hasn't been checked yet.
     func checkAnnouncementIfNeeded() async {
@@ -46,19 +30,17 @@ final class StartupAnnouncementViewModel: ObservableObject {
     }
 
     private func checkAnnouncement() async {
-        if announcementStateManager.isAnnouncementAcknowledgedForCurrentVersion() {
+        if DIContainer.shared.ui.announcementStateManager.isAnnouncementAcknowledgedForCurrentVersion() {
             hasAnnouncement = false
             announcementData = nil
             return
         }
 
         let version = Bundle.main.appVersion
-        let language = languageManager.selectedLanguage.isEmpty
-            ? AppServices.languageManager.selectedLanguage
-            : languageManager.selectedLanguage
+        let language = DIContainer.shared.ui.languageManager.selectedLanguage
 
         do {
-            let data = try await gitHubService.fetchAnnouncement(
+            let data = try await DIContainer.shared.system.gitHubService.fetchAnnouncement(
                 version: version,
                 language: language,
             )

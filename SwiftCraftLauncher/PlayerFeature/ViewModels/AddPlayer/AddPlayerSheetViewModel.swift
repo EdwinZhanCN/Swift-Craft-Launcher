@@ -17,19 +17,7 @@ final class AddPlayerSheetViewModel: ObservableObject {
     /// Whether the user's IP is detected as non-domestic (foreign), checked when no premium flag exists.
     @Published var isForeignIP: Bool = false
 
-    private let playerSettings: PlayerSettingsManager
-    private let premiumAccountFlagManager: PremiumAccountFlagManager
-    private let ipLocationService: IPLocationService
-
-    init(
-        playerSettings: PlayerSettingsManager = AppServices.playerSettingsManager,
-        premiumAccountFlagManager: PremiumAccountFlagManager = AppServices.premiumAccountFlagManager,
-        ipLocationService: IPLocationService = AppServices.ipLocationService,
-    ) {
-        self.playerSettings = playerSettings
-        self.premiumAccountFlagManager = premiumAccountFlagManager
-        self.ipLocationService = ipLocationService
-    }
+    init() { }
 
     /// Resets all selection state.
     func reset() {
@@ -50,10 +38,10 @@ final class AddPlayerSheetViewModel: ObservableObject {
 
     /// Checks whether a premium account flag exists and detects foreign IP if not.
     func checkPremiumAccountFlag() async {
-        let hasFlag = premiumAccountFlagManager.hasAddedPremiumAccount()
+        let hasFlag = DIContainer.shared.system.premiumAccountFlagManager.hasAddedPremiumAccount()
 
         if !hasFlag {
-            let foreign = await ipLocationService.isForeignIP()
+            let foreign = await DIContainer.shared.system.ipLocationService.isForeignIP()
             isForeignIP = foreign
         }
 
@@ -71,7 +59,7 @@ final class AddPlayerSheetViewModel: ObservableObject {
         let canAdd = canAddOfflineAccount()
         guard canAdd else { return types }
 
-        if playerSettings.enableOfflineLogin {
+        if DIContainer.shared.ui.playerSettingsManager.enableOfflineLogin {
             types.append(.yggdrasil)
         }
 
@@ -80,7 +68,7 @@ final class AddPlayerSheetViewModel: ObservableObject {
     }
 
     private func canAddOfflineAccount() -> Bool {
-        if premiumAccountFlagManager.hasAddedPremiumAccount() {
+        if DIContainer.shared.system.premiumAccountFlagManager.hasAddedPremiumAccount() {
             return true
         }
         return !isForeignIP

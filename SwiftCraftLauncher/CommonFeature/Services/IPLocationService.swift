@@ -8,7 +8,6 @@
 import Foundation
 
 /// Detects the user's geographic location by IP address.
-@MainActor
 class IPLocationService: ObservableObject {
     init() { }
 

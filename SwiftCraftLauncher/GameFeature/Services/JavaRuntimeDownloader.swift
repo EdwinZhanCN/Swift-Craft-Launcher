@@ -12,11 +12,6 @@ import ZIPFoundation
 class JavaRuntimeDownloader {
     private let progressActor = ProgressActor()
     private let cancelActor = CancelActor()
-    private let generalSettingsManager: GeneralSettingsManager
-
-    init(generalSettingsManager: GeneralSettingsManager = AppServices.generalSettingsManager) {
-        self.generalSettingsManager = generalSettingsManager
-    }
 
     func setProgressCallback(_ callback: @escaping (String, Int, Int) -> Void) {
         Task {
@@ -36,12 +31,12 @@ class JavaRuntimeDownloader {
             try FileManager.default.removeItem(at: dir)
         }
 
-        if let bundledVersionURL = AppServices.javaRuntimeService.specialJavaRuntimeURL(for: version) {
+        if let bundledVersionURL = DIContainer.shared.system.javaRuntimeService.specialJavaRuntimeURL(for: version) {
             try await downloadBundledJavaRuntime(version: version, url: bundledVersionURL)
             return
         }
 
-        let manifestURL = try await AppServices.javaRuntimeService.getManifestURL(for: version)
+        let manifestURL = try await DIContainer.shared.system.javaRuntimeService.getManifestURL(for: version)
         let manifestData = try await fetchDataFromURL(manifestURL)
         guard let manifest = try JSONSerialization.jsonObject(with: manifestData) as? [String: Any],
               let files = manifest["files"] as? [String: Any] else {
@@ -71,7 +66,7 @@ class JavaRuntimeDownloader {
             .reduce(0, +)
 
         let semaphore = AsyncSemaphore(
-            value: generalSettingsManager.concurrentDownloads,
+            value: DIContainer.shared.ui.generalSettingsManager.concurrentDownloads,
         )
 
         let counter = Counter()

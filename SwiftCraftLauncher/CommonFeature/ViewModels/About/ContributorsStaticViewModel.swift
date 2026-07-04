@@ -15,15 +15,8 @@ final class ContributorsStaticViewModel: ObservableObject {
     @Published var loadFailed: Bool = false
 
     private var loadTask: Task<Void, Never>?
-    private let gitHubService: GitHubService
 
-    init(gitHubService: GitHubService) {
-        self.gitHubService = gitHubService
-    }
-
-    convenience init() {
-        self.init(gitHubService: AppServices.gitHubService)
-    }
+    init() { }
 
     /// Loads static contributor data from the GitHub service.
     func load() {
@@ -34,7 +27,7 @@ final class ContributorsStaticViewModel: ObservableObject {
         loadTask = Task { [weak self] in
             guard let self else { return }
             do {
-                let contributorsData: ContributorsData = try await gitHubService.fetchStaticContributors()
+                let contributorsData: ContributorsData = try await DIContainer.shared.system.gitHubService.fetchStaticContributors()
                 guard !Task.isCancelled else { return }
                 contributors = contributorsData.contributors.map { contributorData in
                     StaticContributor(

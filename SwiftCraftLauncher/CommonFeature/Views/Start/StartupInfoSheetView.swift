@@ -63,7 +63,7 @@ struct StartupInfoSheetView: View {
                     Spacer()
 
                     Button("startup.info.understand".localized()) {
-                        AppServices.announcementStateManager.markAnnouncementAcknowledgedForCurrentVersion()
+                        DIContainer.shared.ui.announcementStateManager.markAnnouncementAcknowledgedForCurrentVersion()
                         dismiss()
                     }
                     .buttonStyle(.borderedProminent)

@@ -12,8 +12,7 @@ struct SaveInfoView: View {
     let gameId: String
     let gameName: String
     @StateObject private var manager: SaveInfoManager
-    @EnvironmentObject private var gameStatusManager: GameStatusManager
-
+    @EnvironmentObject private var container: DIContainer
     @EnvironmentObject private var playerListViewModel: PlayerListViewModel
 
     init(
@@ -28,7 +27,7 @@ struct SaveInfoView: View {
     private var currentGameRunningState: Bool {
         let userId = playerListViewModel.currentPlayer?.id ?? ""
         let key = GameProcessManager.processKey(gameId: gameId, userId: userId)
-        if let isRunning = gameStatusManager.allGameStates[key] {
+        if let isRunning = container.core.gameStatusManager.allGameStates[key] {
             return isRunning
         } else {
             return false

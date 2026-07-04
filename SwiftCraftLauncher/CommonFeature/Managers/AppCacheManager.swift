@@ -10,11 +10,8 @@ import Foundation
 /// Provides thread-safe JSON-based caching organized by namespaces.
 class AppCacheManager {
     private let queue = DispatchQueue(label: "AppCacheManager.queue")
-    private let errorHandler: GlobalErrorHandler
 
-    init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
-        self.errorHandler = errorHandler
-    }
+    init() { }
 
     private func fileURL(for namespace: String) throws -> URL {
         do {
@@ -63,7 +60,7 @@ class AppCacheManager {
         do {
             try set(namespace: namespace, key: key, value: value)
         } catch {
-            errorHandler.handle(error)
+            DIContainer.shared.core.errorHandler.handle(error)
         }
     }
 
@@ -82,7 +79,7 @@ class AppCacheManager {
                 do {
                     return try JSONDecoder().decode(T.self, from: data)
                 } catch {
-                    errorHandler.handle(GlobalError.validation(
+                    DIContainer.shared.core.errorHandler.handle(GlobalError.validation(
                         i18nKey: "error.validation.cache_data_decode_failed",
                         level: .silent,
                         message: "Failed to decode cache data for namespace \(namespace), key \(key): \(error.localizedDescription)",
@@ -90,7 +87,7 @@ class AppCacheManager {
                     return nil
                 }
             } catch {
-                errorHandler.handle(error)
+            DIContainer.shared.core.errorHandler.handle(error)
                 return nil
             }
         }

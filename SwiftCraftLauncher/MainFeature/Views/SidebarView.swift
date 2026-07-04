@@ -9,31 +9,16 @@ import SwiftUI
 
 /// Sidebar view for navigating between game and resource sections.
 public struct SidebarView: View {
+    @EnvironmentObject private var container: DIContainer
     @EnvironmentObject private var detailState: ResourceDetailState
     @EnvironmentObject private var gameRepository: GameRepository
     @EnvironmentObject private var gameLaunchUseCase: GameLaunchUseCase
     @EnvironmentObject private var playerListViewModel: PlayerListViewModel
-    @EnvironmentObject private var gameActionManager: GameActionManager
-    @EnvironmentObject private var gameStatusManager: GameStatusManager
     @State private var searchText: String = ""
-    @ObservedObject private var gameDialogsPresenter: GameDialogsPresenter
-    @ObservedObject private var selectedGameManager: SelectedGameManager
     @StateObject private var viewModel = SidebarViewModel()
 
     @Environment(\.openSettings)
     private var openSettings
-
-    /// Creates a sidebar view with the required presenters.
-    /// - Parameters:
-    ///   - gameDialogsPresenter: Handles game dialog presentations.
-    ///   - selectedGameManager: Tracks the currently selected game.
-    init(
-        gameDialogsPresenter: GameDialogsPresenter = AppServices.gameDialogsPresenter,
-        selectedGameManager: SelectedGameManager = AppServices.selectedGameManager,
-    ) {
-        _gameDialogsPresenter = ObservedObject(wrappedValue: gameDialogsPresenter)
-        _selectedGameManager = ObservedObject(wrappedValue: selectedGameManager)
-    }
 
     public var body: some View {
         List(selection: detailState.selectedItemOptionalBinding) {
@@ -64,10 +49,10 @@ public struct SidebarView: View {
                     .contextMenu {
                         GameContextMenu(
                             game: game,
-                            onDelete: { gameDialogsPresenter.requestGameDeletion(of: game) },
+                            onDelete: { container.ui.gameDialogsPresenter.requestGameDeletion(of: game) },
                             onOpenSettings: { openSettings() },
                             onExport: {
-                                gameDialogsPresenter.presentModPackExport(for: game)
+                                container.ui.gameDialogsPresenter.presentModPackExport(for: game)
                             },
                         )
                     }
@@ -82,7 +67,7 @@ public struct SidebarView: View {
                             .fixedSize(horizontal: false, vertical: true)
                             .contextMenu {
                                 Button(role: .destructive) {
-                                    gameActionManager.deleteCorruptedGame(
+                                    container.core.gameActionManager.deleteCorruptedGame(
                                         name: name,
                                         gameRepository: gameRepository,
                                     )

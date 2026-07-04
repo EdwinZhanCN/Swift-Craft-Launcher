@@ -14,8 +14,6 @@ final class GlobalResourceFooterViewModel: ObservableObject {
     private let project: ModrinthProject
     private let resourceType: String
     private let gameRepository: GameRepository
-    private let errorHandler: GlobalErrorHandler
-
     private let isPresented: Binding<Bool>
     private let isDownloadingAll: Binding<Bool>
     private let isDownloadingMainOnly: Binding<Bool>
@@ -27,7 +25,6 @@ final class GlobalResourceFooterViewModel: ObservableObject {
         isDownloadingAll: Binding<Bool>,
         isDownloadingMainOnly: Binding<Bool>,
         gameRepository: GameRepository,
-        errorHandler: GlobalErrorHandler = AppServices.errorHandler,
     ) {
         self.project = project
         self.resourceType = resourceType
@@ -35,7 +32,6 @@ final class GlobalResourceFooterViewModel: ObservableObject {
         self.isDownloadingAll = isDownloadingAll
         self.isDownloadingMainOnly = isDownloadingMainOnly
         self.gameRepository = gameRepository
-        self.errorHandler = errorHandler
     }
 
     /// Downloads the main resource only for the selected game.
@@ -50,7 +46,7 @@ final class GlobalResourceFooterViewModel: ObservableObject {
             } catch {
                 let globalError = GlobalError.from(error)
                 AppLog.resource.error("Failed to download main resource: \(globalError.localizedDescription)")
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
             }
 
             isDownloadingMainOnly.wrappedValue = false
@@ -81,7 +77,7 @@ final class GlobalResourceFooterViewModel: ObservableObject {
             } catch {
                 let globalError = GlobalError.from(error)
                 AppLog.resource.error("Failed to manually download all dependencies: \(globalError.localizedDescription)")
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
             }
 
             isDownloadingAll.wrappedValue = false
@@ -109,7 +105,7 @@ final class GlobalResourceFooterViewModel: ObservableObject {
             } catch {
                 let globalError = GlobalError.from(error)
                 AppLog.resource.error("Failed to add server: \(globalError.localizedDescription)")
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
             }
 
             isDownloadingAll.wrappedValue = false
@@ -129,7 +125,7 @@ final class GlobalResourceFooterViewModel: ObservableObject {
             } catch {
                 let globalError = GlobalError.from(error)
                 AppLog.resource.error("Failed to download resource: \(globalError.localizedDescription)")
-                errorHandler.handle(globalError)
+                DIContainer.shared.core.errorHandler.handle(globalError)
             }
 
             isDownloadingAll.wrappedValue = false

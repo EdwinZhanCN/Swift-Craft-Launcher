@@ -10,7 +10,6 @@ import Foundation
 /// Tracks whether a premium (Mojang/Microsoft) account has ever been added.
 ///
 /// This flag determines whether offline account creation is permitted.
-@MainActor
 class PremiumAccountFlagManager {
     init() { }
 

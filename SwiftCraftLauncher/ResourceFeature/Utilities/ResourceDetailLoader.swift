@@ -24,7 +24,7 @@ enum ResourceDetailLoader {
     ) async -> (detail: ModrinthProjectDetail, compatibleGames: [GameVersionInfo])? {
         let isServer = resourceType == ResourceType.minecraftJavaServer.rawValue
         guard let detail = await ModrinthService.fetchProjectDetails(id: projectId, type: isServer ? resourceType : "") else {
-            AppServices.errorHandler.handle(
+            DIContainer.shared.core.errorHandler.handle(
                 GlobalError.resource(
                     i18nKey: "error.resource.project_details_not_found",
                     level: .notification,
@@ -43,7 +43,7 @@ enum ResourceDetailLoader {
         )
         let finalGames: [GameVersionInfo]
         if isServer {
-            finalGames = await AppServices.serverAddressService.filterGamesWithoutExistingServer(
+            finalGames = await DIContainer.shared.system.serverAddressService.filterGamesWithoutExistingServer(
                 detail: detail,
                 games: compatibleGames,
             )
@@ -59,7 +59,7 @@ enum ResourceDetailLoader {
     /// - Returns: The project detail, or nil on failure.
     static func loadModPackDetail(projectId: String) async -> ModrinthProjectDetail? {
         guard let detail = await ModrinthService.fetchProjectDetails(id: projectId) else {
-            AppServices.errorHandler.handle(GlobalError.resource(
+            DIContainer.shared.core.errorHandler.handle(GlobalError.resource(
                 i18nKey: "error.resource.project_details_not_found",
                 level: .notification,
                 message: "Modrinth project details not found for id=\(projectId)",

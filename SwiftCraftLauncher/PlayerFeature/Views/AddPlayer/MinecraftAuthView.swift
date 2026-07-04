@@ -9,20 +9,14 @@ import SwiftUI
 
 /// Displays the Microsoft authentication flow with status feedback.
 struct MinecraftAuthView: View {
-    @StateObject private var authService: MinecraftAuthService
+    @EnvironmentObject private var container: DIContainer
     var onLoginSuccess: ((MinecraftProfileResponse) -> Void)?
 
-    init(
-        authService: MinecraftAuthService = AppServices.minecraftAuthService,
-        onLoginSuccess: ((MinecraftProfileResponse) -> Void)? = nil,
-    ) {
-        _authService = StateObject(wrappedValue: authService)
-        self.onLoginSuccess = onLoginSuccess
-    }
+    init(onLoginSuccess: ((MinecraftProfileResponse) -> Void)? = nil) { self.onLoginSuccess = onLoginSuccess }
 
     var body: some View {
         VStack(spacing: 20) {
-            switch authService.authState {
+            switch container.system.minecraftAuthService.authState {
             case .notAuthenticated:
                 notAuthenticatedView
 
@@ -46,8 +40,8 @@ struct MinecraftAuthView: View {
     }
 
     private func clearAllData() {
-        if case .notAuthenticated = authService.authState {
-            authService.isLoading = false
+        if case .notAuthenticated = container.system.minecraftAuthService.authState {
+            container.system.minecraftAuthService.isLoading = false
         }
     }
 

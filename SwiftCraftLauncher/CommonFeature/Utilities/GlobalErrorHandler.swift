@@ -372,7 +372,7 @@ class GlobalErrorHandler: ObservableObject {
 struct GlobalErrorHandlerModifier: ViewModifier {
     @StateObject private var errorHandler: GlobalErrorHandler
 
-    init(errorHandler: GlobalErrorHandler = AppServices.errorHandler) {
+    init(errorHandler: GlobalErrorHandler) {
         _errorHandler = StateObject(wrappedValue: errorHandler)
     }
 
@@ -387,7 +387,9 @@ struct GlobalErrorHandlerModifier: ViewModifier {
 }
 
 extension View {
-    func errorHandler() -> some View {
-        modifier(GlobalErrorHandlerModifier())
+    func errorHandler(
+        _ errorHandler: GlobalErrorHandler,
+    ) -> some View {
+        modifier(GlobalErrorHandlerModifier(errorHandler: errorHandler))
     }
 }
