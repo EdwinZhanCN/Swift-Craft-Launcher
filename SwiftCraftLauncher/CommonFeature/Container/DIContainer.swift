@@ -52,16 +52,16 @@ final class DIContainer: ObservableObject {
 
         system.minecraftAuthService
             .objectWillChange
-                .sink { [weak self] _ in
-                    self?.objectWillChange.send()
-                }
-                .store(in: &cancellables)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
 
         system.yggdrasilAuthService
             .objectWillChange
-                .sink { [weak self] _ in
-                    self?.objectWillChange.send()
-                }
-                .store(in: &cancellables)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
     }
 }

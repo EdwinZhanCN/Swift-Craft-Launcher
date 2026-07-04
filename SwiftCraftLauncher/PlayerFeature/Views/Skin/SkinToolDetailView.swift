@@ -122,8 +122,8 @@ struct SkinToolDetailView: View {
                         dismiss()
                     }
                 }
-                    .keyboardShortcut(.defaultAction)
-                    .disabled(viewModel.operationInProgress || !viewModel.hasChanges)
+                .keyboardShortcut(.defaultAction)
+                .disabled(viewModel.operationInProgress || !viewModel.hasChanges)
             }
         }
     }

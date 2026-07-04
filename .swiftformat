@@ -51,7 +51,6 @@
 # ==========================================
 
 --disable wrap
---disable indent
 --disable trailingClosures
 
 --disable braces

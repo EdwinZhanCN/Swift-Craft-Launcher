@@ -408,12 +408,12 @@ class AIChatManager: ObservableObject {
 
         guard let fileSize = await getFileSize(url: url) else {
             return await readFileContent(url: url, fileName: fileName) ??
-                   String(format: "ai.file.cannot_read".localized(), fileName)
+                String(format: "ai.file.cannot_read".localized(), fileName)
         }
 
         if fileSize <= maxFileSizeForReading {
             return await readFileContent(url: url, fileName: fileName) ??
-                   String(format: "ai.file.cannot_read_text".localized(), fileName)
+                String(format: "ai.file.cannot_read_text".localized(), fileName)
         } else {
             let sizeDescription = formatFileSize(fileSize)
             return String(format: "ai.file.too_large".localized(), fileName, sizeDescription)

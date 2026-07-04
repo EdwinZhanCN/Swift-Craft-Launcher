@@ -54,7 +54,7 @@ extension MinecraftSkinUtils {
             space: colorSpace,
             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue,
         ),
-        let pixelData = context.data?.assumingMemoryBound(to: UInt8.self) else {
+            let pixelData = context.data?.assumingMemoryBound(to: UInt8.self) else {
             return false
         }
 

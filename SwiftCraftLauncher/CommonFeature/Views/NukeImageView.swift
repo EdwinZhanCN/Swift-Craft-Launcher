@@ -28,9 +28,9 @@ struct NukeImageView<Content: View>: View {
     var body: some View {
         content(phase)
             // Automatically reload when URL changes and cancel previous task
-            .task(id: url) {
-                load()
-            }
+                .task(id: url) {
+                    load()
+                }
     }
 
     private func load() {

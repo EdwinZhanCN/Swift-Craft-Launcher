@@ -143,8 +143,8 @@ extension CurseForgeService {
 
         let resourceTypeLowercased = type.lowercased()
         let shouldFilterByLoader = !(resourceTypeLowercased == ResourceType.shader.rawValue ||
-                                     resourceTypeLowercased == ResourceType.resourcepack.rawValue ||
-                                     resourceTypeLowercased == ResourceType.datapack.rawValue)
+            resourceTypeLowercased == ResourceType.resourcepack.rawValue ||
+            resourceTypeLowercased == ResourceType.datapack.rawValue)
 
         var modLoaderTypes: [Int] = []
         if shouldFilterByLoader {

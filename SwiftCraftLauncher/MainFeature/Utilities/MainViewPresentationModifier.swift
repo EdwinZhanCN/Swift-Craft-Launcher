@@ -57,15 +57,15 @@ struct MainViewPresentationModifier: ViewModifier {
 
 extension View {
     func mainViewPresentations(
-            container: DIContainer,
-            detailState: ResourceDetailState,
-        ) -> some View {
-            modifier(
-                MainViewPresentationModifier(
-                    detailState: detailState,
-                    gameDialogsPresenter: container.ui.gameDialogsPresenter,
-                    container: container,
-                ),
-            )
-        }
+        container: DIContainer,
+        detailState: ResourceDetailState,
+    ) -> some View {
+        modifier(
+            MainViewPresentationModifier(
+                detailState: detailState,
+                gameDialogsPresenter: container.ui.gameDialogsPresenter,
+                container: container,
+            ),
+        )
+    }
 }

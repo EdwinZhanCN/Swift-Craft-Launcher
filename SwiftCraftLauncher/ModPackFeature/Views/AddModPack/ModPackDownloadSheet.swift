@@ -190,7 +190,7 @@ struct ModPackDownloadSheet: View {
 
     private func selectFirstModPackVersion() {
         if !viewModel.filteredModPackVersions.isEmpty,
-            selectedModPackVersion == nil {
+           selectedModPackVersion == nil {
             selectedModPackVersion = viewModel.filteredModPackVersions[0]
             setDefaultGameName()
         }

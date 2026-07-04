@@ -137,7 +137,7 @@ extension CurseForgeService {
 
         if let rawSearchFilter = searchFilter?
             .trimmingCharacters(in: .whitespacesAndNewlines),
-           !rawSearchFilter.isEmpty {
+            !rawSearchFilter.isEmpty {
             let components = rawSearchFilter
                 .split { $0.isWhitespace }
                 .map(String.init)

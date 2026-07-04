@@ -96,7 +96,7 @@ struct ModrinthDetailCardView: View {
             if project.projectId.hasPrefix("local_") || project.projectId.hasPrefix("file_") {
                 localResourceIcon
             } else if let iconUrl = project.iconUrl,
-                let url = URL(string: iconUrl) {
+                      let url = URL(string: iconUrl) {
                 NukeImageView(url: url) { phase in
                     switch phase {
                     case let .success(image):

@@ -59,7 +59,7 @@ enum CommonUtil {
     static func imageDataFromBase64(_ base64: String) -> Data? {
         if base64.hasPrefix("data:image") {
             if let base64String = base64.split(separator: ",").last,
-                let imageData = Data(base64Encoded: String(base64String)) {
+               let imageData = Data(base64Encoded: String(base64String)) {
                 return imageData
             }
         } else if let imageData = Data(base64Encoded: base64) {

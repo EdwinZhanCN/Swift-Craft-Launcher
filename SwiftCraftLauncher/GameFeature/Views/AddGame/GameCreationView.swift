@@ -63,29 +63,29 @@ struct GameCreationView: View {
 
     var body: some View {
         formContentView
-        .onAppear {
-            viewModel.setup(gameRepository: gameRepository, playerListViewModel: playerListViewModel)
-            onSetImagePickerHandler(viewModel.handleImagePickerResult)
-        }
-        .gameFormStateListeners(viewModel: viewModel, triggerConfirm: triggerConfirm, triggerCancel: triggerCancel)
-        .onChange(of: viewModel.selectedLoaderVersion) { oldValue, newValue in
-            if oldValue != newValue {
-                viewModel.updateParentState()
+            .onAppear {
+                viewModel.setup(gameRepository: gameRepository, playerListViewModel: playerListViewModel)
+                onSetImagePickerHandler(viewModel.handleImagePickerResult)
             }
-        }
-        .onChange(of: viewModel.selectedModLoader) { oldValue, newLoader in
-            if oldValue != newLoader {
-                viewModel.handleModLoaderChange(newLoader)
+            .gameFormStateListeners(viewModel: viewModel, triggerConfirm: triggerConfirm, triggerCancel: triggerCancel)
+            .onChange(of: viewModel.selectedLoaderVersion) { oldValue, newValue in
+                if oldValue != newValue {
+                    viewModel.updateParentState()
+                }
             }
-        }
-        .onChange(of: viewModel.selectedGameVersion) { oldValue, newVersion in
-            if oldValue != newVersion {
-                viewModel.handleGameVersionChange(newVersion)
+            .onChange(of: viewModel.selectedModLoader) { oldValue, newLoader in
+                if oldValue != newLoader {
+                    viewModel.handleModLoaderChange(newLoader)
+                }
             }
-        }
-        .onDisappear {
-            clearAllData()
-        }
+            .onChange(of: viewModel.selectedGameVersion) { oldValue, newVersion in
+                if oldValue != newVersion {
+                    viewModel.handleGameVersionChange(newVersion)
+                }
+            }
+            .onDisappear {
+                clearAllData()
+            }
     }
 
     private func clearAllData() {
@@ -124,7 +124,7 @@ struct GameCreationView: View {
             Text("game.form.icon".localized())
                 .foregroundColor(.primary)
 
-                iconContainer
+            iconContainer
                 .applyPointerHandIfAvailable()
                 .onTapGesture {
                     if !viewModel.gameSetupService.downloadState.isDownloading {

@@ -166,10 +166,10 @@ struct GlobalResourceSheet: View {
         // Fetch missing dependencies with version information.
         let missingWithVersions =
             await ModrinthDependencyDownloader
-            .getMissingDependenciesWithVersions(
-                for: project.projectId,
-                gameInfo: game,
-            )
+                .getMissingDependenciesWithVersions(
+                    for: project.projectId,
+                    gameInfo: game,
+                )
 
         var depVersions: [String: [ModrinthProjectDetailVersion]] = [:]
         var depSelected: [String: ModrinthProjectDetailVersion?] = [:]

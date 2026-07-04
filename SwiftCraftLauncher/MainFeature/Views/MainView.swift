@@ -181,7 +181,7 @@ struct MainView: View {
             filterState.clearSearchText()
         }
         if detailState.loadedProjectDetail != nil, detailState.gameId != nil,
-            detailState.selectedProjectId != nil {
+           detailState.selectedProjectId != nil {
             detailState.gameId = nil
             detailState.loadedProjectDetail = nil
             detailState.selectedProjectId = nil

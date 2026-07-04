@@ -115,7 +115,7 @@ struct GameResourceInstallFooter: View {
                     Button("common.close".localized()) { isPresented = false }
                     Spacer()
                     if viewModel.resourceType == ResourceType.mod.rawValue,
-                        !viewModel.isUpdateMode {
+                       !viewModel.isUpdateMode {
                         if !viewModel.dependencyState.isLoading {
                             if viewModel.selectedVersion != nil {
                                 Button {

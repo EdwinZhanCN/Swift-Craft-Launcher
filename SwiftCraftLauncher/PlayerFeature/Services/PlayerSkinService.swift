@@ -232,7 +232,7 @@ enum PlayerSkinService {
         func appendField(name: String, value: String) {
             if let fieldData =
                 "--\(boundary)\r\nContent-Disposition: form-data; name=\"\(name)\"\r\n\r\n\(value)\r\n"
-                .data(using: .utf8) {
+                    .data(using: .utf8) {
                 body.append(fieldData)
             }
         }
@@ -356,7 +356,7 @@ enum PlayerSkinService {
     /// - Parameter player: The player to query.
     /// - Returns: The profile response, or `nil` on failure.
     static func fetchPlayerProfile(player: Player) async
-        -> MinecraftProfileResponse? {
+    -> MinecraftProfileResponse? {
         do {
             return try await fetchPlayerProfileThrowing(player: player)
         } catch {
@@ -367,7 +367,7 @@ enum PlayerSkinService {
 
     /// Fetches the player's Minecraft profile including cape information, throwing on failure.
     static func fetchPlayerProfileThrowing(player: Player) async throws
-        -> MinecraftProfileResponse {
+    -> MinecraftProfileResponse {
         try validateAccessToken(player)
 
         let data = try await APIClient.get(

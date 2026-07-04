@@ -188,9 +188,9 @@ extension ModPackExporter {
         }
 
         return topLevel == AppConstants.DirectoryNames.datapacks.lowercased()
-        || topLevel == AppConstants.DirectoryNames.shaderpacks.lowercased()
-        || topLevel == AppConstants.DirectoryNames.resourcepacks.lowercased()
-        || topLevel == AppConstants.DirectoryNames.mods.lowercased()
+            || topLevel == AppConstants.DirectoryNames.shaderpacks.lowercased()
+            || topLevel == AppConstants.DirectoryNames.resourcepacks.lowercased()
+            || topLevel == AppConstants.DirectoryNames.mods.lowercased()
     }
 
     static func shouldScanForCurseForge(_ file: URL, gameDirectory: URL) -> Bool {

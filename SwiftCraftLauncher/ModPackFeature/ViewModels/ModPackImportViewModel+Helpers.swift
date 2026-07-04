@@ -47,7 +47,7 @@ extension ModPackImportViewModel {
     ) -> ([ModrinthIndexFile], [ModrinthIndexProjectDependency]) {
         let filesToDownload = indexInfo.files.filter { file in
             if let env = file.env, let client = env.client,
-                client.lowercased() == "unsupported" {
+               client.lowercased() == "unsupported" {
                 return false
             }
             return true

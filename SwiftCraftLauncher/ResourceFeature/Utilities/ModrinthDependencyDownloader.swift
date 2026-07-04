@@ -66,9 +66,9 @@ enum ModrinthDependencyDownloader {
 
                         guard
                             let projectDetail =
-                                await ModrinthService.fetchProjectDetails(
-                                    id: depVersion.projectId,
-                                )
+                            await ModrinthService.fetchProjectDetails(
+                                id: depVersion.projectId,
+                            )
                         else {
                             AppLog.resource.error(
                                 "Unable to get dependency project details (ID: \(depVersion.projectId))",
@@ -91,7 +91,7 @@ enum ModrinthDependencyDownloader {
                             detailWithFile.fileName = file.filename
                             detailWithFile.type = query
                             if let fileURL,
-                                let hash = DIContainer.shared.core.modScanner.sha1Hash(of: fileURL) {
+                               let hash = DIContainer.shared.core.modScanner.sha1Hash(of: fileURL) {
                                 DIContainer.shared.core.modScanner.saveToCache(
                                     hash: hash,
                                     detail: detailWithFile,
@@ -116,9 +116,9 @@ enum ModrinthDependencyDownloader {
                     do {
                         guard
                             var mainProjectDetail =
-                                await ModrinthService.fetchProjectDetails(
-                                    id: projectId,
-                                )
+                            await ModrinthService.fetchProjectDetails(
+                                id: projectId,
+                            )
                         else {
                             AppLog.resource.error("Unable to get main project details (ID: \(projectId))")
                             return nil
@@ -144,7 +144,7 @@ enum ModrinthDependencyDownloader {
                             mainProjectDetail.fileName = file.filename
                             mainProjectDetail.type = query
                             if let fileURL,
-                                let hash = DIContainer.shared.core.modScanner.sha1Hash(of: fileURL) {
+                               let hash = DIContainer.shared.core.modScanner.sha1Hash(of: fileURL) {
                                 DIContainer.shared.core.modScanner.saveToCache(
                                     hash: hash,
                                     detail: mainProjectDetail,
@@ -211,9 +211,9 @@ enum ModrinthDependencyDownloader {
                     // Fetch the project detail.
                     guard
                         let projectDetail =
-                            await ModrinthService.fetchProjectDetails(
-                                id: depVersion.projectId,
-                            )
+                        await ModrinthService.fetchProjectDetails(
+                            id: depVersion.projectId,
+                        )
                     else {
                         return nil
                     }
@@ -307,11 +307,11 @@ enum ModrinthDependencyDownloader {
         await withTaskGroup(of: (String, Bool, ModrinthProjectDetail?).self) { group in
             for dep in input.dependencies {
                 guard let versionId = input.selectedVersions[dep.id],
-                    let versions = input.dependencyVersions[dep.id],
-                    let version = versions.first(where: { $0.id == versionId }),
-                    let primaryFile = ModrinthService.filterPrimaryFiles(
-                        from: version.files,
-                    )
+                      let versions = input.dependencyVersions[dep.id],
+                      let version = versions.first(where: { $0.id == versionId }),
+                      let primaryFile = ModrinthService.filterPrimaryFiles(
+                          from: version.files,
+                      )
                 else {
                     allSuccess = false
                     Task { @MainActor in
@@ -383,7 +383,7 @@ enum ModrinthDependencyDownloader {
         do {
             guard
                 var mainProjectDetail =
-                    await ModrinthService.fetchProjectDetails(id: input.mainProjectId)
+                await ModrinthService.fetchProjectDetails(id: input.mainProjectId)
             else {
                 AppLog.resource.error("Unable to get main project details (ID: \(input.mainProjectId))")
                 return false
@@ -401,9 +401,9 @@ enum ModrinthDependencyDownloader {
             // Use the specified version or fall back to the latest.
             let targetVersion: ModrinthProjectDetailVersion
             if let mainProjectVersionId = input.mainProjectVersionId,
-                let specifiedVersion = filteredVersions.first(where: {
-                    $0.id == mainProjectVersionId
-                }) {
+               let specifiedVersion = filteredVersions.first(where: {
+                   $0.id == mainProjectVersionId
+               }) {
                 targetVersion = specifiedVersion
             } else if let latestVersion = filteredVersions.first {
                 targetVersion = latestVersion
@@ -464,7 +464,7 @@ enum ModrinthDependencyDownloader {
         do {
             guard
                 var mainProjectDetail =
-                    await ModrinthService.fetchProjectDetails(id: mainProjectId)
+                await ModrinthService.fetchProjectDetails(id: mainProjectId)
             else {
                 AppLog.resource.error("Unable to get main project details (ID: \(mainProjectId))")
                 return (false, nil, nil)
@@ -478,9 +478,9 @@ enum ModrinthDependencyDownloader {
                     type: query,
                 )
             guard let latestVersion = filteredVersions.first,
-                let primaryFile = ModrinthService.filterPrimaryFiles(
-                    from: latestVersion.files,
-                )
+                  let primaryFile = ModrinthService.filterPrimaryFiles(
+                      from: latestVersion.files,
+                  )
             else {
                 return (false, nil, nil)
             }

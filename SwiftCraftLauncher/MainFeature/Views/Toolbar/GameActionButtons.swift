@@ -72,10 +72,10 @@ struct GameActionButtons: View {
                 } else {
                     Label(
                         isRunning
-                        ? "stop.fill".localized()
-                        : "play.fill".localized(),
+                            ? "stop.fill".localized()
+                            : "play.fill".localized(),
                         systemImage: isRunning
-                        ? "stop.fill" : "play.fill",
+                            ? "stop.fill" : "play.fill",
                     )
                     .applyReplaceTransition()
                 }
@@ -83,8 +83,8 @@ struct GameActionButtons: View {
             .id(controlActiveState)
             .help(
                 cachedIsGameRunning()
-                ? "stop.fill"
-                : (container.core.gameStatusManager.isGameLaunching(gameId: game.id, userId: currentUserId) ? "" : "play.fill"),
+                    ? "stop.fill"
+                    : (container.core.gameStatusManager.isGameLaunching(gameId: game.id, userId: currentUserId) ? "" : "play.fill"),
             )
             .disabled(container.core.gameStatusManager.isGameLaunching(gameId: game.id, userId: currentUserId))
 
@@ -103,29 +103,29 @@ struct GameActionButtons: View {
             .help("game.path".localized())
 
             GameMoreMenu(game: game)
-            .alert(item: $activeAlert) { alertType in
-                alertType.alert
-            }
-            .alert(
-                "error.game_launch.game_crashed".localized(),
-                isPresented: $showCrashAlert,
-            ) {
-                Button("menu.open.log".localized()) {
-                    if let directory = crashDirectory {
-                        NSWorkspace.shared.open(directory)
-                    } else {
-                        AppLog.main.error("Unable to open game directory: directory is nil")
-                    }
+                .alert(item: $activeAlert) { alertType in
+                    alertType.alert
                 }
-                Button("common.close".localized(), role: .cancel) { }
-            } message: {
-                Text("error.game_launch.game_crashed.description".localized())
-            }
-            .onReceive(NotificationCenter.default.publisher(for: .gameCrashed)) { notification in
-                let directory = notification.userInfo?["directory"] as? URL
-                crashDirectory = directory
-                showCrashAlert = true
-            }
+                .alert(
+                    "error.game_launch.game_crashed".localized(),
+                    isPresented: $showCrashAlert,
+                ) {
+                    Button("menu.open.log".localized()) {
+                        if let directory = crashDirectory {
+                            NSWorkspace.shared.open(directory)
+                        } else {
+                            AppLog.main.error("Unable to open game directory: directory is nil")
+                        }
+                    }
+                    Button("common.close".localized(), role: .cancel) { }
+                } message: {
+                    Text("error.game_launch.game_crashed.description".localized())
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .gameCrashed)) { notification in
+                    let directory = notification.userInfo?["directory"] as? URL
+                    crashDirectory = directory
+                    showCrashAlert = true
+                }
         }
         .onAppear {
             container.core.gameStatusManager.refreshGameStatus(gameId: game.id, userId: currentUserId)

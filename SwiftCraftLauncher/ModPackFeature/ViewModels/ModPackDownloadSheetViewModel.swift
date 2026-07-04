@@ -134,7 +134,7 @@ class ModPackDownloadSheetViewModel: ObservableObject {
 
         let primaryFile =
             selectedVersion.files.first { $0.primary }
-            ?? selectedVersion.files.first
+                ?? selectedVersion.files.first
 
         guard let fileToDownload = primaryFile else {
             isProcessing = false

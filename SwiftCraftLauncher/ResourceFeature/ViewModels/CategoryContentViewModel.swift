@@ -163,7 +163,7 @@ final class CategoryContentViewModel: ObservableObject {
                 $0.header == CategoryHeader.performanceImpact
             }
             self.metas = filteredCategories.filter {
-                 $0.header == CategoryHeader.minecraftServerMeta
+                $0.header == CategoryHeader.minecraftServerMeta
             }
             self.serverFeatures = filteredCategories.filter {
                 $0.header == CategoryHeader.minecraftServerFeatures

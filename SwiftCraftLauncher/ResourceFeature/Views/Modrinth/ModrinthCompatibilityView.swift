@@ -78,7 +78,7 @@ private struct GameVersionsPopover: View {
             items: versions.map { FilterItem(id: $0, name: $0) },
             selectedItems: .constant([]),
         ) { _ in }
-        .frame(width: Constants.popoverWidth, height: Constants.popoverHeight)
+            .frame(width: Constants.popoverWidth, height: Constants.popoverHeight)
     }
 }
 

@@ -87,7 +87,7 @@ class AppCacheManager {
                     return nil
                 }
             } catch {
-            DIContainer.shared.core.errorHandler.handle(error)
+                DIContainer.shared.core.errorHandler.handle(error)
                 return nil
             }
         }

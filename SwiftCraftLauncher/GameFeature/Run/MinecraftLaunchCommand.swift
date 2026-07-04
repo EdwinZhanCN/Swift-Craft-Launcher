@@ -253,7 +253,7 @@ struct MinecraftLaunchCommand {
         } catch {
             AppLog.game.error("Failed to launch process: \(error.localizedDescription)")
 
-        _ = DIContainer.shared.core.gameProcessManager.stopProcess(for: game.id, userId: userId)
+            _ = DIContainer.shared.core.gameProcessManager.stopProcess(for: game.id, userId: userId)
             _ = await MainActor.run {
                 DIContainer.shared.core.gameStatusManager.setGameRunning(gameId: game.id, userId: userId, isRunning: false)
             }

@@ -182,7 +182,7 @@ extension ModPackDependencyInstaller {
 
             guard let latestVersion = sortedVersions.first(where: { version in
                 version.gameVersions.contains(gameInfo.gameVersion) &&
-                version.loaders.contains(gameInfo.modLoader)
+                    version.loaders.contains(gameInfo.modLoader)
             }) else {
                 AppLog.modPack.error("No compatible version found: \(projectId)")
                 return false

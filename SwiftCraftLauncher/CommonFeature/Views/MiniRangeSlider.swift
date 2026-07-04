@@ -118,8 +118,8 @@ private final class RangeSliderCell: NSSliderCell {
         let upperKnob = knobRect(for: upperValue, flipped: flipped)
 
         activeKnob = (lowerKnob.contains(startPoint) ||
-                     squaredDistance(from: startPoint, to: lowerKnob.centerPoint) <
-                     squaredDistance(from: startPoint, to: upperKnob.centerPoint)) ? .lower : .upper
+            squaredDistance(from: startPoint, to: lowerKnob.centerPoint) <
+            squaredDistance(from: startPoint, to: upperKnob.centerPoint)) ? .lower : .upper
 
         doubleValue = (activeKnob == .lower) ? lowerValue : upperValue
         _ = super.startTracking(at: startPoint, in: controlView)

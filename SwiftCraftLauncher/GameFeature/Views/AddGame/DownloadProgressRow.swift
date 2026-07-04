@@ -28,8 +28,8 @@ struct DownloadProgressRow: View {
                 }
                 Spacer()
                 Text(progressPercentText)
-                .font(.headline)
-                .foregroundColor(.secondary)
+                    .font(.headline)
+                    .foregroundColor(.secondary)
             }
             ProgressView(value: progress).animation(
                 .easeOut(duration: 0.5),

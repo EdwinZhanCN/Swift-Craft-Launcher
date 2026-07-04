@@ -93,7 +93,7 @@ public struct GameSettingsView: View {
                             MiniRangeSlider(
                                 range: $globalMemoryRange,
                                 bounds:
-                                    512 ... Double(gameSettingsManager.maximumMemoryAllocation),
+                                512 ... Double(gameSettingsManager.maximumMemoryAllocation),
                             )
                             .frame(width: 200)
                             .controlSize(.mini)
@@ -103,9 +103,9 @@ public struct GameSettingsView: View {
                             }
                             .onAppear {
                                 globalMemoryRange =
-                                Double(
-                                    gameSettingsManager.globalXms,
-                                ) ... Double(gameSettingsManager.globalXmx)
+                                    Double(
+                                        gameSettingsManager.globalXms,
+                                    ) ... Double(gameSettingsManager.globalXmx)
                             }
                             Text(
                                 "\(Int(globalMemoryRange.lowerBound)) MB-\(Int(globalMemoryRange.upperBound)) MB",
