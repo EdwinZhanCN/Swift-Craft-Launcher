@@ -19,7 +19,6 @@ public struct GeneralSettingsView: View {
     }
 
     public var body: some View {
-        let generalSettingsManager = container.ui.generalSettingsManager
         Form {
             GeneralSettingsLanguageRow(languageManager: container.ui.languageManager)
 
@@ -27,26 +26,26 @@ public struct GeneralSettingsView: View {
                 .environmentObject(container.ui.themeManager)
 
             GeneralSettingsInterfaceLayoutRow()
-                .environmentObject(generalSettingsManager)
+                .environmentObject(container.ui.generalSettingsManager)
 
             GeneralSettingsWorkingDirectoryRow(
                 viewModel: viewModel,
                 gameRepository: gameRepository,
             )
-            .environmentObject(generalSettingsManager)
+            .environmentObject(container.ui.generalSettingsManager)
 
             GeneralSettingsConcurrentDownloadsRow(
                 viewModel: viewModel,
             )
-            .environmentObject(generalSettingsManager)
+            .environmentObject(container.ui.generalSettingsManager)
 
             GeneralSettingsSystemProxyRow()
 
             GeneralSettingsGitHubProxyRow()
-                .environmentObject(generalSettingsManager)
+                .environmentObject(container.ui.generalSettingsManager)
 
             GeneralSettingsCommonSheetHeightLimitRow()
-                .environmentObject(generalSettingsManager)
+                .environmentObject(container.ui.generalSettingsManager)
         }
         .errorHandler(container.core.errorHandler)
         .onAppear {
