@@ -66,6 +66,7 @@ struct ModrinthDetailCardView: View {
     @State private var showDeleteAlert = false
     @State private var isResourceDisabled: Bool = false
     @EnvironmentObject private var gameRepository: GameRepository
+    @EnvironmentObject private var container: DIContainer
 
     enum AddButtonState {
         case idle
@@ -195,6 +196,7 @@ struct ModrinthDetailCardView: View {
                         projectId: project.projectId,
                         query: query,
                     )
+                    .environmentObject(container.core.favoriteStore)
                 }
                 AddOrDeleteResourceButton(
                     project: project,

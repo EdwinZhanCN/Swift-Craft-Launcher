@@ -64,7 +64,9 @@ final class FavoriteStore: ObservableObject {
                 try stepStatement(statement)
             }
         }
-        favoriteIds[type, default: []].insert(id)
+        DispatchQueue.main.async { [self] in
+            favoriteIds[type, default: []].insert(id)
+        }
     }
 
     /// Removes a favorite entry for a specific type and updates the in-memory map.
@@ -77,7 +79,9 @@ final class FavoriteStore: ObservableObject {
                 try stepStatement(statement)
             }
         }
-        favoriteIds[type]?.remove(id)
+        DispatchQueue.main.async { [self] in
+            favoriteIds[type]?.remove(id)
+        }
     }
 
     /// Checks whether a project is favorited for a given type using the in-memory map.
@@ -92,7 +96,9 @@ final class FavoriteStore: ObservableObject {
         try db.transaction {
             try db.execute("DELETE FROM \(tableName)")
         }
-        favoriteIds.removeAll()
+        DispatchQueue.main.async { [self] in
+            favoriteIds.removeAll()
+        }
     }
 
     private func loadAllIds() {

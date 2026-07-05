@@ -9,11 +9,14 @@ import SwiftUI
 
 /// A button that toggles the favorite state of a Modrinth project.
 struct FavoriteButton: View {
-    @EnvironmentObject private var container: DIContainer
+    @EnvironmentObject private var favoriteStore: FavoriteStore
     let projectId: String
     let query: String
-    @State private var isFavorited: Bool = false
     @State private var isLoading: Bool = false
+
+    private var isFavorited: Bool {
+        favoriteStore.isFavorite(id: projectId, type: query)
+    }
 
     var body: some View {
         Button {
@@ -36,9 +39,6 @@ struct FavoriteButton: View {
         }
         .buttonStyle(.plain)
         .applyReplaceTransition()
-        .task {
-            isFavorited = container.core.favoriteStore.isFavorite(id: projectId, type: query)
-        }
     }
 
     private func toggleFavorite() async {
@@ -46,10 +46,9 @@ struct FavoriteButton: View {
         defer { isLoading = false }
 
         if isFavorited {
-            try? container.core.favoriteStore.removeFavorite(id: projectId, type: query)
+            try? favoriteStore.removeFavorite(id: projectId, type: query)
         } else {
-            try? container.core.favoriteStore.addFavorite(id: projectId, type: query)
+            try? favoriteStore.addFavorite(id: projectId, type: query)
         }
-        isFavorited = container.core.favoriteStore.isFavorite(id: projectId, type: query)
     }
 }
