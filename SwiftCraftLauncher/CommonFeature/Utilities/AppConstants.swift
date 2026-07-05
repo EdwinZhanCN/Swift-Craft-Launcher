@@ -191,6 +191,7 @@ enum AppConstants {
         static let gameVersions = "game_versions"
         static let modCache = "mod_cache"
         static let skinLibrary = "skin_library"
+        static let favorites = "favorites"
     }
 
     /// Minecraft version constants.
