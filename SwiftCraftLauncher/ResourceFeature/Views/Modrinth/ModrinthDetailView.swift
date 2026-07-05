@@ -172,6 +172,13 @@ struct ModrinthDetailView: View {
         }
     }
 
+    private func applyFavoritesFilter<S: Sequence>(to results: S) -> [S.Element] where S.Element == ModrinthProject {
+        if filterState.showFavoritesOnly {
+            return results.filter { favoriteStore.isFavorite(id: $0.projectId, type: query) }
+        }
+        return Array(results)
+    }
+
     private func cleanupOnDisappear() {
         coordinator.cancelDebounce()
         coordinator.resetPagination()
