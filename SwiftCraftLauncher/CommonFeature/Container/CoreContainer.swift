@@ -44,6 +44,11 @@ final class CoreContainer {
     private let _gameActionManager = LazyContainer { GameActionManager() }
     var gameActionManager: GameActionManager { _gameActionManager.value() }
 
+    // Favorites
+
+    private let _favoriteStore = LazyContainer { FavoriteStore() }
+    var favoriteStore: FavoriteStore { _favoriteStore.value() }
+
     // Settings core
 
     private let _selectedGameManager = LazyContainer { SelectedGameManager() }

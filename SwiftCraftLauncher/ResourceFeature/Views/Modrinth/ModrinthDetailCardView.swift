@@ -190,7 +190,7 @@ struct ModrinthDetailCardView: View {
             downloadInfoView
             followerInfoView
             HStack(spacing: 6) {
-                if !project.projectId.hasPrefix("local_"), !project.projectId.hasPrefix("file_") {
+                if type {
                     FavoriteButton(
                         projectId: project.projectId,
                         query: query,

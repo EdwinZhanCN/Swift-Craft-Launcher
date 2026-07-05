@@ -24,6 +24,7 @@ struct GameRemoteResourceView: View {
     @Binding var scannedDetailIds: Set<String> // detail IDs from the parent for fast lookup
     @Binding var dataSource: DataSource
     @Binding var searchText: String
+    @EnvironmentObject private var container: DIContainer
 
     init(
         game: GameVersionInfo,
@@ -77,5 +78,6 @@ struct GameRemoteResourceView: View {
             dataSource: $dataSource,
             searchText: $searchText,
         )
+        .environmentObject(container.core.favoriteStore)
     }
 }
