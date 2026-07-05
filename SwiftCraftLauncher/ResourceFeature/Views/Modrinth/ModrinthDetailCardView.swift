@@ -211,7 +211,6 @@ struct ModrinthDetailCardView: View {
                 ) { isDisabled in
                     onLocalDisableStateChanged?(project, isDisabled)
                 }
-                .environmentObject(gameRepository)
             }
         }
     }

@@ -45,8 +45,6 @@ struct MainView: View {
             content: {
                 if let file = container.ui.openURLModPackImportPresenter.preselectedTempFile {
                     GameFormView(initialMode: GameFormMode.modPackImport(file: file, shouldProcess: true))
-                        .environmentObject(gameRepository)
-                        .environmentObject(playerListViewModel)
                         .presentationBackgroundInteraction(.automatic)
                 }
             },

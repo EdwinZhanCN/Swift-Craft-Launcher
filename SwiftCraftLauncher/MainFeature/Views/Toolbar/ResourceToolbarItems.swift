@@ -147,7 +147,6 @@ struct ResourceToolbarItems: View {
                                 query: detailState.gameResourcesType,
                                 preloadedDetail: detail,
                             )
-                            .environmentObject(gameRepository)
                         } else {
                             GlobalResourceSheet(
                                 project: project,
@@ -156,7 +155,6 @@ struct ResourceToolbarItems: View {
                                 preloadedDetail: detail,
                                 preloadedCompatibleGames: detailState.compatibleGames,
                             )
-                            .environmentObject(gameRepository)
                         }
                     }
                 }

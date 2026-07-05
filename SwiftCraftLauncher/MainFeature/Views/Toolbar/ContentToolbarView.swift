@@ -46,8 +46,6 @@ public struct ContentToolbarView: ToolbarContent {
             .help("game.form.title".localized())
             .sheet(isPresented: $showingGameForm) {
                 GameFormView()
-                    .environmentObject(gameRepository)
-                    .environmentObject(playerListViewModel)
                     .presentationBackgroundInteraction(.automatic)
             }
             Spacer()
