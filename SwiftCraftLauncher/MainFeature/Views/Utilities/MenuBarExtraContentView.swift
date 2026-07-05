@@ -83,9 +83,6 @@ struct MenuBarExtraContentView: View {
         )
         Menu {
             contextMenu
-                .environmentObject(playerListViewModel)
-                .environmentObject(gameRepository)
-                .environmentObject(gameLaunchUseCase)
         } label: {
             Image(systemName: gameStatusSymbolName(for: game))
             Text(game.gameName)

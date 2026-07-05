@@ -147,7 +147,6 @@ struct ResourceToolbarItems: View {
                                 query: detailState.gameResourcesType,
                                 preloadedDetail: detail,
                             )
-                            .environmentObject(gameRepository)
                         } else {
                             GlobalResourceSheet(
                                 project: project,
@@ -156,7 +155,6 @@ struct ResourceToolbarItems: View {
                                 preloadedDetail: detail,
                                 preloadedCompatibleGames: detailState.compatibleGames,
                             )
-                            .environmentObject(gameRepository)
                         }
                     }
                 }
@@ -178,6 +176,8 @@ struct ResourceToolbarItems: View {
                         .disabled(
                             detailState.gameResourcesType == ResourceType.minecraftJavaServer.rawValue,
                         )
+                        .id(controlActiveState)
+                    ResourceFilterMenus.favoritesFilterButton(filterState: filterState)
                         .id(controlActiveState)
                 }
             }

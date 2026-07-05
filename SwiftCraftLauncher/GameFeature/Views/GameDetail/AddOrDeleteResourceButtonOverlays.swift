@@ -49,7 +49,6 @@ struct AddOrDeleteResourceButtonOverlays: ViewModifier {
                     preloadedDetail: viewModel.preloadedDetail,
                     preloadedCompatibleGames: viewModel.preloadedCompatibleGames,
                 )
-                .environmentObject(gameRepository)
                 .onDisappear { viewModel.onGlobalResourceSheetDismiss() }
             }
             .sheet(
@@ -62,7 +61,6 @@ struct AddOrDeleteResourceButtonOverlays: ViewModifier {
                     query: query,
                     preloadedDetail: viewModel.preloadedDetail,
                 )
-                .environmentObject(gameRepository)
                 .onDisappear { viewModel.onModPackDownloadSheetDismiss() }
             }
             .sheet(
@@ -80,7 +78,6 @@ struct AddOrDeleteResourceButtonOverlays: ViewModifier {
                     ) { newFileName, newHash in
                         viewModel.handleInstallSuccess(newFileName: newFileName, newHash: newHash)
                     }
-                    .environmentObject(gameRepository)
                 }
             }
             .alert(item: $viewModel.activeAlert) { $0.alert }

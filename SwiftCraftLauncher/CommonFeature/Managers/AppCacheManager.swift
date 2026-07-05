@@ -9,7 +9,7 @@ import Foundation
 
 /// Provides thread-safe JSON-based caching organized by namespaces.
 class AppCacheManager {
-    private let queue = DispatchQueue(label: "AppCacheManager.queue")
+    private let queue = DispatchQueue(label: "com.swiftcraftlauncher.appcachemanager")
 
     init() { }
 

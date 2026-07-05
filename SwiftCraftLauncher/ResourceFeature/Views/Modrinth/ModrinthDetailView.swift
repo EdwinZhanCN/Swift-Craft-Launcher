@@ -27,6 +27,8 @@ struct ModrinthDetailView: View {
     @StateObject private var viewModel = ModrinthSearchViewModel()
     @Binding var searchText: String
     @StateObject private var coordinator = ModrinthDetailCoordinatorViewModel()
+    @EnvironmentObject private var filterState: ResourceFilterState
+    @EnvironmentObject private var favoriteStore: FavoriteStore
 
     init(
         query: String,
@@ -170,6 +172,13 @@ struct ModrinthDetailView: View {
         }
     }
 
+    private func applyFavoritesFilter<S: Sequence>(to results: S) -> [S.Element] where S.Element == ModrinthProject {
+        if filterState.showFavoritesOnly {
+            return results.filter { favoriteStore.isFavorite(id: $0.projectId, type: query) }
+        }
+        return Array(results)
+    }
+
     private func cleanupOnDisappear() {
         coordinator.cancelDebounce()
         coordinator.resetPagination()
@@ -183,7 +192,8 @@ struct ModrinthDetailView: View {
             if viewModel.isLoading {
                 ModrinthDetailListSkeletonRows()
             } else {
-                ForEach(viewModel.results, id: \.projectId) { mod in
+                let displayedResults = applyFavoritesFilter(to: viewModel.results)
+                ForEach(displayedResults, id: \.projectId) { mod in
                     ModrinthDetailCardView(
                         project: mod,
                         selectedVersions: selectedVersions,

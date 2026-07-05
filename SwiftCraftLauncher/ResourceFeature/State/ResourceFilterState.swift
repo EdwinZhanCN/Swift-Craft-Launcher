@@ -27,6 +27,7 @@ final class ResourceFilterState: ObservableObject {
     @Published var dataSource: DataSource
     @Published var searchText: String = ""
     @Published var localResourceFilter: LocalResourceFilter = .all
+    @Published var showFavoritesOnly: Bool = false
 
     init(
         dataSource: DataSource? = nil,
@@ -109,5 +110,9 @@ final class ResourceFilterState: ObservableObject {
 
     var localResourceFilterBinding: Binding<LocalResourceFilter> {
         Binding(get: { [weak self] in self?.localResourceFilter ?? .all }, set: { [weak self] in self?.localResourceFilter = $0 })
+    }
+
+    var showFavoritesOnlyBinding: Binding<Bool> {
+        Binding(get: { [weak self] in self?.showFavoritesOnly ?? false }, set: { [weak self] in self?.showFavoritesOnly = $0 })
     }
 }
