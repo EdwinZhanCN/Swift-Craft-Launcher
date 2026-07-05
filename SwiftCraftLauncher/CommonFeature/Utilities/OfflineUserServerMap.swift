@@ -18,14 +18,14 @@ enum OfflineUserServerMap {
     }
 
     /// Associates a Yggdrasil profile with the specified user.
-    static func setServer(_ profile: YggdrasilProfile, for userId: String) {
+    static func setServer(_ profile: YggdrasilProfile) {
         var map = loadMap()
-        map[userId] = profile
+        map[profile.id] = profile
         if let data = try? JSONEncoder().encode(map) {
             UserDefaults.standard.set(data, forKey: AppConstants.UserDefaultsKeys.offlineUserServerMap)
-            AppLog.common.info("Updated Yggdrasil profile for user \(userId), server: \(profile.serverBaseURL)")
+            AppLog.common.info("Updated Yggdrasil profile for user \(profile.id), server: \(profile.serverBaseURL)")
         } else {
-            AppLog.common.error("Failed to encode Yggdrasil profile for user \(userId)")
+            AppLog.common.error("Failed to encode Yggdrasil profile for user \(profile.id)")
         }
     }
 

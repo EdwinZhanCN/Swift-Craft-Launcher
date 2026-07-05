@@ -92,7 +92,7 @@ public struct ContentToolbarView: ToolbarContent {
                     },
                     onYggdrasilLogin: { profile in
                         AppLog.main.debug("Yggdrasil login successful, user: \(profile.name)")
-                        OfflineUserServerMap.setServer(profile, for: profile.id)
+                        OfflineUserServerMap.setServer(profile)
                         _ = playerListViewModel.addOnlinePlayer(profile: profile)
                         showingAddPlayerSheet = false
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
