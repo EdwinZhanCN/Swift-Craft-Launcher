@@ -95,8 +95,6 @@ final class FavoriteStore: ObservableObject {
         favoriteIds.removeAll()
     }
 
-    // MARK: - Internal
-
     private func loadAllIds() {
         guard isInitialized else { return }
         let pairs: [(id: String, type: String)]
