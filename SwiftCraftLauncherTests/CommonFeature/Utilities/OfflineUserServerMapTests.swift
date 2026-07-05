@@ -50,7 +50,7 @@ final class OfflineUserServerMapTests: XCTestCase {
     func testSetServer_thenServerKey_returnsSameValue() {
         let userId = "round-trip-\(UUID().uuidString)"
         let profile = makeProfile(id: userId, serverBaseURL: "https://littleskin.cn/api")
-        OfflineUserServerMap.setServer(profile, for: userId)
+        OfflineUserServerMap.setServer(profile)
 
         XCTAssertEqual(OfflineUserServerMap.serverKey(for: userId), profile)
 
@@ -61,8 +61,8 @@ final class OfflineUserServerMapTests: XCTestCase {
         let userId = "overwrite-\(UUID().uuidString)"
         let profileA = makeProfile(id: userId, serverBaseURL: "https://server-a.com")
         let profileB = makeProfile(id: userId, serverBaseURL: "https://server-b.com")
-        OfflineUserServerMap.setServer(profileA, for: userId)
-        OfflineUserServerMap.setServer(profileB, for: userId)
+        OfflineUserServerMap.setServer(profileA)
+        OfflineUserServerMap.setServer(profileB)
 
         XCTAssertEqual(OfflineUserServerMap.serverKey(for: userId), profileB)
 
@@ -72,7 +72,7 @@ final class OfflineUserServerMapTests: XCTestCase {
     func testRemoveServer_existingMapping_returnsNil() {
         let userId = "remove-\(UUID().uuidString)"
         let profile = makeProfile(id: userId, serverBaseURL: "https://myserver.com")
-        OfflineUserServerMap.setServer(profile, for: userId)
+        OfflineUserServerMap.setServer(profile)
         OfflineUserServerMap.removeServer(for: userId)
 
         XCTAssertNil(OfflineUserServerMap.serverKey(for: userId))
@@ -90,8 +90,8 @@ final class OfflineUserServerMapTests: XCTestCase {
         let profileA = makeProfile(id: userA, serverBaseURL: "https://serverA.com")
         let profileB = makeProfile(id: userB, serverBaseURL: "https://serverB.com")
 
-        OfflineUserServerMap.setServer(profileA, for: userA)
-        OfflineUserServerMap.setServer(profileB, for: userB)
+        OfflineUserServerMap.setServer(profileA)
+        OfflineUserServerMap.setServer(profileB)
 
         XCTAssertEqual(OfflineUserServerMap.serverKey(for: userA), profileA)
         XCTAssertEqual(OfflineUserServerMap.serverKey(for: userB), profileB)
@@ -109,8 +109,8 @@ final class OfflineUserServerMapTests: XCTestCase {
         let profileA = makeProfile(id: userA, serverBaseURL: "https://s1.com")
         let profileB = makeProfile(id: userB, serverBaseURL: "https://s2.com")
 
-        OfflineUserServerMap.setServer(profileA, for: userA)
-        OfflineUserServerMap.setServer(profileB, for: userB)
+        OfflineUserServerMap.setServer(profileA)
+        OfflineUserServerMap.setServer(profileB)
 
         OfflineUserServerMap.removeServer(for: userA)
 
@@ -123,7 +123,7 @@ final class OfflineUserServerMapTests: XCTestCase {
     func testSetServer_specialCharacters() {
         let userId = "special-\(UUID().uuidString)"
         let profile = makeProfile(id: userId, serverBaseURL: "https://littleskin.cn/api")
-        OfflineUserServerMap.setServer(profile, for: userId)
+        OfflineUserServerMap.setServer(profile)
 
         XCTAssertEqual(OfflineUserServerMap.serverKey(for: userId)?.serverBaseURL, "https://littleskin.cn/api")
 
@@ -133,7 +133,7 @@ final class OfflineUserServerMapTests: XCTestCase {
     func testSetServer_emptyServerKey() {
         let userId = "empty-server-\(UUID().uuidString)"
         let profile = makeProfile(id: userId, serverBaseURL: "")
-        OfflineUserServerMap.setServer(profile, for: userId)
+        OfflineUserServerMap.setServer(profile)
 
         XCTAssertEqual(OfflineUserServerMap.serverKey(for: userId)?.serverBaseURL, "")
 
@@ -143,14 +143,14 @@ final class OfflineUserServerMapTests: XCTestCase {
     func testServerKey_longUserId() {
         let userId = String(repeating: "a", count: 1000)
         let profile = makeProfile(id: userId, serverBaseURL: "https://server.com")
-        OfflineUserServerMap.setServer(profile, for: userId)
+        OfflineUserServerMap.setServer(profile)
         XCTAssertEqual(OfflineUserServerMap.serverKey(for: userId), profile)
         OfflineUserServerMap.removeServer(for: userId)
     }
 
     func testSetServer_emptyUserId() {
         let profile = makeProfile(id: "", serverBaseURL: "https://server.com")
-        OfflineUserServerMap.setServer(profile, for: "")
+        OfflineUserServerMap.setServer(profile)
         XCTAssertEqual(OfflineUserServerMap.serverKey(for: ""), profile)
         OfflineUserServerMap.removeServer(for: "")
     }
