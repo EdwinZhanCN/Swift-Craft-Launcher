@@ -10,7 +10,9 @@ import XCTest
 
 final class GlobalErrorHandlerTests: XCTestCase {
     private func flushMainQueue() {
-        RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.05))
+        let exp = XCTestExpectation(description: "flush main queue")
+        RunLoop.current.perform { exp.fulfill() }
+        _ = XCTWaiter.wait(for: [exp], timeout: 1.0)
     }
 
     func testErrorLevel_allCases() {
