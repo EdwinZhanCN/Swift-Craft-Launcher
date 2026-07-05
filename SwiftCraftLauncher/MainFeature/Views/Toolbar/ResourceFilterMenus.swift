@@ -71,6 +71,24 @@ enum ResourceFilterMenus {
         }
     }
 
+    /// A toggle button for filtering between all resources and favorites only.
+    static func favoritesFilterButton(filterState: ResourceFilterState) -> some View {
+        Button {
+            filterState.showFavoritesOnly.toggle()
+        } label: {
+            Label(
+                filterState.showFavoritesOnly
+                    ? "resource.local_filter.all".localized()
+                    : "favorites".localized(),
+                systemImage: filterState.showFavoritesOnly ? "heart.fill" : "heart",
+            )
+            .labelStyle(.iconOnly)
+            .applyReplaceTransition()
+            .foregroundStyle(filterState.showFavoritesOnly ? .red : .secondary)
+        }
+        .help(filterState.showFavoritesOnly ? "resource.local_filter.all".localized() : "favorites".localized())
+    }
+
     /// Provides a menu for filtering local resources by status, such as all or disabled.
     static func localResourceFilterMenu(filterState: ResourceFilterState) -> some View {
         Menu {

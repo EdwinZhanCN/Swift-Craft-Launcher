@@ -10,7 +10,7 @@ import Foundation
 /// Provides a SQLite-backed cache for parsed mod metadata.
 class ModCacheManager {
     private let modCacheDB: ModCacheDatabase
-    private let queue = DispatchQueue(label: "ModCacheManager.queue")
+    private let queue = DispatchQueue(label: "com.swiftcraftlauncher.modcachemanager")
     private var isInitialized = false
 
     init() {

@@ -72,6 +72,7 @@ struct MainView: View {
 
     private var middleColumnDetailView: some View {
         DetailView()
+            .environmentObject(container.core.favoriteStore)
             .toolbar {
                 DetailToolbarView()
             }

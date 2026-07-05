@@ -189,22 +189,30 @@ struct ModrinthDetailCardView: View {
         VStack(alignment: .trailing, spacing: ModrinthConstants.UIConstants.spacing) {
             downloadInfoView
             followerInfoView
-            AddOrDeleteResourceButton(
-                project: project,
-                selectedVersions: selectedVersions,
-                selectedLoaders: selectedLoaders,
-                gameInfo: gameInfo,
-                query: query,
-                type: type,
-                selectedItem: $selectedItem,
-                onResourceChanged: onResourceChanged,
-                scannedDetailIds: $scannedDetailIds,
-                isResourceDisabled: $isResourceDisabled,
-                onResourceUpdated: onResourceUpdated,
-            ) { isDisabled in
-                onLocalDisableStateChanged?(project, isDisabled)
+            HStack(spacing: 6) {
+                if type {
+                    FavoriteButton(
+                        projectId: project.projectId,
+                        query: query,
+                    )
+                }
+                AddOrDeleteResourceButton(
+                    project: project,
+                    selectedVersions: selectedVersions,
+                    selectedLoaders: selectedLoaders,
+                    gameInfo: gameInfo,
+                    query: query,
+                    type: type,
+                    selectedItem: $selectedItem,
+                    onResourceChanged: onResourceChanged,
+                    scannedDetailIds: $scannedDetailIds,
+                    isResourceDisabled: $isResourceDisabled,
+                    onResourceUpdated: onResourceUpdated,
+                ) { isDisabled in
+                    onLocalDisableStateChanged?(project, isDisabled)
+                }
+                .environmentObject(gameRepository)
             }
-            .environmentObject(gameRepository)
         }
     }
 
