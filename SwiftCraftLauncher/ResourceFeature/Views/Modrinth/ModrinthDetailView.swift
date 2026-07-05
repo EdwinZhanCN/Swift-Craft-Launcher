@@ -185,10 +185,8 @@ struct ModrinthDetailView: View {
             if viewModel.isLoading {
                 ModrinthDetailListSkeletonRows()
             } else {
-                let filteredResults = filterState.showFavoritesOnly
-                    ? viewModel.results.filter { favoriteStore.isFavorite(id: $0.projectId, type: query) }
-                    : viewModel.results
-                ForEach(filteredResults, id: \.projectId) { mod in
+                let displayedResults = applyFavoritesFilter(to: viewModel.results)
+                ForEach(displayedResults, id: \.projectId) { mod in
                     ModrinthDetailCardView(
                         project: mod,
                         selectedVersions: selectedVersions,

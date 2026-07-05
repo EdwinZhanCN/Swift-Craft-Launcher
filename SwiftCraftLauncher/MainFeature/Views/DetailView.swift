@@ -12,7 +12,6 @@ struct DetailView: View {
     @EnvironmentObject private var filterState: ResourceFilterState
     @EnvironmentObject private var detailState: ResourceDetailState
     @EnvironmentObject private var gameRepository: GameRepository
-    @EnvironmentObject private var container: DIContainer
 
     var body: some View {
         Group {
@@ -72,7 +71,6 @@ struct DetailView: View {
                 dataSource: filterState.dataSourceBinding,
                 searchText: filterState.searchTextBinding,
             )
-            .environmentObject(container.core.favoriteStore)
         }
     }
 }
