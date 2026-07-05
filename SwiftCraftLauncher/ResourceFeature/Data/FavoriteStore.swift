@@ -17,6 +17,7 @@ import SQLite3
 final class FavoriteStore: ObservableObject {
     private let db: SQLiteDatabase
     private let tableName = AppConstants.DatabaseTables.favorites
+    private let initQueue = DispatchQueue(label: "com.swiftcraftlauncher.favoritestore.init")
     private var isInitialized = false
 
     private let createTableSQL: String
@@ -122,22 +123,26 @@ final class FavoriteStore: ObservableObject {
         for (id, type) in pairs {
             map[type, default: []].insert(id)
         }
-        favoriteIds = map
+        DispatchQueue.main.async { [self] in
+            favoriteIds = map
+        }
     }
 
     private func ensureInitialized() throws {
-        guard !isInitialized else { return }
-        try FileManager.default.createDirectory(
-            at: AppPaths.dataDirectory,
-            withIntermediateDirectories: true,
-        )
-        try db.open()
-        try db.execute(createTableSQL)
-        try? db.execute(
-            "CREATE INDEX IF NOT EXISTS idx_favorites_type ON \(tableName)(type);",
-        )
-        isInitialized = true
-        loadAllIds()
+        try initQueue.sync {
+            guard !isInitialized else { return }
+            try FileManager.default.createDirectory(
+                at: AppPaths.dataDirectory,
+                withIntermediateDirectories: true,
+            )
+            try db.open()
+            try db.execute(createTableSQL)
+            try? db.execute(
+                "CREATE INDEX IF NOT EXISTS idx_favorites_type ON \(tableName)(type);",
+            )
+            isInitialized = true
+            loadAllIds()
+        }
     }
 
     private func withPreparedStatement<T>(
