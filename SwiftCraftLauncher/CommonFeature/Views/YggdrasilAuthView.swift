@@ -18,6 +18,7 @@ struct YggdrasilAuthView: View {
     init(
         onLoginSuccess: ((YggdrasilProfile) -> Void)? = nil,
     ) {
+        CommonYggdrasilProfileParsersConfigurator.bootstrap()
         self.onLoginSuccess = onLoginSuccess
     }
 
