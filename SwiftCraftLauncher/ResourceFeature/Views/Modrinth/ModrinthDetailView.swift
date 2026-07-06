@@ -64,20 +64,6 @@ struct ModrinthDetailView: View {
         _searchText = searchText
     }
 
-    private var searchKey: String {
-        [
-            query,
-            selectedVersions.joined(separator: ","),
-            selectedCategories.joined(separator: ","),
-            selectedFeatures.joined(separator: ","),
-            selectedResolutions.joined(separator: ","),
-            selectedPerformanceImpact.joined(separator: ","),
-            selectedLoader.joined(separator: ","),
-            String(gameType),
-            dataSource.rawValue,
-        ].joined(separator: "|")
-    }
-
     var body: some View {
         List {
             if let header {

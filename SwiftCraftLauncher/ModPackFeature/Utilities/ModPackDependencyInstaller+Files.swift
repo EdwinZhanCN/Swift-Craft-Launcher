@@ -155,69 +155,6 @@ extension ModPackDependencyInstaller {
         }
     }
 
-    private static func filterFiles(
-        from modDetail: CurseForgeModDetail,
-        projectId: Int,
-        gameVersion: String?,
-        modLoaderType: Int?,
-    ) -> [CurseForgeModFileDetail] {
-        var files: [CurseForgeModFileDetail] = []
-
-        if let latestFiles = modDetail.latestFiles, !latestFiles.isEmpty {
-            files = latestFiles
-        } else if let latestFilesIndexes = modDetail.latestFilesIndexes, !latestFilesIndexes.isEmpty {
-            var fileIndexMap: [Int: [CurseForgeFileIndex]] = [:]
-            for index in latestFilesIndexes {
-                fileIndexMap[index.fileId, default: []].append(index)
-            }
-
-            for (fileId, indexes) in fileIndexMap {
-                guard let firstIndex = indexes.first else { continue }
-                let gameVersions = indexes.map(\.gameVersion)
-                let downloadUrl = URLConfig.API.CurseForge.fallbackDownloadUrl(
-                    fileId: fileId,
-                    fileName: firstIndex.filename,
-                ).absoluteString
-
-                let fileDetail = CurseForgeModFileDetail(
-                    id: fileId,
-                    displayName: firstIndex.filename,
-                    fileName: firstIndex.filename,
-                    downloadUrl: downloadUrl,
-                    fileDate: "",
-                    releaseType: firstIndex.releaseType,
-                    gameVersions: gameVersions,
-                    dependencies: nil,
-                    changelog: nil,
-                    fileLength: nil,
-                    hash: nil,
-                    hashes: nil,
-                    modules: nil,
-                    projectId: projectId,
-                    projectName: modDetail.name,
-                    authors: modDetail.authors,
-                )
-                files.append(fileDetail)
-            }
-        }
-
-        if let gameVersion {
-            files = files.filter { $0.gameVersions.contains(gameVersion) }
-        }
-
-        if let modLoaderType,
-           let latestFilesIndexes = modDetail.latestFilesIndexes {
-            let matchingIds = Set(
-                latestFilesIndexes
-                    .filter { $0.modLoader == modLoaderType }
-                    .map(\.fileId),
-            )
-            files = files.filter { matchingIds.contains($0.id) }
-        }
-
-        return files
-    }
-
     private static func downloadModrinthFile(file: ModrinthIndexFile, resourceDir: URL) async -> Bool {
         guard let urlString = file.downloads.first, !urlString.isEmpty else {
             AppLog.modPack.error("File has no available download URL: \(file.path)")

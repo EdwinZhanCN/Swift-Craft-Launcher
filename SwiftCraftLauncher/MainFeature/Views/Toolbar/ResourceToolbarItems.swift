@@ -21,8 +21,6 @@ struct ResourceToolbarItems: View {
     @EnvironmentObject private var detailState: ResourceDetailState
     @EnvironmentObject private var gameRepository: GameRepository
     @EnvironmentObject private var playerListViewModel: PlayerListViewModel
-    @State private var showingLauncherStats = false
-    @State private var launcherStatsSheetIdentity = UUID()
 
     /// Opens the project page for the currently loaded resource in the default browser.
     private func openCurrentResourceInBrowser() {

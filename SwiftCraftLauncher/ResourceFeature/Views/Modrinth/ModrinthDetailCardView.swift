@@ -123,18 +123,6 @@ struct ModrinthDetailCardView: View {
         }
     }
 
-    private var localResourceIcon: some View {
-        Image(systemName: "questionmark.circle")
-            .font(.system(size: ModrinthConstants.UIConstants.iconSize * 0.6))
-            .foregroundColor(.secondary)
-            .frame(
-                width: ModrinthConstants.UIConstants.iconSize,
-                height: ModrinthConstants.UIConstants.iconSize,
-            )
-            .background(Color.gray.opacity(0.2))
-            .cornerRadius(ModrinthConstants.UIConstants.cornerRadius)
-    }
-
     private var titleView: some View {
         HStack(spacing: 4) {
             Text(project.title)

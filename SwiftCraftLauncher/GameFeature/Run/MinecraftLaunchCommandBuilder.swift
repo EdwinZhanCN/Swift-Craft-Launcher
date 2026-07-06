@@ -221,10 +221,6 @@ enum MinecraftLaunchCommandBuilder {
         }
     }
 
-    private static func getClassifierPaths(library _: Library, librariesDir _: URL, minecraftVersion _: String) -> [String] {
-        []
-    }
-
     private static func shouldIncludeLibrary(_ library: Library, minecraftVersion: String? = nil) -> Bool {
         guard library.downloadable == true, library.includeInClasspath == true else {
             return false
