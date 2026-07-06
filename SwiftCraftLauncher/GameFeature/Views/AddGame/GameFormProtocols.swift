@@ -19,18 +19,6 @@ protocol GameFormStateProtocol: ObservableObject {
     func updateParentState()
 }
 
-/// Provides access to download progress state.
-protocol DownloadProgressProvider {
-    var gameSetupService: GameSetupUtil { get }
-    var shouldShowProgress: Bool { get }
-}
-
-/// Provides form validation state for game creation.
-protocol FormValidationProvider {
-    var gameNameValidator: GameNameValidator { get }
-    var isFormValid: Bool { get }
-}
-
 /// Action callbacks for game form confirm and cancel operations.
 struct GameFormActions {
     let onCancel: () -> Void
