@@ -123,17 +123,6 @@ struct DownloadItemView: View {
         }
     }
 
-    private var iconBackgroundColor: Color {
-        switch status {
-        case .downloading:
-            return Color.blue.opacity(0.1)
-        case .error:
-            return Color.red.opacity(0.1)
-        default:
-            return .accentColor
-        }
-    }
-
     private var buttonIcon: String {
         switch status {
         case .downloading:
