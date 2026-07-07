@@ -41,8 +41,8 @@ struct ModrinthDetailCardSkeletonView: View {
 
     private var tagsPlaceholder: some View {
         HStack(spacing: ModrinthConstants.UIConstants.spacing) {
-            ForEach(skeletonTags) { tag in
-                ModrinthDetailCardTagView(text: tag.text)
+            ForEach(skeletonTags.indices, id: \.self) { index in
+                ModrinthDetailCardTagView(text: skeletonTags[index])
             }
         }
     }
@@ -63,13 +63,8 @@ struct ModrinthDetailCardSkeletonView: View {
     }
 }
 
-func placeholder(lengthRange: ClosedRange<Int>) -> String {
-    String(repeating: "S", count: Int.random(in: lengthRange))
-}
-
-struct SkeletonTag: Identifiable {
-    let id = UUID()
-    let text: String
+private func placeholder(lengthRange: ClosedRange<Int>) -> String {
+    String(repeating: " ", count: Int.random(in: lengthRange))
 }
 
 private extension ModrinthDetailCardSkeletonView {
@@ -79,13 +74,12 @@ private extension ModrinthDetailCardSkeletonView {
 
     var skeletonTitle: String { placeholder(lengthRange: 8 ... 18) }
     var skeletonAuthor: String { placeholder(lengthRange: 6 ... 14) }
-    var skeletonFileName: String { placeholder(lengthRange: 12 ... 28) }
 
-    var skeletonTags: [SkeletonTag] {
+    private var skeletonTags: [String] {
         [
-            .init(text: placeholder(lengthRange: 6 ... 12)),
-            .init(text: placeholder(lengthRange: 4 ... 10)),
-            .init(text: placeholder(lengthRange: 5 ... 11)),
+            placeholder(lengthRange: 6 ... 12),
+            placeholder(lengthRange: 4 ... 10),
+            placeholder(lengthRange: 5 ... 11),
         ]
     }
 

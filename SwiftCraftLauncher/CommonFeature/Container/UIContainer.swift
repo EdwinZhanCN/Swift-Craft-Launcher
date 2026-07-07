@@ -53,11 +53,6 @@ final class UIContainer {
     private let _playerDataManager = LazyContainer { PlayerDataManager() }
     var playerDataManager: PlayerDataManager { _playerDataManager.value() }
 
-    private let _selectedGameManager = MainActorLazyContainer { SelectedGameManager() }
-    @MainActor var selectedGameManager: SelectedGameManager {
-        _selectedGameManager.value()
-    }
-
     private let _themeManager = LazyContainer { ThemeManager() }
     var themeManager: ThemeManager { _themeManager.value() }
 

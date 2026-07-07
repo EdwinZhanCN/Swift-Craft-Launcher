@@ -130,7 +130,7 @@ struct GameAdvancedSettingsView: View {
             viewModel.setRepository(gameRepository)
             viewModel.onAppearOrGameChanged()
         }
-        .onChange(of: container.ui.selectedGameManager.selectedGameId) { _, _ in
+        .onChange(of: container.core.selectedGameManager.selectedGameId) { _, _ in
             viewModel.setRepository(gameRepository)
             viewModel.onAppearOrGameChanged()
         }
