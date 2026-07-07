@@ -30,11 +30,7 @@ struct AIChatMessageListView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 if chatState.messages.isEmpty {
-                    VStack {
-                        Spacer()
-                        welcomeView
-                        Spacer()
-                    }
+                    welcomeView
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     LazyVStack(alignment: .leading, spacing: 12) {
@@ -99,7 +95,6 @@ struct AIChatMessageListView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
-        .frame(maxWidth: .infinity)
         .padding()
     }
 
