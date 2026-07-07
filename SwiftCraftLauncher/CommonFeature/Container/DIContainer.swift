@@ -50,15 +50,49 @@ final class DIContainer: ObservableObject {
             }
             .store(in: &cancellables)
 
-        system.minecraftAuthService
-            .objectWillChange
+        system.minecraftAuthService.objectWillChange
             .sink { [weak self] _ in
                 self?.objectWillChange.send()
             }
             .store(in: &cancellables)
 
-        system.yggdrasilAuthService
-            .objectWillChange
+        system.yggdrasilAuthService.objectWillChange
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+
+        system.sparkleUpdateService.objectWillChange
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+
+        MainActor.assumeIsolated { [weak self] in
+            guard let self else { return }
+            ui.openURLModPackImportPresenter.objectWillChange
+                .sink { [weak self] _ in
+                    self?.objectWillChange.send()
+                }
+                .store(in: &cancellables)
+        }
+
+        MainActor.assumeIsolated { [weak self] in
+            guard let self else { return }
+            ui.windowDataStore.objectWillChange
+                .sink { [weak self] _ in
+                    self?.objectWillChange.send()
+                }
+                .store(in: &cancellables)
+        }
+
+        core.errorHandler.objectWillChange
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+
+        core.cacheInfoManager.objectWillChange
             .sink { [weak self] _ in
                 self?.objectWillChange.send()
             }
