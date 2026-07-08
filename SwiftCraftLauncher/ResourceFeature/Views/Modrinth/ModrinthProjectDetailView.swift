@@ -5,7 +5,6 @@
 //  © 2025-2026 Swift Craft Launcher Team. All rights reserved.
 //
 
-import SwiftMarkDownUI
 import SwiftUI
 
 private enum Constants {
@@ -54,31 +53,30 @@ struct ModrinthProjectDetailView: View {
         .padding(.vertical, Constants.spacing)
     }
 
+    @ViewBuilder
     private func projectIcon(_ project: ModrinthProjectDetail) -> some View {
-        Group {
-            if let iconUrl = project.iconUrl, let url = URL(string: iconUrl) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case let .success(image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    case .failure:
-                        Image(systemName: "photo")
-                            .foregroundColor(.secondary)
-                    default:
-                        ProgressView()
-                            .controlSize(.small)
-                            .frame(width: 80, height: 80)
-                    }
+        if let iconUrl = project.iconUrl, let url = URL(string: iconUrl) {
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case let .success(image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                case .failure:
+                    Image(systemName: "photo")
+                        .foregroundColor(.secondary)
+                default:
+                    ProgressView()
+                        .controlSize(.small)
+                        .frame(width: 80, height: 80)
                 }
-                .onDisappear {
-                    URLCache.shared.removeCachedResponse(for: URLRequest(url: url))
-                }
-                .frame(width: Constants.iconSize, height: Constants.iconSize)
-                .cornerRadius(Constants.cornerRadius)
-                .clipped()
             }
+            .onDisappear {
+                URLCache.shared.removeCachedResponse(for: URLRequest(url: url))
+            }
+            .frame(width: Constants.iconSize, height: Constants.iconSize)
+            .cornerRadius(Constants.cornerRadius)
+            .clipped()
         }
     }
 
@@ -120,7 +118,10 @@ struct ModrinthProjectDetailView: View {
     }
 
     private func descriptionView(_ project: ModrinthProjectDetail) -> some View {
-        MixedMarkdownView(project.body)
+        ResourceDescriptionWebView(
+            content: project.body,
+            format: project.id.hasPrefix("cf-") ? .html : .markdown,
+        )
     }
 
     private var loadingView: some View {
