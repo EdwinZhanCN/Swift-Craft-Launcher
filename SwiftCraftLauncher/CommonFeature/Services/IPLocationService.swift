@@ -7,19 +7,33 @@
 
 import Foundation
 
-/// Detects the user's geographic location by IP address.
+/// Detects the user's geographic location by IP address and timezone.
 class IPLocationService: ObservableObject {
+    /// Chinese timezone identifier.
+    private static let chinaTimeZone = "Asia/Shanghai"
+
     init() { }
 
     /// Checks whether the user's IP is outside the current region.
+    /// Uses timezone detection as a fast local check, falls back to IP API if timezone is uncertain.
     /// - Returns: `true` if the IP is foreign, `false` if detection fails or the IP is domestic.
     func isForeignIP() async -> Bool {
+        // Fast local check: if timezone is clearly Chinese, return false immediately.
+        let timezone = TimeZone.current.identifier
+        AppLog.common.debug("Current timezone: \(timezone)")
+        if timezone == Self.chinaTimeZone {
+            AppLog.common.debug("Timezone is Chinese, skipping IP detection")
+            return false
+        }
+
+        // Timezone is non-Chinese or unknown — fall back to IP API for accurate detection.
         do {
             return try await isForeignIPThrowing()
         } catch {
             let globalError = GlobalError.from(error)
             AppLog.common.error("Failed to detect IP geolocation: \(globalError.localizedDescription)")
-            return false
+            // If both timezone and IP detection fail, assume foreign as a conservative default.
+            return true
         }
     }
 
