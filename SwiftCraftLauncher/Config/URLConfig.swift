@@ -212,12 +212,7 @@ enum URLConfig {
             /// - Parameter perPage: The number of contributors per page. Defaults to 50.
             /// - Returns: The contributors API URL, routed through the proxy if enabled.
             static func contributors(perPage: Int = 50) -> URL {
-                let url = repositoryApiBaseURL
-                    .appendingPathComponent("contributors")
-                    .appending(queryItems: [
-                        URLQueryItem(name: "per_page", value: "\(perPage)"),
-                    ])
-                return URLConfig.applyGitProxyIfNeeded(url)
+                return URLConfig.url("https://swift-craft-launcher-contributors.suhang12332.workers.dev/contributors")
             }
 
             /// Returns the release page URL for the specified version tag.
