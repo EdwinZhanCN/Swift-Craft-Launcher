@@ -292,7 +292,7 @@ enum URLConfig {
         enum Community {
             /// Returns the project website URL.
             static func website() -> URL {
-                URLConfig.url("https://suhang12332.github.io/Swift-Craft-Launcher-Assets/web/")
+                URLConfig.url("https://swift-craft-launcher-web.pages.dev")
             }
 
             /// Returns the GitHub Discussions URL.
