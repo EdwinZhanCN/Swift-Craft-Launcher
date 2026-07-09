@@ -200,7 +200,7 @@ enum URLConfig {
 
             /// Returns the contributors API URL.
             static func contributors() -> URL {
-                return URLConfig.url("https://swift-craft-launcher-contributors.suhang12332.workers.dev/contributors")
+                URLConfig.url("https://swift-craft-launcher-contributors.suhang12332.workers.dev/contributors")
             }
 
             /// Returns the release page URL for the specified version tag.
@@ -226,13 +226,13 @@ enum URLConfig {
 
             /// Returns the URL for the static contributors JSON file.
             static func staticContributors() -> URL {
-                return URLConfig.url("https://swift-craft-launcher-contributors.pages.dev")
+                URLConfig.url("https://swift-craft-launcher-contributors.pages.dev")
                     .appendingPathComponent("contributors.json")
             }
 
             /// Returns the URL for the acknowledgements JSON file.
             static func acknowledgements() -> URL {
-                return URLConfig.url("https://swift-craft-launcher-contributors.pages.dev")
+                URLConfig.url("https://swift-craft-launcher-contributors.pages.dev")
                     .appendingPathComponent("acknowledgements.json")
             }
 
@@ -241,7 +241,7 @@ enum URLConfig {
             /// - Parameter value: The game identifier used as the icon filename.
             /// - Returns: The icon image URL, routed through the proxy if enabled.
             static func gameIcon(_ value: String) -> URL {
-                return URLConfig.url("https://swift-craft-launcher-imagebed.pages.dev")
+                URLConfig.url("https://swift-craft-launcher-imagebed.pages.dev")
                     .appendingPathComponent("gameicons")
                     .appendingPathComponent("\(value).png")
             }
@@ -266,7 +266,7 @@ enum URLConfig {
             ///   - language: A language code (e.g. "zh-Hans", "en").
             /// - Returns: The announcement JSON URL, routed through the proxy if enabled.
             static func announcement(version: String, language: String) -> URL {
-                return URLConfig.url("https://swift-craft-launcher-news.pages.dev")
+                URLConfig.url("https://swift-craft-launcher-news.pages.dev")
                     .appendingPathComponent(version)
                     .appendingPathComponent("\(language).json")
             }
