@@ -198,11 +198,8 @@ enum URLConfig {
                     .appendingPathComponent(repositoryName)
             }
 
-            /// Returns the API URL for listing repository contributors.
-            ///
-            /// - Parameter perPage: The number of contributors per page. Defaults to 50.
-            /// - Returns: The contributors API URL, routed through the proxy if enabled.
-            static func contributors(perPage: Int = 50) -> URL {
+            /// Returns the contributors API URL.
+            static func contributors() -> URL {
                 return URLConfig.url("https://swift-craft-launcher-contributors.suhang12332.workers.dev/contributors")
             }
 
