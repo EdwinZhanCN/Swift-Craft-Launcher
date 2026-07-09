@@ -187,8 +187,6 @@ enum URLConfig {
         enum GitHub {
             /// The GitHub web base URL.
             static let baseURL = URLConfig.url("https://github.com")
-            /// The GitHub REST API base URL.
-            static let apiBaseURL = URLConfig.url("https://api.github.com")
 
             static let repositoryOwner = "suhang12332"
             static let repositoryName = "Swift-Craft-Launcher"
@@ -196,13 +194,6 @@ enum URLConfig {
             /// Returns the web URL for the project repository.
             static func repositoryURL() -> URL {
                 baseURL
-                    .appendingPathComponent(repositoryOwner)
-                    .appendingPathComponent(repositoryName)
-            }
-
-            private static var repositoryApiBaseURL: URL {
-                apiBaseURL
-                    .appendingPathComponent("repos")
                     .appendingPathComponent(repositoryOwner)
                     .appendingPathComponent(repositoryName)
             }
