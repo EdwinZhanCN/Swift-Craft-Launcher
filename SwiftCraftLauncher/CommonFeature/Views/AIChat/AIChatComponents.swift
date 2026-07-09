@@ -7,6 +7,7 @@
 
 import AppKit
 import SwiftUI
+import MarkdownUI
 
 /// Displays the AI assistant's avatar.
 struct AIAvatarView: View {
@@ -99,7 +100,7 @@ struct MessageBubble: View {
     }
 
     private var messageTextBubble: some View {
-        Text(message.content)
+        Markdown(message.content)
             .textSelection(.enabled)
             .font(.system(size: Constants.messageFontSize))
             .foregroundStyle(.primary)
