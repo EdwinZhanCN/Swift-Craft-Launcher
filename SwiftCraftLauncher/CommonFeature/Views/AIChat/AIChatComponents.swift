@@ -6,7 +6,7 @@
 //
 
 import AppKit
-import MarkdownUI
+import SwiftMarkDownUI
 import SwiftUI
 
 /// Displays the AI assistant's avatar.
@@ -49,7 +49,7 @@ struct MessageBubble: View {
     }
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: Constants.messageSpacing) {
+        HStack(alignment: .top, spacing: Constants.messageSpacing) {
             if message.role == .user {
                 userMessageView
             } else {
@@ -100,11 +100,17 @@ struct MessageBubble: View {
     }
 
     private var messageTextBubble: some View {
-        Markdown(message.content)
-            .textSelection(.enabled)
-            .font(.system(size: Constants.messageFontSize))
-            .foregroundStyle(.primary)
-            .frame(maxWidth: .infinity, alignment: message.role == .user ? .trailing : .leading)
+        Group {
+            if message.role == .user {
+                Text(message.content)
+            } else {
+                MarkdownView(message.content)
+            }
+        }
+        .font(.body)
+        .textSelection(.enabled)
+        .foregroundStyle(.primary)
+        .frame(maxWidth: .infinity, alignment: message.role == .user ? .trailing : .leading)
     }
 
     private var timestampView: some View {

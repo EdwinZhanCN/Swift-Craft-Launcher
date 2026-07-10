@@ -20,15 +20,6 @@
       }
     },
     {
-      "identity" : "networkimage",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/gonzalezreal/NetworkImage",
-      "state" : {
-        "revision" : "2849f5323265386e200484b0d0f896e73c3411b9",
-        "version" : "6.0.1"
-      }
-    },
-    {
       "identity" : "nsskinrender",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/suhang12332/NSSkinRender.git",
@@ -56,12 +47,12 @@
       }
     },
     {
-      "identity" : "swift-markdown-ui",
+      "identity" : "swift-markdown",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/gonzalezreal/swift-markdown-ui.git",
+      "location" : "https://github.com/swiftlang/swift-markdown.git",
       "state" : {
-        "revision" : "5f613358148239d0292c0cef674a3c2314737f9e",
-        "version" : "2.4.1"
+        "revision" : "3c6f9523da3a1ec2fd829673e472d95b8097a3b8",
+        "version" : "0.8.0"
       }
     },
     {
@@ -79,7 +70,7 @@
       "location" : "https://github.com/suhang12332/SwiftMarkDownUI.git",
       "state" : {
         "branch" : "release",
-        "revision" : "2eb801a0bb7540d3b964a72d99d93b565fd04b45"
+        "revision" : "0aac628995e353193e76d31ccc53dadc12aef8d3"
       }
     },
     {
