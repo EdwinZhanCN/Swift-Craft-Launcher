@@ -40,7 +40,7 @@
     {
       "identity" : "swift-cmark",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/swiftlang/swift-cmark",
+      "location" : "https://github.com/swiftlang/swift-cmark.git",
       "state" : {
         "revision" : "924936d0427cb25a61169739a7660230bffa6ea6",
         "version" : "0.8.0"
@@ -70,7 +70,7 @@
       "location" : "https://github.com/suhang12332/SwiftMarkDownUI.git",
       "state" : {
         "branch" : "release",
-        "revision" : "0aac628995e353193e76d31ccc53dadc12aef8d3"
+        "revision" : "51cfd39f0a153774c7aadae5df867e71ada02cad"
       }
     },
     {
