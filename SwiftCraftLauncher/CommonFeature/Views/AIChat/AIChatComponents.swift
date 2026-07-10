@@ -6,8 +6,8 @@
 //
 
 import AppKit
-import SwiftUI
 import MarkdownUI
+import SwiftUI
 
 /// Displays the AI assistant's avatar.
 struct AIAvatarView: View {
