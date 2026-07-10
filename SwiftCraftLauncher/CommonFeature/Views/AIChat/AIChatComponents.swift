@@ -100,17 +100,11 @@ struct MessageBubble: View {
     }
 
     private var messageTextBubble: some View {
-        Group {
-            if message.role == .user {
-                Text(message.content)
-            } else {
-                MarkdownView(message.content)
-            }
-        }
-        .font(.body)
-        .textSelection(.enabled)
-        .foregroundStyle(.primary)
-        .frame(maxWidth: .infinity, alignment: message.role == .user ? .trailing : .leading)
+        Text(message.content)
+            .font(.body)
+            .textSelection(.enabled)
+            .foregroundStyle(.primary)
+            .frame(maxWidth: .infinity, alignment: message.role == .user ? .trailing : .leading)
     }
 
     private var timestampView: some View {

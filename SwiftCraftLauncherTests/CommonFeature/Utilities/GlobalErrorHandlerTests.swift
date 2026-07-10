@@ -11,7 +11,7 @@ import XCTest
 final class GlobalErrorHandlerTests: XCTestCase {
     private func flushMainQueue() {
         let exp = XCTestExpectation(description: "flush main queue")
-        RunLoop.current.perform { exp.fulfill() }
+        DispatchQueue.main.async { exp.fulfill() }
         _ = XCTWaiter.wait(for: [exp], timeout: 1.0)
     }
 
