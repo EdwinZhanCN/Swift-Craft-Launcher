@@ -26,10 +26,12 @@ final class GameContextMenuActionViewModel: ObservableObject {
         gameLaunchUseCase: GameLaunchUseCase,
     ) {
         Task {
-            let userId = player?.id ?? ""
             if isRunning {
+                guard let player else { return }
                 await gameLaunchUseCase.stopGame(player: player, game: game)
             } else {
+                guard let player else { return }
+                let userId = player.id
                 DIContainer.shared.core.gameStatusManager.setGameLaunching(gameId: game.id, userId: userId, isLaunching: true)
                 defer { DIContainer.shared.core.gameStatusManager.setGameLaunching(gameId: game.id, userId: userId, isLaunching: false) }
                 await gameLaunchUseCase.launchGame(player: player, game: game)

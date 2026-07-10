@@ -187,40 +187,9 @@ enum URLConfig {
         enum GitHub {
             /// The GitHub web base URL.
             static let baseURL = URLConfig.url("https://github.com")
-            /// The GitHub REST API base URL.
-            static let apiBaseURL = URLConfig.url("https://api.github.com")
-            /// The GitHub Pages base URL for launcher assets.
-            static let assetBaseURL = URLConfig.url("https://suhang12332.github.io/Swift-Craft-Launcher-Assets")
 
             static let repositoryOwner = "suhang12332"
             static let repositoryName = "Swift-Craft-Launcher"
-
-            private static var announcementBaseURL: URL {
-                assetBaseURL
-                    .appendingPathComponent("news")
-                    .appendingPathComponent("api")
-                    .appendingPathComponent("announcements")
-            }
-
-            private static var repositoryApiBaseURL: URL {
-                apiBaseURL
-                    .appendingPathComponent("repos")
-                    .appendingPathComponent(repositoryOwner)
-                    .appendingPathComponent(repositoryName)
-            }
-
-            /// Returns the API URL for listing repository contributors.
-            ///
-            /// - Parameter perPage: The number of contributors per page. Defaults to 50.
-            /// - Returns: The contributors API URL, routed through the proxy if enabled.
-            static func contributors(perPage: Int = 50) -> URL {
-                let url = repositoryApiBaseURL
-                    .appendingPathComponent("contributors")
-                    .appending(queryItems: [
-                        URLQueryItem(name: "per_page", value: "\(perPage)"),
-                    ])
-                return URLConfig.applyGitProxyIfNeeded(url)
-            }
 
             /// Returns the web URL for the project repository.
             static func repositoryURL() -> URL {
@@ -229,14 +198,17 @@ enum URLConfig {
                     .appendingPathComponent(repositoryName)
             }
 
+            /// Returns the contributors API URL.
+            static func contributors() -> URL {
+                URLConfig.url("https://swift-craft-launcher-contributors.suhang12332.workers.dev/contributors")
+            }
+
             /// Returns the release page URL for the specified version tag.
             ///
             /// - Parameter version: The release version tag.
             /// - Returns: The release page URL.
             static func releaseTag(version: String) -> URL {
-                baseURL
-                    .appendingPathComponent(repositoryOwner)
-                    .appendingPathComponent(repositoryName)
+                repositoryURL()
                     .appendingPathComponent("releases")
                     .appendingPathComponent("tag")
                     .appendingPathComponent(version)
@@ -248,30 +220,20 @@ enum URLConfig {
             /// - Returns: The appcast XML download URL, routed through the proxy if enabled.
             static func appcastURL(architecture: String) -> URL {
                 let appcastFileName = "appcast-\(architecture).xml"
-                let url = baseURL
-                    .appendingPathComponent(repositoryOwner)
-                    .appendingPathComponent(repositoryName)
-                    .appendingPathComponent("releases")
-                    .appendingPathComponent("latest")
-                    .appendingPathComponent("download")
+                return URLConfig.url("https://swift-craft-launcher-update.suhang12332.workers.dev")
                     .appendingPathComponent(appcastFileName)
-                return URLConfig.applyGitProxyIfNeeded(url)
             }
 
             /// Returns the URL for the static contributors JSON file.
             static func staticContributors() -> URL {
-                let url = assetBaseURL
-                    .appendingPathComponent("contributors")
+                URLConfig.url("https://swift-craft-launcher-contributors.pages.dev")
                     .appendingPathComponent("contributors.json")
-                return URLConfig.applyGitProxyIfNeeded(url)
             }
 
             /// Returns the URL for the acknowledgements JSON file.
             static func acknowledgements() -> URL {
-                let url = assetBaseURL
-                    .appendingPathComponent("contributors")
+                URLConfig.url("https://swift-craft-launcher-contributors.pages.dev")
                     .appendingPathComponent("acknowledgements.json")
-                return URLConfig.applyGitProxyIfNeeded(url)
             }
 
             /// Returns the URL for a game icon asset.
@@ -279,11 +241,9 @@ enum URLConfig {
             /// - Parameter value: The game identifier used as the icon filename.
             /// - Returns: The icon image URL, routed through the proxy if enabled.
             static func gameIcon(_ value: String) -> URL {
-                let url = assetBaseURL
-                    .appendingPathComponent("imagebed")
+                URLConfig.url("https://swift-craft-launcher-imagebed.pages.dev")
                     .appendingPathComponent("gameicons")
                     .appendingPathComponent("\(value).png")
-                return URLConfig.applyGitProxyIfNeeded(url)
             }
 
             /// Returns the URL for the LICENSE file on GitHub.
@@ -293,9 +253,7 @@ enum URLConfig {
             /// - Parameter ref: The git reference. Defaults to `"main"`.
             /// - Returns: The LICENSE file URL.
             static func license(ref: String = "main") -> URL {
-                baseURL
-                    .appendingPathComponent(repositoryOwner)
-                    .appendingPathComponent(repositoryName)
+                repositoryURL()
                     .appendingPathComponent("blob")
                     .appendingPathComponent(ref)
                     .appendingPathComponent("LICENSE")
@@ -308,17 +266,16 @@ enum URLConfig {
             ///   - language: A language code (e.g. "zh-Hans", "en").
             /// - Returns: The announcement JSON URL, routed through the proxy if enabled.
             static func announcement(version: String, language: String) -> URL {
-                let url = announcementBaseURL
+                URLConfig.url("https://swift-craft-launcher-news.pages.dev")
                     .appendingPathComponent(version)
                     .appendingPathComponent("\(language).json")
-                return URLConfig.applyGitProxyIfNeeded(url)
             }
         }
 
         enum Community {
             /// Returns the project website URL.
             static func website() -> URL {
-                URLConfig.url("https://suhang12332.github.io/Swift-Craft-Launcher-Assets/web/")
+                URLConfig.url("https://swift-craft-launcher-web.pages.dev")
             }
 
             /// Returns the GitHub Discussions URL.

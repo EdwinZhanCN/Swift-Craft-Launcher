@@ -12,8 +12,8 @@ public class GitHubService: ObservableObject {
     init() { }
 
     /// Fetches the list of repository contributors.
-    public func fetchContributors(perPage: Int = 50) async throws -> [GitHubContributor] {
-        let url = URLConfig.API.GitHub.contributors(perPage: perPage)
+    public func fetchContributors() async throws -> [GitHubContributor] {
+        let url = URLConfig.API.GitHub.contributors()
         let data = try await APIClient.get(url: url)
         return try JSONDecoder().decode([GitHubContributor].self, from: data)
     }

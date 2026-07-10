@@ -95,7 +95,7 @@ struct AIChatInputAreaView: View {
         Button(action: onSend) {
             Image(systemName: "arrow.up.circle")
                 .font(.system(size: Constants.inputFontSize))
-                .foregroundStyle(canSend ? .blue : .secondary)
+                .foregroundStyle(canSend ? Color.accentColor : Color.secondary)
         }
         .buttonStyle(.plain)
         .disabled(!canSend)

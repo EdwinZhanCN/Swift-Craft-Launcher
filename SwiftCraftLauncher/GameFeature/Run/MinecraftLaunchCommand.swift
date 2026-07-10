@@ -10,7 +10,7 @@ import Foundation
 
 /// Orchestrates the Minecraft game launch process including authentication and process management.
 struct MinecraftLaunchCommand {
-    let player: Player?
+    let player: Player
     let game: GameVersionInfo
 
     func launchGame() async {
@@ -22,8 +22,7 @@ struct MinecraftLaunchCommand {
     }
 
     func stopGame() async {
-        let userId = player?.id ?? ""
-        _ = DIContainer.shared.core.gameProcessManager.stopProcess(for: game.id, userId: userId)
+        _ = DIContainer.shared.core.gameProcessManager.stopProcess(for: game.id, userId: player.id)
     }
 
     func launchGameThrowing() async throws {
@@ -35,12 +34,14 @@ struct MinecraftLaunchCommand {
         )
     }
 
-    private func validatePlayerTokenBeforeLaunch() async throws -> Player? {
-        guard let player else {
-            AppLog.game.error("No player selected, using default auth parameters")
-            return nil
+    private func validatePlayerTokenBeforeLaunch() async throws -> Player {
+        if let profile = OfflineUserServerMap.serverKey(for: player.id),
+           let server = YggdrasilServerPresets.server(for: profile.serverBaseURL) {
+            await DIContainer.shared.system.yggdrasilAuthService.refreshThirdPartyToken(
+                profile: profile,
+                server: server,
+            )
         }
-
         guard player.isOnlineAccount else {
             return player
         }
@@ -78,18 +79,21 @@ struct MinecraftLaunchCommand {
         }
     }
 
-    private func replaceAuthParameters(command: [String], with validatedPlayer: Player?) async throws -> [String] {
-        guard let player = validatedPlayer else {
-            AppLog.game.error("No verified player, using default auth parameters")
-            return replaceGameParameters(command: command)
-        }
+    private func replaceAuthParameters(command: [String], with validatedPlayer: Player) async throws -> [String] {
+        let yggdrasilProfile = OfflineUserServerMap.serverKey(for: validatedPlayer.id)
 
-        let yggdrasilProfile = OfflineUserServerMap.serverKey(for: player.id)
-        let (accessToken, commandWithAgent) = try await handleThirdPartyAuth(
-            command: command,
-            player: player,
-            profile: yggdrasilProfile,
-        )
+        let accessToken: String
+        let commandWithAgent: [String]
+        if let profile = yggdrasilProfile {
+            (accessToken, commandWithAgent) = try await handleThirdPartyAuth(
+                command: command,
+                player: validatedPlayer,
+                profile: profile,
+            )
+        } else {
+            accessToken = player.authAccessToken
+            commandWithAgent = command
+        }
 
         let authReplacedCommand = commandWithAgent.map { arg -> String in
             let mutableArg = NSMutableString(string: arg)
@@ -123,19 +127,36 @@ struct MinecraftLaunchCommand {
         return replaceGameParameters(command: authReplacedCommand)
     }
 
-    private func handleThirdPartyAuth(
-        command: [String],
+    private func getThirdPartyMcToken(
         player: Player,
         profile: YggdrasilProfile?,
-    ) async throws -> (accessToken: String, command: [String]) {
+    ) async throws -> String {
         guard let profile,
               let server = YggdrasilServerPresets.server(for: profile.serverBaseURL) else {
-            return (player.authAccessToken, command)
+            return player.authAccessToken
         }
 
         let accessToken: String
         do {
             accessToken = try await DIContainer.shared.system.yggdrasilAuthService.getMinecraftToken(profile: profile, server: server)
+        } catch {
+            throw GlobalError.authentication(
+                i18nKey: "error.authentication.token_fetch_failed",
+                level: .popup,
+                message: "Failed to fetch Minecraft token for profile=\(profile.serverBaseURL): \(error.localizedDescription)",
+            )
+        }
+        return accessToken
+    }
+
+    private func handleThirdPartyAuth(
+        command: [String],
+        player: Player,
+        profile: YggdrasilProfile,
+    ) async throws -> (accessToken: String, command: [String]) {
+        let accessToken: String
+        do {
+            accessToken = try await getThirdPartyMcToken(player: player, profile: profile)
         } catch {
             throw GlobalError.authentication(
                 i18nKey: "error.authentication.token_fetch_failed",
@@ -150,7 +171,7 @@ struct MinecraftLaunchCommand {
             let choice = await DIContainer.shared.ui.authlibInjectorMissingPresenter.requestUserChoice()
             switch choice {
             case .continueWithoutInjector:
-                return (accessToken, command)
+                return (player.authAccessToken, command)
             case .cancel:
                 throw AuthlibInjectorLaunchCancelled()
             }
@@ -241,21 +262,20 @@ struct MinecraftLaunchCommand {
             process.environment = env
         }
 
-        let userId = player?.id ?? ""
-        DIContainer.shared.core.gameProcessManager.storeProcess(gameId: game.id, userId: userId, process: process)
+        DIContainer.shared.core.gameProcessManager.storeProcess(gameId: game.id, userId: player.id, process: process)
 
         do {
             try process.run()
 
             _ = await MainActor.run {
-                DIContainer.shared.core.gameStatusManager.setGameRunning(gameId: game.id, userId: userId, isRunning: true)
+                DIContainer.shared.core.gameStatusManager.setGameRunning(gameId: game.id, userId: player.id, isRunning: true)
             }
         } catch {
             AppLog.game.error("Failed to launch process: \(error.localizedDescription)")
 
-            _ = DIContainer.shared.core.gameProcessManager.stopProcess(for: game.id, userId: userId)
+            _ = DIContainer.shared.core.gameProcessManager.stopProcess(for: game.id, userId: player.id)
             _ = await MainActor.run {
-                DIContainer.shared.core.gameStatusManager.setGameRunning(gameId: game.id, userId: userId, isRunning: false)
+                DIContainer.shared.core.gameStatusManager.setGameRunning(gameId: game.id, userId: player.id, isRunning: false)
             }
 
             throw GlobalError.gameLaunch(

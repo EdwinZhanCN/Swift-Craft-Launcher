@@ -11,18 +11,18 @@ import Foundation
 final class GameLaunchUseCase: ObservableObject {
     /// Launches a Minecraft game session.
     /// - Parameters:
-    ///   - player: The current player, or `nil` to use default authentication parameters.
+    ///   - player: The current player.
     ///   - game: The game version to launch.
-    func launchGame(player: Player?, game: GameVersionInfo) async {
+    func launchGame(player: Player, game: GameVersionInfo) async {
         let command = MinecraftLaunchCommand(player: player, game: game)
         await command.launchGame()
     }
 
     /// Stops a running Minecraft game session.
     /// - Parameters:
-    ///   - player: The current player, used to locate the process to stop. Pass `nil` to use an empty user ID.
+    ///   - player: The current player, used to locate the process to stop.
     ///   - game: The game version to stop.
-    func stopGame(player: Player?, game: GameVersionInfo) async {
+    func stopGame(player: Player, game: GameVersionInfo) async {
         let command = MinecraftLaunchCommand(player: player, game: game)
         await command.stopGame()
     }

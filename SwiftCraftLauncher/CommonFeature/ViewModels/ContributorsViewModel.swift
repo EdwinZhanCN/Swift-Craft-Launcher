@@ -21,9 +21,7 @@ public class ContributorsViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
-            contributors = try await DIContainer.shared.system.gitHubService.fetchContributors(
-                perPage: 50,
-            )
+            contributors = try await DIContainer.shared.system.gitHubService.fetchContributors()
         } catch { }
     }
 
