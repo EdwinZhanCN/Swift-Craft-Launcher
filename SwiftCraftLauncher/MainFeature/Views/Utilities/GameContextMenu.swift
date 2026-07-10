@@ -50,7 +50,7 @@ struct GameContextMenu: View {
                 isRunning ? "stop.fill".localized() : "play.fill".localized(),
                 systemImage: isRunning ? "stop.fill" : "play.fill",
             )
-        })
+        }).disabled(playerListViewModel.currentPlayer == nil)
 
         Button(action: {
             container.core.gameActionManager.showInFinder(game: game)

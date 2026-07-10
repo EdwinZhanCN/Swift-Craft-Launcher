@@ -47,9 +47,10 @@ struct GameActionButtons: View {
                     let userId = currentUserId
                     let isRunning = container.core.gameStatusManager.isGameRunning(gameId: game.id, userId: userId)
                     if isRunning {
-                        await gameLaunchUseCase.stopGame(player: playerListViewModel.currentPlayer, game: game)
+                        guard let player = playerListViewModel.currentPlayer else { return }
+                        await gameLaunchUseCase.stopGame(player: player, game: game)
                     } else {
-                        if playerListViewModel.currentPlayer == nil {
+                        guard let player = playerListViewModel.currentPlayer else {
                             activeAlert = .noPlayerForLaunch
                             return
                         }
@@ -57,7 +58,7 @@ struct GameActionButtons: View {
                         container.core.gameStatusManager.setGameLaunching(gameId: game.id, userId: userId, isLaunching: true)
                         defer { container.core.gameStatusManager.setGameLaunching(gameId: game.id, userId: userId, isLaunching: false) }
                         await gameLaunchUseCase.launchGame(
-                            player: playerListViewModel.currentPlayer,
+                            player: player,
                             game: game,
                         )
                     }
