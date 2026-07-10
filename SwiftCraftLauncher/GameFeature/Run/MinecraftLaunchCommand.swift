@@ -138,7 +138,6 @@ struct MinecraftLaunchCommand {
 
         let accessToken: String
         do {
-            // refresh token and query Minecraft accessToken
             accessToken = try await DIContainer.shared.system.yggdrasilAuthService.getMinecraftToken(profile: profile, server: server)
         } catch {
             throw GlobalError.authentication(
@@ -155,7 +154,6 @@ struct MinecraftLaunchCommand {
         player: Player,
         profile: YggdrasilProfile,
     ) async throws -> (accessToken: String, command: [String]) {
-
         let accessToken: String
         do {
             accessToken = try await getThirdPartyMcToken(player: player, profile: profile)
@@ -264,21 +262,20 @@ struct MinecraftLaunchCommand {
             process.environment = env
         }
 
-        let userId = player.id
-        DIContainer.shared.core.gameProcessManager.storeProcess(gameId: game.id, userId: userId, process: process)
+        DIContainer.shared.core.gameProcessManager.storeProcess(gameId: game.id, userId: player.id, process: process)
 
         do {
             try process.run()
 
             _ = await MainActor.run {
-                DIContainer.shared.core.gameStatusManager.setGameRunning(gameId: game.id, userId: userId, isRunning: true)
+                DIContainer.shared.core.gameStatusManager.setGameRunning(gameId: game.id, userId: player.id, isRunning: true)
             }
         } catch {
             AppLog.game.error("Failed to launch process: \(error.localizedDescription)")
 
-            _ = DIContainer.shared.core.gameProcessManager.stopProcess(for: game.id, userId: userId)
+            _ = DIContainer.shared.core.gameProcessManager.stopProcess(for: game.id, userId: player.id)
             _ = await MainActor.run {
-                DIContainer.shared.core.gameStatusManager.setGameRunning(gameId: game.id, userId: userId, isRunning: false)
+                DIContainer.shared.core.gameStatusManager.setGameRunning(gameId: game.id, userId: player.id, isRunning: false)
             }
 
             throw GlobalError.gameLaunch(
