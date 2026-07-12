@@ -159,7 +159,7 @@ final class URLConfigTests: XCTestCase {
 
     func testCommunity_urls() {
         let website = URLConfig.API.Community.website()
-        XCTAssertTrue(website.absoluteString.contains("suhang12332.github.io"))
+        XCTAssertTrue(website.absoluteString.contains("swift-craft-launcher-web.pages.dev"))
 
         let discord = URLConfig.API.Community.discord()
         XCTAssertTrue(discord.absoluteString.contains("discord.gg"))

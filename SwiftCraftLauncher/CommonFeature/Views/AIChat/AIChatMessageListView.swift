@@ -28,22 +28,24 @@ struct AIChatMessageListView: View {
 
     var body: some View {
         ScrollViewReader { proxy in
-            ScrollView {
+            ZStack {
                 if chatState.messages.isEmpty {
                     welcomeView
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    LazyVStack(alignment: .leading, spacing: 12) {
-                        messageListView
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 12) {
+                            messageListView
 
-                        if chatState.isSending,
-                           let lastMessage = chatState.messages.last,
-                           lastMessage.role == .assistant,
-                           lastMessage.content.isEmpty {
-                            loadingIndicatorView
+                            if chatState.isSending,
+                               let lastMessage = chatState.messages.last,
+                               lastMessage.role == .assistant,
+                               lastMessage.content.isEmpty {
+                                loadingIndicatorView
+                            }
                         }
+                        .padding()
                     }
-                    .padding()
                 }
             }
             .onChange(of: chatState.messages.count) { _, _ in

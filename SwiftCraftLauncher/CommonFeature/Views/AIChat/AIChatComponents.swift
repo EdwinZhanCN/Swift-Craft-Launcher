@@ -6,6 +6,7 @@
 //
 
 import AppKit
+import SwiftMarkDownUI
 import SwiftUI
 
 /// Displays the AI assistant's avatar.
@@ -48,7 +49,7 @@ struct MessageBubble: View {
     }
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: Constants.messageSpacing) {
+        HStack(alignment: .top, spacing: Constants.messageSpacing) {
             if message.role == .user {
                 userMessageView
             } else {
@@ -100,8 +101,8 @@ struct MessageBubble: View {
 
     private var messageTextBubble: some View {
         Text(message.content)
+            .font(.body)
             .textSelection(.enabled)
-            .font(.system(size: Constants.messageFontSize))
             .foregroundStyle(.primary)
             .frame(maxWidth: .infinity, alignment: message.role == .user ? .trailing : .leading)
     }

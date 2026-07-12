@@ -48,7 +48,7 @@ extension YggdrasilAuthService {
         }
     }
 
-    func refreshToken(refreshToken: String, server: YggdrasilServerConfig) async throws -> TokenResponse {
+    private func refreshToken(refreshToken: String, server: YggdrasilServerConfig) async throws -> TokenResponse {
         guard let refreshTokenURL = server.tokenURL else {
             throw GlobalError.validation(
                 i18nKey: "error.validation.yggdrasil_refresh_token_url_invalid",
@@ -122,7 +122,7 @@ extension YggdrasilAuthService {
         )
     }
 
-    func getMinecraftToken(profile: YggdrasilProfile, server: YggdrasilServerConfig) async throws -> String {
+    func refreshThirdPartyToken(profile: YggdrasilProfile, server: YggdrasilServerConfig) async {
         var updatedProfile = profile
         do {
             let tokenResponse = try await refreshToken(
@@ -143,16 +143,18 @@ extension YggdrasilAuthService {
         }
 
         OfflineUserServerMap.setServer(updatedProfile)
+    }
 
+    func getMinecraftToken(profile: YggdrasilProfile, server: YggdrasilServerConfig) async throws -> String {
         guard let parser = YggdrasilMinecraftTokenParsers.make(for: server.parserId) else {
             AppLog.common.error("TODO: Minecraft token fetch not yet implemented for this server (\(server.name)), falling back to OAuth2 token")
-            return updatedProfile.accessToken
+            return profile.accessToken
         }
 
         return try await parser.fetchMinecraftToken(
-            profileId: updatedProfile.id,
+            profileId: profile.id,
             minecraftTokenURL: server.minecraftTokenURL,
-            oauthToken: updatedProfile.accessToken,
+            oauthToken: profile.accessToken,
         )
     }
 }

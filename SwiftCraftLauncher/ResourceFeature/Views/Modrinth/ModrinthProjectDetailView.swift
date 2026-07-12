@@ -10,8 +10,6 @@ import SwiftUI
 private enum Constants {
     static let iconSize: CGFloat = 75
     static let cornerRadius: CGFloat = 8
-    static let spacing: CGFloat = 12
-    static let padding: CGFloat = 16
     static let galleryImageHeight: CGFloat = 160
     static let galleryImageMinWidth: CGFloat = 160
     static let galleryImageMaxWidth: CGFloat = 200
@@ -43,14 +41,12 @@ struct ModrinthProjectDetailView: View {
     }
 
     private func projectHeader(_ project: ModrinthProjectDetail) -> some View {
-        VStack(alignment: .leading, spacing: Constants.spacing) {
-            HStack(alignment: .top, spacing: Constants.spacing) {
+        VStack(alignment: .leading) {
+            HStack(alignment: .top, spacing: 12) {
                 projectIcon(project)
                 projectInfo(project)
             }
         }
-        .padding(.horizontal, Constants.padding)
-        .padding(.vertical, Constants.spacing)
     }
 
     @ViewBuilder
@@ -95,7 +91,7 @@ struct ModrinthProjectDetailView: View {
     }
 
     private func projectStats(_ project: ModrinthProjectDetail) -> some View {
-        HStack(spacing: Constants.spacing) {
+        HStack {
             Label("\(project.downloads)", systemImage: "arrow.down.circle")
             Label("\(project.followers)", systemImage: "star")
 
@@ -110,11 +106,10 @@ struct ModrinthProjectDetailView: View {
     }
 
     private func projectContent(_ project: ModrinthProjectDetail) -> some View {
-        VStack(alignment: .leading, spacing: Constants.spacing) {
+        VStack(alignment: .leading) {
             descriptionView(project)
         }
-        .padding(.horizontal, Constants.padding)
-        .padding(.bottom, Constants.spacing)
+        .padding(.vertical)
     }
 
     private func descriptionView(_ project: ModrinthProjectDetail) -> some View {
@@ -125,12 +120,11 @@ struct ModrinthProjectDetailView: View {
     }
 
     private var loadingView: some View {
-        VStack(spacing: Constants.spacing) {
+        VStack {
             ProgressView()
                 .controlSize(.small)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(Constants.padding)
     }
 }
 
